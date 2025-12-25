@@ -1,0 +1,150 @@
+import { createRouter, createWebHistory } from 'vue-router'
+import store from '../store'
+
+const routes = [
+  {
+    path: '/',
+    name: 'Home',
+    component: () => import('../views/Home.vue'),
+    meta: { title: '首页' }
+  },
+  {
+    path: '/products',
+    name: 'Products',
+    component: () => import('../views/Products.vue'),
+    meta: { title: '产品列表' }
+  },
+  {
+    path: '/product/:id',
+    name: 'ProductDetail',
+    component: () => import('../views/ProductDetail.vue'),
+    meta: { title: '产品详情' }
+  },
+  {
+    path: '/cart',
+    name: 'Cart',
+    component: () => import('../views/Cart.vue'),
+    meta: { title: '购物车', requiresAuth: true }
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: () => import('../views/Login.vue'),
+    meta: { title: '登录' }
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component: () => import('../views/Register.vue'),
+    meta: { title: '注册' }
+  },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: () => import('../views/Profile.vue'),
+    meta: { title: '个人中心', requiresAuth: true }
+  },
+  {
+    path: '/orders',
+    name: 'Orders',
+    component: () => import('../views/Orders.vue'),
+    meta: { title: '我的订单', requiresAuth: true }
+  },
+  {
+    path: '/culture',
+    name: 'Culture',
+    component: () => import('../views/Culture.vue'),
+    meta: { title: '白茶文化' }
+  },
+  {
+    path: '/community',
+    name: 'Community',
+    component: () => import('../views/Community.vue'),
+    meta: { title: '社区' }
+  },
+  {
+    path: '/admin',
+    name: 'Admin',
+    component: () => import('../views/admin/Admin.vue'),
+    meta: { title: '管理后台', requiresAuth: true, requiresAdmin: true },
+    redirect: '/admin/dashboard',
+    children: [
+      {
+        path: '',
+        redirect: '/admin/dashboard'
+      },
+      {
+        path: 'dashboard',
+        name: 'AdminDashboard',
+        component: () => import('../views/admin/Dashboard.vue'),
+        meta: { title: '仪表盘' }
+      },
+      {
+        path: 'categories',
+        name: 'AdminCategories',
+        component: () => import('../views/admin/Categories.vue'),
+        meta: { title: '分类管理' }
+      },
+      {
+        path: 'products',
+        name: 'AdminProducts',
+        component: () => import('../views/admin/Products.vue'),
+        meta: { title: '产品管理' }
+      },
+      {
+        path: 'orders',
+        name: 'AdminOrders',
+        component: () => import('../views/admin/Orders.vue'),
+        meta: { title: '订单管理' }
+      },
+      {
+        path: 'users',
+        name: 'AdminUsers',
+        component: () => import('../views/admin/Users.vue'),
+        meta: { title: '用户管理' }
+      }
+    ]
+  }
+]
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes
+})
+
+// 路由守卫
+router.beforeEach((to, from, next) => {
+  // 设置页面标题
+  const title = to.meta.title || (to.name === 'Admin' ? '管理后台' : '福鼎白茶服务平台')
+  document.title = `${title} - 福鼎白茶服务平台`
+  
+  console.log('路由守卫 - 目标路由:', to.path, '需要认证:', to.meta.requiresAuth, '需要管理员:', to.meta.requiresAdmin)
+  console.log('当前token:', store.state.user.token ? '存在' : '不存在')
+  console.log('用户信息:', store.state.user.userInfo)
+  console.log('用户类型:', store.getters['user/userType'])
+  
+  if (to.meta.requiresAuth) {
+    if (store.state.user.token) {
+      // 检查管理员权限
+      if (to.meta.requiresAdmin) {
+        const userType = store.getters['user/userType'] || store.state.user.userInfo?.userType || 0
+        console.log('检查管理员权限 - userType:', userType, '需要: 1')
+        if (userType !== 1) {
+          console.warn('权限不足，跳转到首页')
+          next({ name: 'Home' })
+          return
+        }
+      }
+      console.log('权限验证通过，允许访问')
+      next()
+    } else {
+      console.log('未登录，跳转到登录页')
+      next({ name: 'Login', query: { redirect: to.fullPath } })
+    }
+  } else {
+    next()
+  }
+})
+
+export default router
+
