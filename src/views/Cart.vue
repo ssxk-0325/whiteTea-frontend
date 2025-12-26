@@ -16,7 +16,7 @@
           </el-table-column>
           <el-table-column label="单价" width="120">
             <template #default="scope">
-              ¥{{ scope.row.product?.price }}
+              ¥{{ formatPrice(scope.row.product?.price) }}
             </template>
           </el-table-column>
           <el-table-column label="数量" width="150">
@@ -30,7 +30,7 @@
           </el-table-column>
           <el-table-column label="小计" width="120">
             <template #default="scope">
-              ¥{{ (scope.row.product?.price * scope.row.quantity).toFixed(2) }}
+              ¥{{ formatSubtotal(scope.row.product?.price, scope.row.quantity) }}
             </template>
           </el-table-column>
           <el-table-column label="操作" width="100">
@@ -135,9 +135,21 @@ export default {
       router.push('/checkout')
     }
 
+    const formatPrice = (price) => {
+      if (!price) return '0.00'
+      return Number(price).toFixed(2)
+    }
+
+    const formatSubtotal = (price, quantity) => {
+      if (!price || !quantity) return '0.00'
+      return (Number(price) * Number(quantity)).toFixed(2)
+    }
+
     const totalPrice = computed(() => {
       return cartList.value.reduce((sum, item) => {
-        return sum + (item.product?.price || 0) * item.quantity
+        const price = item.product?.price ? Number(item.product.price) : 0
+        const quantity = item.quantity || 0
+        return sum + price * quantity
       }, 0)
     })
 
@@ -149,6 +161,8 @@ export default {
       loading,
       cartList,
       totalPrice,
+      formatPrice,
+      formatSubtotal,
       updateQuantity,
       removeItem,
       clearCart,
