@@ -45,10 +45,22 @@ const routes = [
     meta: { title: '个人中心', requiresAuth: true }
   },
   {
+    path: '/checkout',
+    name: 'Checkout',
+    component: () => import('../views/Checkout.vue'),
+    meta: { title: '结算', requiresAuth: true }
+  },
+  {
     path: '/orders',
     name: 'Orders',
     component: () => import('../views/Orders.vue'),
     meta: { title: '我的订单', requiresAuth: true }
+  },
+  {
+    path: '/order/:id',
+    name: 'OrderDetail',
+    component: () => import('../views/OrderDetail.vue'),
+    meta: { title: '订单详情', requiresAuth: true }
   },
   {
     path: '/culture',

@@ -171,6 +171,46 @@ const api = {
       return service.delete('/cart/clear')
     }
   },
+  // 订单相关
+  order: {
+    create: (orderData) => {
+      return service.post('/order/create', orderData)
+    },
+    getById: (id) => {
+      return service.get(`/order/${id}`)
+    },
+    getList: (status) => {
+      const params = status !== undefined ? { status } : {}
+      return service.get('/order/list', { params })
+    },
+    pay: (id, payType) => {
+      return service.post(`/order/${id}/pay`, { payType })
+    },
+    confirmReceive: (id) => {
+      return service.post(`/order/${id}/confirm`)
+    },
+    cancel: (id) => {
+      return service.post(`/order/${id}/cancel`)
+    }
+  },
+  // 地址相关
+  address: {
+    add: (address) => {
+      return service.post('/address/add', address)
+    },
+    getList: () => {
+      return service.get('/address/list')
+    },
+    update: (address) => {
+      return service.put('/address/update', address)
+    },
+    delete: (id) => {
+      return service.delete(`/address/${id}`)
+    },
+    setDefault: (id) => {
+      return service.post(`/address/${id}/set-default`)
+    }
+  },
   // 管理后台相关
   admin: {
     getStats: () => {
