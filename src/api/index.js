@@ -31,26 +31,68 @@ service.interceptors.response.use(
     if (res.code === 200) {
       return res
     } else {
-      ElMessage.error(res.message || '请求失败')
-      return Promise.reject(new Error(res.message || '请求失败'))
+      // 检查是否是token过期或无效的错误
+      const message = res.message || '请求失败'
+      if (isTokenExpiredError(message)) {
+        handleTokenExpired()
+        return Promise.reject(new Error(message))
+      }
+      ElMessage.error(message)
+      return Promise.reject(new Error(message))
     }
   },
   error => {
     console.error('响应错误:', error)
     if (error.response) {
-      if (error.response.status === 401) {
-        store.dispatch('user/logout')
-        router.push('/login')
-        ElMessage.error('登录已过期，请重新登录')
+      const status = error.response.status
+      const message = error.response.data?.message || error.response.data?.data?.message || '请求失败'
+      
+      // 处理401未授权或token过期
+      if (status === 401 || isTokenExpiredError(message)) {
+        handleTokenExpired()
       } else {
-        ElMessage.error(error.response.data?.message || '请求失败')
+        ElMessage.error(message)
       }
     } else {
-      ElMessage.error('网络错误，请稍后重试')
+      // 网络错误或其他错误
+      const errorMessage = error.message || '网络错误，请稍后重试'
+      if (isTokenExpiredError(errorMessage)) {
+        handleTokenExpired()
+      } else {
+        ElMessage.error(errorMessage)
+      }
     }
     return Promise.reject(error)
   }
 )
+
+// 判断是否是token过期或无效的错误
+function isTokenExpiredError(message) {
+  if (!message) return false
+  const msg = message.toLowerCase()
+  return msg.includes('过期') || 
+         msg.includes('expired') || 
+         msg.includes('token') && (msg.includes('无效') || msg.includes('invalid') || msg.includes('失效')) ||
+         msg.includes('未登录') ||
+         msg.includes('unauthorized')
+}
+
+// 处理token过期
+function handleTokenExpired() {
+  // 清除用户信息
+  store.dispatch('user/logout')
+  // 跳转到登录页，并保存当前路径以便登录后返回
+  const currentPath = router.currentRoute.value.fullPath
+  if (currentPath !== '/login' && currentPath !== '/register') {
+    router.push({
+      path: '/login',
+      query: { redirect: currentPath }
+    })
+  } else {
+    router.push('/login')
+  }
+  ElMessage.error('登录已过期，请重新登录')
+}
 
 // API接口
 const api = {

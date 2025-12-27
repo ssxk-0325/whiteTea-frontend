@@ -116,6 +116,15 @@ export default {
     }
 
     const goToDetail = (id) => {
+      // 检查是否登录，未登录则跳转到登录页
+      if (!store.state.user.token) {
+        ElMessage.warning('请先登录')
+        router.push({
+          path: '/login',
+          query: { redirect: `/product/${id}` }
+        })
+        return
+      }
       router.push({ name: 'ProductDetail', params: { id } })
     }
 
