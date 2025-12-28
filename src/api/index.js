@@ -211,6 +211,53 @@ const api = {
       return service.post(`/address/${id}/set-default`)
     }
   },
+  // 社区相关
+  community: {
+    // 帖子相关
+    createPost: (postData) => {
+      return service.post('/community/post/create', postData)
+    },
+    getPostList: (params) => {
+      return service.get('/community/post/list', { params })
+    },
+    getPostDetail: (id) => {
+      return service.get(`/community/post/${id}`)
+    },
+    deletePost: (id) => {
+      return service.delete(`/community/post/${id}`)
+    },
+    likePost: (id) => {
+      return service.post(`/community/post/${id}/like`)
+    },
+    unlikePost: (id) => {
+      return service.delete(`/community/post/${id}/like`)
+    },
+    dislikePost: (id) => {
+      return service.post(`/community/post/${id}/dislike`)
+    },
+    undislikePost: (id) => {
+      return service.delete(`/community/post/${id}/dislike`)
+    },
+    favoritePost: (id) => {
+      return service.post(`/community/post/${id}/favorite`)
+    },
+    unfavoritePost: (id) => {
+      return service.delete(`/community/post/${id}/favorite`)
+    },
+    getUserFavorites: (params) => {
+      return service.get('/community/post/favorites', { params })
+    },
+    // 评论相关
+    addComment: (commentData) => {
+      return service.post('/community/comment/add', commentData)
+    },
+    getCommentList: (postId) => {
+      return service.get(`/community/comment/list/${postId}`)
+    },
+    deleteComment: (id) => {
+      return service.delete(`/community/comment/${id}`)
+    }
+  },
   // 管理后台相关
   admin: {
     getStats: () => {

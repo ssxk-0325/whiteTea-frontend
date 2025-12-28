@@ -9,11 +9,12 @@
         :default-active="activeIndex"
         @select="handleSelect"
         class="header-menu"
+        :router="false"
       >
-        <el-menu-item index="home">首页</el-menu-item>
-        <el-menu-item index="products">产品</el-menu-item>
-        <el-menu-item index="culture">白茶文化</el-menu-item>
-        <el-menu-item index="community">社区</el-menu-item>
+        <el-menu-item index="home" @click="handleMenuClick('/')">首页</el-menu-item>
+        <el-menu-item index="products" @click="handleMenuClick('/products')">产品</el-menu-item>
+        <el-menu-item index="culture" @click="handleMenuClick('/culture')">白茶文化</el-menu-item>
+        <el-menu-item index="community" @click="handleMenuClick('/community')">社区</el-menu-item>
       </el-menu>
       <div class="header-right">
         <el-badge :value="cartCount" class="cart-badge" v-if="isLoggedIn">
@@ -73,13 +74,45 @@ export default {
     })
 
     const handleSelect = (key) => {
-      const routes = {
-        home: '/',
-        products: '/products',
-        culture: '/culture',
-        community: '/community'
+      console.log('handleSelect 被调用，key:', key)
+      let targetRoute = null
+      switch (key) {
+        case 'home':
+          targetRoute = '/'
+          break
+        case 'products':
+          targetRoute = '/products'
+          break
+        case 'culture':
+          targetRoute = '/culture'
+          break
+        case 'community':
+          targetRoute = '/community'
+          break
+        default:
+          console.warn('未知的菜单项:', key)
+          return
       }
-      router.push(routes[key])
+      console.log('目标路由:', targetRoute)
+      if (targetRoute) {
+        router.push(targetRoute).then(() => {
+          console.log('路由跳转成功:', targetRoute)
+        }).catch(err => {
+          console.error('路由跳转失败:', err, targetRoute)
+        })
+      }
+    }
+
+    const handleMenuClick = (path) => {
+      console.log('handleMenuClick 被调用，path:', path)
+      if (path === '/community') {
+        console.log('准备跳转到社区页面')
+      }
+      router.push(path).then(() => {
+        console.log('路由跳转成功:', path)
+      }).catch(err => {
+        console.error('路由跳转失败:', err, path)
+      })
     }
 
     const handleCommand = (command) => {
@@ -119,6 +152,7 @@ export default {
       cartCount,
       activeIndex,
       handleSelect,
+      handleMenuClick,
       handleCommand,
       ShoppingCart,
       ArrowDown

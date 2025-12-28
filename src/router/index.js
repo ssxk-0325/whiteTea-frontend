@@ -75,6 +75,12 @@ const routes = [
     meta: { title: '社区' }
   },
   {
+    path: '/community/post/:id',
+    name: 'PostDetail',
+    component: () => import('../views/PostDetail.vue'),
+    meta: { title: '帖子详情' }
+  },
+  {
     path: '/admin',
     name: 'Admin',
     component: () => import('../views/admin/Admin.vue'),
