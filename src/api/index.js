@@ -258,6 +258,60 @@ const api = {
       return service.delete(`/community/comment/${id}`)
     }
   },
+  // 文化内容相关
+  culture: {
+    getList: (params) => {
+      return service.get('/culture/list', { params })
+    },
+    getById: (id) => {
+      return service.get(`/culture/${id}`)
+    },
+    like: (id) => {
+      return service.post(`/culture/${id}/like`)
+    },
+    unlike: (id) => {
+      return service.delete(`/culture/${id}/like`)
+    },
+    getHot: (params) => {
+      return service.get('/culture/hot', { params })
+    },
+    // 管理员接口
+    admin: {
+      getList: (params) => {
+        return service.get('/culture/admin/list', { params })
+      },
+      create: (data) => {
+        return service.post('/culture/admin/create', data)
+      },
+      update: (data) => {
+        return service.put('/culture/admin/update', data)
+      },
+      delete: (id) => {
+        return service.delete(`/culture/admin/${id}`)
+      }
+    }
+  },
+  // 文件上传
+  upload: {
+    image: (file) => {
+      const formData = new FormData()
+      formData.append('file', file)
+      return service.post('/upload/image', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+    },
+    video: (file) => {
+      const formData = new FormData()
+      formData.append('file', file)
+      return service.post('/upload/video', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+    }
+  },
   // 管理后台相关
   admin: {
     getStats: () => {

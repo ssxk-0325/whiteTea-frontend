@@ -34,6 +34,10 @@
             <el-icon><Document /></el-icon>
             <span>订单管理</span>
           </el-menu-item>
+          <el-menu-item index="/admin/culture">
+            <el-icon><VideoPlay /></el-icon>
+            <span>文化内容</span>
+          </el-menu-item>
           <el-menu-item index="/admin/users">
             <el-icon><User /></el-icon>
             <span>用户管理</span>
@@ -50,7 +54,7 @@
 <script>
 import { computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { DataBoard, Menu, Goods, Document, User, House } from '@element-plus/icons-vue'
+import { DataBoard, Menu, Goods, Document, User, House, VideoPlay } from '@element-plus/icons-vue'
 
 export default {
   name: 'Admin',
@@ -60,7 +64,8 @@ export default {
     Goods,
     Document,
     User,
-    House
+    House,
+    VideoPlay
   },
   setup() {
     const route = useRoute()

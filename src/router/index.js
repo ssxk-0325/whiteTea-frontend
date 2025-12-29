@@ -69,6 +69,18 @@ const routes = [
     meta: { title: '白茶文化' }
   },
   {
+    path: '/culture/article/:id',
+    name: 'CultureArticle',
+    component: () => import('../views/CultureArticle.vue'),
+    meta: { title: '文章详情' }
+  },
+  {
+    path: '/culture/video/:id',
+    name: 'CultureVideo',
+    component: () => import('../views/CultureVideo.vue'),
+    meta: { title: '视频详情' }
+  },
+  {
     path: '/community',
     name: 'Community',
     component: () => import('../views/Community.vue'),
@@ -114,6 +126,12 @@ const routes = [
         name: 'AdminOrders',
         component: () => import('../views/admin/Orders.vue'),
         meta: { title: '订单管理' }
+      },
+      {
+        path: 'culture',
+        name: 'AdminCulture',
+        component: () => import('../views/admin/Culture.vue'),
+        meta: { title: '文化内容管理' }
       },
       {
         path: 'users',
