@@ -14,6 +14,7 @@
         <el-menu-item index="home" @click="handleMenuClick('/')">首页</el-menu-item>
         <el-menu-item index="products" @click="handleMenuClick('/products')">产品</el-menu-item>
         <el-menu-item index="culture" @click="handleMenuClick('/culture')">白茶文化</el-menu-item>
+        <el-menu-item index="activity" @click="handleMenuClick('/activity')">活动</el-menu-item>
         <el-menu-item index="community" @click="handleMenuClick('/community')">社区</el-menu-item>
       </el-menu>
       <div class="header-right">
@@ -30,6 +31,7 @@
             <el-dropdown-menu>
               <el-dropdown-item command="profile">个人中心</el-dropdown-item>
               <el-dropdown-item command="orders">我的订单</el-dropdown-item>
+              <el-dropdown-item command="coupons">我的券包</el-dropdown-item>
               <el-dropdown-item command="admin" v-if="userType === 1">管理后台</el-dropdown-item>
               <el-dropdown-item command="logout" divided>退出登录</el-dropdown-item>
             </el-dropdown-menu>
@@ -69,6 +71,7 @@ export default {
       if (path === '/') return 'home'
       if (path.startsWith('/products')) return 'products'
       if (path.startsWith('/culture')) return 'culture'
+      if (path.startsWith('/activity')) return 'activity'
       if (path.startsWith('/community')) return 'community'
       return ''
     })
@@ -85,6 +88,9 @@ export default {
           break
         case 'culture':
           targetRoute = '/culture'
+          break
+        case 'activity':
+          targetRoute = '/activity'
           break
         case 'community':
           targetRoute = '/community'
@@ -122,6 +128,9 @@ export default {
           break
         case 'orders':
           router.push('/orders')
+          break
+        case 'coupons':
+          router.push('/activity/coupons')
           break
         case 'admin':
           console.log('点击管理后台，当前用户类型:', userType.value)

@@ -291,6 +291,24 @@ const api = {
       }
     }
   },
+  // 活动相关
+  activity: {
+    getList: (params) => {
+      return service.get('/activity/list', { params })
+    },
+    getById: (id) => {
+      return service.get(`/activity/${id}`)
+    },
+    grabCoupon: (id) => {
+      return service.post(`/activity/${id}/grab`)
+    },
+    checkGrabbed: (id) => {
+      return service.get(`/activity/${id}/check-grabbed`)
+    },
+    getMyCoupons: (params) => {
+      return service.get('/activity/coupons', { params })
+    }
+  },
   // 文件上传
   upload: {
     image: (file) => {

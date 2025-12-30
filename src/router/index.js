@@ -69,6 +69,24 @@ const routes = [
     meta: { title: '白茶文化' }
   },
   {
+    path: '/activity',
+    name: 'Activity',
+    component: () => import('../views/Activity.vue'),
+    meta: { title: '活动' }
+  },
+  {
+    path: '/activity/:id',
+    name: 'ActivityDetail',
+    component: () => import('../views/ActivityDetail.vue'),
+    meta: { title: '活动详情' }
+  },
+  {
+    path: '/activity/coupons',
+    name: 'MyCoupons',
+    component: () => import('../views/MyCoupons.vue'),
+    meta: { title: '我的券包', requiresAuth: true }
+  },
+  {
     path: '/culture/article/:id',
     name: 'CultureArticle',
     component: () => import('../views/CultureArticle.vue'),
