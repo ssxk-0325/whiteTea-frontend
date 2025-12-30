@@ -38,6 +38,10 @@
             <el-icon><VideoPlay /></el-icon>
             <span>文化内容</span>
           </el-menu-item>
+          <el-menu-item index="/admin/activities">
+            <el-icon><Calendar /></el-icon>
+            <span>活动管理</span>
+          </el-menu-item>
           <el-menu-item index="/admin/users">
             <el-icon><User /></el-icon>
             <span>用户管理</span>
@@ -54,7 +58,7 @@
 <script>
 import { computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { DataBoard, Menu, Goods, Document, User, House, VideoPlay } from '@element-plus/icons-vue'
+import { DataBoard, Menu, Goods, Document, User, House, VideoPlay, Calendar } from '@element-plus/icons-vue'
 
 export default {
   name: 'Admin',
@@ -65,7 +69,8 @@ export default {
     Document,
     User,
     House,
-    VideoPlay
+    VideoPlay,
+    Calendar
   },
   setup() {
     const route = useRoute()

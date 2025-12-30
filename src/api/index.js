@@ -307,6 +307,21 @@ const api = {
     },
     getMyCoupons: (params) => {
       return service.get('/activity/coupons', { params })
+    },
+    // 管理员接口
+    admin: {
+      getList: (params) => {
+        return service.get('/activity/admin/list', { params })
+      },
+      create: (data) => {
+        return service.post('/activity/admin/create', data)
+      },
+      update: (data) => {
+        return service.put('/activity/admin/update', data)
+      },
+      delete: (id) => {
+        return service.delete(`/activity/admin/${id}`)
+      }
     }
   },
   // 文件上传

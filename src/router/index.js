@@ -152,6 +152,12 @@ const routes = [
         meta: { title: '文化内容管理' }
       },
       {
+        path: 'activities',
+        name: 'AdminActivities',
+        component: () => import('../views/admin/Activities.vue'),
+        meta: { title: '活动管理' }
+      },
+      {
         path: 'users',
         name: 'AdminUsers',
         component: () => import('../views/admin/Users.vue'),
