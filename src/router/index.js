@@ -99,6 +99,18 @@ const routes = [
     meta: { title: '视频详情' }
   },
   {
+    path: '/quiz',
+    name: 'Quiz',
+    component: () => import('../views/Quiz.vue'),
+    meta: { title: '趣味问答' }
+  },
+  {
+    path: '/quiz/:id',
+    name: 'QuizDetail',
+    component: () => import('../views/QuizDetail.vue'),
+    meta: { title: '答题', requiresAuth: true }
+  },
+  {
     path: '/community',
     name: 'Community',
     component: () => import('../views/Community.vue'),
@@ -156,6 +168,12 @@ const routes = [
         name: 'AdminActivities',
         component: () => import('../views/admin/Activities.vue'),
         meta: { title: '活动管理' }
+      },
+      {
+        path: 'quiz',
+        name: 'AdminQuiz',
+        component: () => import('../views/admin/Quiz.vue'),
+        meta: { title: '问答管理' }
       },
       {
         path: 'users',

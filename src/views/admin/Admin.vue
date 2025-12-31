@@ -42,6 +42,10 @@
             <el-icon><Calendar /></el-icon>
             <span>活动管理</span>
           </el-menu-item>
+          <el-menu-item index="/admin/quiz">
+            <el-icon><QuestionFilled /></el-icon>
+            <span>问答管理</span>
+          </el-menu-item>
           <el-menu-item index="/admin/users">
             <el-icon><User /></el-icon>
             <span>用户管理</span>
@@ -58,7 +62,7 @@
 <script>
 import { computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { DataBoard, Menu, Goods, Document, User, House, VideoPlay, Calendar } from '@element-plus/icons-vue'
+import { DataBoard, Menu, Goods, Document, User, House, VideoPlay, Calendar, QuestionFilled } from '@element-plus/icons-vue'
 
 export default {
   name: 'Admin',
@@ -70,7 +74,8 @@ export default {
     User,
     House,
     VideoPlay,
-    Calendar
+    Calendar,
+    QuestionFilled
   },
   setup() {
     const route = useRoute()

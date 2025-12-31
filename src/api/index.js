@@ -350,6 +350,39 @@ const api = {
     getStats: () => {
       return service.get('/admin/stats')
     }
+  },
+  // 趣味问答相关
+  quiz: {
+    getList: (params) => {
+      return service.get('/quiz/list', { params })
+    },
+    getById: (id) => {
+      return service.get(`/quiz/${id}`)
+    },
+    submitAnswer: (id, userAnswer) => {
+      return service.post(`/quiz/${id}/answer`, { userAnswer })
+    },
+    getMyAnswers: (params) => {
+      return service.get('/quiz/my-answers', { params })
+    },
+    getMyStatistics: () => {
+      return service.get('/quiz/my-statistics')
+    },
+    // 管理员接口
+    admin: {
+      getList: (params) => {
+        return service.get('/quiz/admin/list', { params })
+      },
+      create: (data) => {
+        return service.post('/quiz/admin/create', data)
+      },
+      update: (data) => {
+        return service.put('/quiz/admin/update', data)
+      },
+      delete: (id) => {
+        return service.delete(`/quiz/admin/${id}`)
+      }
+    }
   }
 }
 

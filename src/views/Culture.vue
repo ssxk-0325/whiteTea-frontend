@@ -7,6 +7,10 @@
 
         <!-- 筛选栏 -->
         <div class="filter-bar">
+          <el-button type="primary" @click="goToQuiz" style="margin-right: 20px;">
+            <el-icon><QuestionFilled /></el-icon>
+            趣味问答
+          </el-button>
           <el-radio-group v-model="filterContentType" @change="loadContents">
             <el-radio-button :label="null">全部</el-radio-button>
             <el-radio-button :label="1">文章</el-radio-button>
@@ -84,7 +88,7 @@
 <script>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Document, VideoPlay, View, Star } from '@element-plus/icons-vue'
+import { Document, VideoPlay, View, Star, QuestionFilled } from '@element-plus/icons-vue'
 import api from '@/api'
 import Header from '@/components/Header.vue'
 
@@ -95,7 +99,8 @@ export default {
     Document,
     VideoPlay,
     View,
-    Star
+    Star,
+    QuestionFilled
   },
   setup() {
     const router = useRouter()
@@ -142,6 +147,10 @@ export default {
         // 视频
         router.push(`/culture/video/${content.id}`)
       }
+    }
+
+    const goToQuiz = () => {
+      router.push('/quiz')
     }
 
     const truncateContent = (content) => {
@@ -197,7 +206,8 @@ export default {
       truncateContent,
       formatDuration,
       getTypeText,
-      getTypeTag
+      getTypeTag,
+      goToQuiz
     }
   }
 }
