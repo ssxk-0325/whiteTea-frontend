@@ -191,6 +191,16 @@ const api = {
     },
     cancel: (id) => {
       return service.post(`/order/${id}/cancel`)
+    },
+    // 管理后台接口
+    admin: {
+      getList: (status) => {
+        const params = status !== undefined ? { status } : {}
+        return service.get('/order/admin/list', { params })
+      },
+      ship: (id) => {
+        return service.post(`/order/admin/${id}/ship`)
+      }
     }
   },
   // 地址相关
