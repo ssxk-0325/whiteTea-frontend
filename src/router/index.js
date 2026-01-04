@@ -111,6 +111,12 @@ const routes = [
     meta: { title: '答题', requiresAuth: true }
   },
   {
+    path: '/customer-service',
+    name: 'CustomerService',
+    component: () => import('../views/CustomerService.vue'),
+    meta: { title: '智能客服', requiresAuth: true }
+  },
+  {
     path: '/community',
     name: 'Community',
     component: () => import('../views/Community.vue'),

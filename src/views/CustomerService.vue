@@ -1,0 +1,342 @@
+<template>
+  <div class="customer-service-page">
+    <Header />
+    <el-container class="chat-container">
+      <el-main style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+        <el-card class="chat-card">
+          <template #header>
+            <div class="chat-header">
+              <h2>智能客服</h2>
+              <el-tag type="success" v-if="sessionId">会话已建立</el-tag>
+            </div>
+          </template>
+
+          <!-- 消息列表 -->
+          <div class="message-list" ref="messageListRef" v-loading="loading">
+            <div v-if="messages.length === 0" class="empty-message">
+              <el-empty description="开始对话吧~" />
+            </div>
+            <div
+              v-for="message in messages"
+              :key="message.id"
+              :class="['message-item', message.senderType === 0 ? 'user-message' : 'ai-message']"
+            >
+              <div class="message-avatar">
+                <el-avatar
+                  :icon="message.senderType === 0 ? 'User' : 'ChatDotRound'"
+                  :style="message.senderType === 0 ? { backgroundColor: '#409EFF' } : { backgroundColor: '#67C23A' }"
+                />
+              </div>
+              <div class="message-content">
+                <div class="message-text">{{ message.content }}</div>
+                <div class="message-time">{{ formatTime(message.createTime) }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 输入区域 -->
+          <div class="input-area">
+            <el-input
+              v-model="inputMessage"
+              type="textarea"
+              :rows="3"
+              placeholder="请输入您的问题..."
+              @keydown.ctrl.enter="sendMessage"
+              :disabled="!sessionId || sending"
+            />
+            <div class="input-actions">
+              <el-button
+                type="primary"
+                @click="sendMessage"
+                :loading="sending"
+                :disabled="!inputMessage.trim() || !sessionId"
+              >
+                发送
+              </el-button>
+              <el-button @click="endSession" :disabled="!sessionId">结束会话</el-button>
+            </div>
+          </div>
+        </el-card>
+      </el-main>
+    </el-container>
+  </div>
+</template>
+
+<script>
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { ElMessage } from 'element-plus'
+import api from '@/api'
+import Header from '@/components/Header.vue'
+
+export default {
+  name: 'CustomerService',
+  components: {
+    Header
+  },
+  setup() {
+    const sessionId = ref(null)
+    const messages = ref([])
+    const inputMessage = ref('')
+    const loading = ref(false)
+    const sending = ref(false)
+    const messageListRef = ref(null)
+
+    // 创建或获取会话
+    const createSession = async () => {
+      try {
+        loading.value = true
+        const res = await api.customerService.createSession()
+        sessionId.value = res.data.sessionId
+        ElMessage.success('会话已建立')
+        
+        // 加载历史消息
+        await loadMessages()
+      } catch (error) {
+        ElMessage.error('创建会话失败：' + (error.message || '未知错误'))
+      } finally {
+        loading.value = false
+      }
+    }
+
+    // 加载消息列表
+    const loadMessages = async () => {
+      if (!sessionId.value) return
+      
+      try {
+        const res = await api.customerService.getMessages(sessionId.value)
+        messages.value = res.data || []
+        scrollToBottom()
+      } catch (error) {
+        console.error('加载消息失败：', error)
+      }
+    }
+
+    // 发送消息
+    const sendMessage = async () => {
+      if (!inputMessage.value.trim() || !sessionId.value || sending.value) {
+        return
+      }
+
+      const content = inputMessage.value.trim()
+      inputMessage.value = ''
+
+      try {
+        sending.value = true
+
+        // 先添加用户消息到界面（乐观更新）
+        const userMessage = {
+          id: Date.now(),
+          sessionId: sessionId.value,
+          senderType: 0,
+          content: content,
+          messageType: 0,
+          createTime: new Date().toISOString()
+        }
+        messages.value.push(userMessage)
+        scrollToBottom()
+
+        // 使用HTTP接口发送消息并获取AI回复
+        const res = await api.customerService.sendMessage(sessionId.value, content)
+        if (res.data && res.data.message) {
+          messages.value.push(res.data.message)
+          scrollToBottom()
+        }
+      } catch (error) {
+        ElMessage.error('发送消息失败：' + (error.message || '未知错误'))
+        // 如果失败，移除刚才添加的用户消息
+        messages.value.pop()
+      } finally {
+        sending.value = false
+      }
+    }
+
+
+    // 结束会话
+    const endSession = async () => {
+      if (!sessionId.value) return
+
+      try {
+        await api.customerService.endSession(sessionId.value)
+        ElMessage.success('会话已结束')
+        sessionId.value = null
+        messages.value = []
+      } catch (error) {
+        ElMessage.error('结束会话失败：' + (error.message || '未知错误'))
+      }
+    }
+
+    // 滚动到底部
+    const scrollToBottom = () => {
+      nextTick(() => {
+        if (messageListRef.value) {
+          messageListRef.value.scrollTop = messageListRef.value.scrollHeight
+        }
+      })
+    }
+
+    // 格式化时间
+    const formatTime = (time) => {
+      if (!time) return ''
+      const date = new Date(time)
+      const now = new Date()
+      const diff = now - date
+      const minutes = Math.floor(diff / 60000)
+
+      if (minutes < 1) return '刚刚'
+      if (minutes < 60) return `${minutes}分钟前`
+      if (minutes < 1440) return `${Math.floor(minutes / 60)}小时前`
+      
+      const month = date.getMonth() + 1
+      const day = date.getDate()
+      const hour = date.getHours()
+      const minute = date.getMinutes()
+      return `${month}-${day} ${hour}:${minute.toString().padStart(2, '0')}`
+    }
+
+    onMounted(() => {
+      createSession()
+    })
+
+    return {
+      sessionId,
+      messages,
+      inputMessage,
+      loading,
+      sending,
+      messageListRef,
+      sendMessage,
+      endSession,
+      formatTime
+    }
+  }
+}
+</script>
+
+<style scoped>
+.customer-service-page {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.chat-container {
+  padding-top: 20px;
+}
+
+.chat-card {
+  height: calc(100vh - 120px);
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chat-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.message-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  background-color: #fafafa;
+  min-height: 400px;
+  max-height: calc(100vh - 300px);
+}
+
+.empty-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.message-item {
+  display: flex;
+  margin-bottom: 20px;
+  animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.user-message {
+  flex-direction: row-reverse;
+}
+
+.ai-message {
+  flex-direction: row;
+}
+
+.message-avatar {
+  margin: 0 10px;
+}
+
+.message-content {
+  max-width: 70%;
+  display: flex;
+  flex-direction: column;
+}
+
+.user-message .message-content {
+  align-items: flex-end;
+}
+
+.ai-message .message-content {
+  align-items: flex-start;
+}
+
+.message-text {
+  padding: 12px 16px;
+  border-radius: 8px;
+  word-wrap: break-word;
+  line-height: 1.5;
+}
+
+.user-message .message-text {
+  background-color: #409EFF;
+  color: white;
+  border-bottom-right-radius: 2px;
+}
+
+.ai-message .message-text {
+  background-color: white;
+  color: #303133;
+  border: 1px solid #e4e7ed;
+  border-bottom-left-radius: 2px;
+}
+
+.message-time {
+  font-size: 12px;
+  color: #909399;
+  margin-top: 5px;
+  padding: 0 5px;
+}
+
+.input-area {
+  padding: 20px;
+  border-top: 1px solid #e4e7ed;
+  background-color: white;
+}
+
+.input-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+</style>
+

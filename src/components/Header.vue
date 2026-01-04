@@ -18,6 +18,14 @@
         <el-menu-item index="community" @click="handleMenuClick('/community')">社区</el-menu-item>
       </el-menu>
       <div class="header-right">
+        <el-button 
+          @click="goToCustomerService" 
+          :icon="Service" 
+          type="primary"
+          :disabled="!isLoggedIn"
+        >
+          智能客服
+        </el-button>
         <el-badge :value="cartCount" class="cart-badge" v-if="isLoggedIn">
           <el-button @click="$router.push('/cart')" :icon="ShoppingCart">购物车</el-button>
         </el-badge>
@@ -32,6 +40,7 @@
               <el-dropdown-item command="profile">个人中心</el-dropdown-item>
               <el-dropdown-item command="orders">我的订单</el-dropdown-item>
               <el-dropdown-item command="coupons">我的券包</el-dropdown-item>
+              <el-dropdown-item command="customerService">智能客服</el-dropdown-item>
               <el-dropdown-item command="admin" v-if="userType === 1">管理后台</el-dropdown-item>
               <el-dropdown-item command="logout" divided>退出登录</el-dropdown-item>
             </el-dropdown-menu>
@@ -47,14 +56,15 @@
 import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useStore } from 'vuex'
-import { ShoppingCart, ArrowDown } from '@element-plus/icons-vue'
-import { ElMessageBox } from 'element-plus'
+import { ShoppingCart, ArrowDown, Service } from '@element-plus/icons-vue'
+import { ElMessageBox, ElMessage } from 'element-plus'
 
 export default {
   name: 'Header',
   components: {
     ShoppingCart,
-    ArrowDown
+    ArrowDown,
+    Service
   },
   setup() {
     const router = useRouter()
@@ -121,6 +131,15 @@ export default {
       })
     }
 
+    const goToCustomerService = () => {
+      if (!isLoggedIn.value) {
+        ElMessage.warning('请先登录')
+        router.push('/login')
+        return
+      }
+      router.push('/customer-service')
+    }
+
     const handleCommand = (command) => {
       switch (command) {
         case 'profile':
@@ -131,6 +150,9 @@ export default {
           break
         case 'coupons':
           router.push('/activity/coupons')
+          break
+        case 'customerService':
+          goToCustomerService()
           break
         case 'admin':
           console.log('点击管理后台，当前用户类型:', userType.value)
@@ -163,8 +185,10 @@ export default {
       handleSelect,
       handleMenuClick,
       handleCommand,
+      goToCustomerService,
       ShoppingCart,
-      ArrowDown
+      ArrowDown,
+      Service
     }
   }
 }

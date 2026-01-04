@@ -1,12 +1,18 @@
 <template>
   <div id="app">
     <router-view />
+    <CustomerServiceFloatButton />
   </div>
 </template>
 
 <script>
+import CustomerServiceFloatButton from './components/CustomerServiceFloatButton.vue'
+
 export default {
-  name: 'App'
+  name: 'App',
+  components: {
+    CustomerServiceFloatButton
+  }
 }
 </script>
 

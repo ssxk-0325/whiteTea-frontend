@@ -393,6 +393,21 @@ const api = {
         return service.delete(`/quiz/admin/${id}`)
       }
     }
+  },
+  // 客服相关
+  customerService: {
+    createSession: () => {
+      return service.post('/customer-service/session/create')
+    },
+    getMessages: (sessionId) => {
+      return service.get(`/customer-service/session/${sessionId}/messages`)
+    },
+    sendMessage: (sessionId, content) => {
+      return service.post('/customer-service/message/send', { sessionId, content })
+    },
+    endSession: (sessionId) => {
+      return service.post(`/customer-service/session/${sessionId}/end`)
+    }
   }
 }
 
