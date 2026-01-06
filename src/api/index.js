@@ -408,6 +408,15 @@ const api = {
     endSession: (sessionId) => {
       return service.post(`/customer-service/session/${sessionId}/end`)
     }
+  },
+  // Tag相关
+  tag: {
+    getTopTags: (topN = 10) => {
+      return service.get('/tag/top', { params: { topN } })
+    },
+    clickTag: (tagId) => {
+      return service.post(`/tag/${tagId}/click`)
+    }
   }
 }
 

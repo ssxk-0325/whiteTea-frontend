@@ -11,6 +11,25 @@
             </div>
           </template>
 
+          <!-- Tag区域 -->
+          <div class="tag-area" v-if="tags.length > 0">
+            <div class="tag-title">热门问题：</div>
+            <div class="tag-list">
+              <el-tag
+                v-for="tag in tags"
+                :key="tag.id"
+                class="tag-item"
+                :type="tag.hitCount > 10 ? 'success' : 'info'"
+                effect="plain"
+                @click="clickTag(tag)"
+                :disabled="clickingTagId === tag.id"
+              >
+                {{ tag.tagName }}
+                <el-icon v-if="tag.hitCount > 10" class="hot-icon"><Star /></el-icon>
+              </el-tag>
+            </div>
+          </div>
+
           <!-- 消息列表 -->
           <div class="message-list" ref="messageListRef" v-loading="loading">
             <div v-if="messages.length === 0" class="empty-message">
@@ -65,6 +84,7 @@
 <script>
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
+import { Star } from '@element-plus/icons-vue'
 import api from '@/api'
 import Header from '@/components/Header.vue'
 
@@ -80,6 +100,8 @@ export default {
     const loading = ref(false)
     const sending = ref(false)
     const messageListRef = ref(null)
+    const tags = ref([])
+    const clickingTagId = ref(null)
 
     // 创建或获取会话
     const createSession = async () => {
@@ -193,8 +215,64 @@ export default {
       return `${month}-${day} ${hour}:${minute.toString().padStart(2, '0')}`
     }
 
+    // 加载Tag列表
+    const loadTags = async () => {
+      try {
+        const res = await api.tag.getTopTags(10)
+        tags.value = res.data || []
+      } catch (error) {
+        console.error('加载Tag失败：', error)
+      }
+    }
+
+    // 点击Tag
+    const clickTag = async (tag) => {
+      if (!sessionId.value || clickingTagId.value === tag.id) {
+        return
+      }
+
+      try {
+        clickingTagId.value = tag.id
+
+        // 先添加用户消息（显示点击的Tag）
+        const userMessage = {
+          id: Date.now(),
+          sessionId: sessionId.value,
+          senderType: 0,
+          content: tag.tagName,
+          messageType: 0,
+          createTime: new Date().toISOString()
+        }
+        messages.value.push(userMessage)
+        scrollToBottom()
+
+        // 调用API获取答案
+        const res = await api.tag.clickTag(tag.id)
+        if (res.data && res.data.answer) {
+          // 添加AI回复
+          const aiMessage = {
+            id: Date.now() + 1,
+            sessionId: sessionId.value,
+            senderType: 1,
+            content: res.data.answer,
+            messageType: 0,
+            createTime: new Date().toISOString()
+          }
+          messages.value.push(aiMessage)
+          scrollToBottom()
+        }
+      } catch (error) {
+        ElMessage.error('获取答案失败：' + (error.message || '未知错误'))
+        // 如果失败，移除刚才添加的用户消息
+        messages.value.pop()
+      } finally {
+        clickingTagId.value = null
+      }
+    }
+
     onMounted(() => {
       createSession()
+      loadTags()
     })
 
     return {
@@ -204,9 +282,13 @@ export default {
       loading,
       sending,
       messageListRef,
+      tags,
+      clickingTagId,
       sendMessage,
       endSession,
-      formatTime
+      clickTag,
+      formatTime,
+      Star
     }
   }
 }
@@ -337,6 +419,47 @@ export default {
   justify-content: flex-end;
   gap: 10px;
   margin-top: 10px;
+}
+
+.tag-area {
+  padding: 15px 20px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e4e7ed;
+}
+
+.tag-title {
+  font-size: 14px;
+  color: #606266;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.tag-item {
+  cursor: pointer;
+  transition: all 0.3s;
+  padding: 8px 16px;
+  font-size: 13px;
+}
+
+.tag-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.tag-item:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.hot-icon {
+  margin-left: 4px;
+  color: #f56c6c;
 }
 </style>
 
