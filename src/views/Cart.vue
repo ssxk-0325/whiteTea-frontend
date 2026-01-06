@@ -2,9 +2,12 @@
   <div class="cart-page">
     <Header />
     <el-container>
-      <el-main style="max-width: 1200px; margin: 0 auto;">
-        <h2>购物车</h2>
-        <el-table :data="cartList" style="width: 100%" v-loading="loading">
+      <el-main style="max-width: 1400px; margin: 0 auto; padding: 40px 32px;">
+        <div class="page-header">
+          <h2 class="page-title">购物车</h2>
+        </div>
+        <el-card class="cart-card" v-loading="loading">
+          <el-table :data="cartList" style="width: 100%" class="modern-table">
           <el-table-column type="selection" width="55"></el-table-column>
           <el-table-column label="商品" width="300">
             <template #default="scope">
@@ -39,11 +42,17 @@
             </template>
           </el-table-column>
         </el-table>
-        <div class="cart-footer">
-          <el-button type="danger" @click="clearCart">清空购物车</el-button>
-          <div class="total">
-            <span>总计：¥{{ totalPrice.toFixed(2) }}</span>
-            <el-button type="primary" size="large" @click="checkout">去结算</el-button>
+          </el-table>
+          <el-empty v-if="!loading && cartList.length === 0" description="购物车是空的，快去选购吧~" />
+        </el-card>
+        <div class="cart-footer" v-if="cartList.length > 0">
+          <el-button type="danger" @click="clearCart" class="clear-button">清空购物车</el-button>
+          <div class="total-section">
+            <div class="total-info">
+              <span class="total-label">总计：</span>
+              <span class="total-price">¥{{ totalPrice.toFixed(2) }}</span>
+            </div>
+            <el-button type="primary" size="large" @click="checkout" class="checkout-button">去结算</el-button>
           </div>
         </div>
       </el-main>
@@ -175,37 +184,164 @@ export default {
 <style scoped>
 .cart-page {
   min-height: 100vh;
+  background: transparent;
+}
+
+.page-header {
+  margin-bottom: 32px;
+}
+
+.page-title {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+}
+
+.cart-card {
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  margin-bottom: 24px;
+}
+
+.cart-card :deep(.el-card__body) {
+  padding: 32px;
+}
+
+.modern-table {
+  border-radius: var(--radius-base);
+  overflow: hidden;
+}
+
+.modern-table :deep(.el-table__header) {
+  background: var(--bg-secondary);
+}
+
+.modern-table :deep(.el-table__header th) {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-weight: 600;
+  border-bottom: 2px solid var(--border-light);
+}
+
+.modern-table :deep(.el-table__row:hover) {
+  background: rgba(102, 126, 234, 0.03);
 }
 
 .product-cell {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 16px;
 }
 
 .product-cell img {
-  width: 60px;
-  height: 60px;
+  width: 80px;
+  height: 80px;
   object-fit: cover;
+  border-radius: var(--radius-base);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-base);
+}
+
+.product-cell:hover img {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-base);
+}
+
+.product-cell span {
+  font-weight: 500;
+  color: var(--text-primary);
 }
 
 .cart-footer {
-  margin-top: 20px;
+  margin-top: 32px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 24px 32px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
 }
 
-.total {
+.clear-button {
+  border-radius: var(--radius-base);
+  font-weight: 500;
+  transition: var(--transition-base);
+}
+
+.clear-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.total-section {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 32px;
 }
 
-.total span {
-  font-size: 18px;
-  font-weight: bold;
-  color: #f56c6c;
+.total-info {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.total-label {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--text-regular);
+}
+
+.total-price {
+  font-size: 32px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.checkout-button {
+  background: var(--primary-gradient);
+  border: none;
+  color: white;
+  font-weight: 600;
+  font-size: var(--font-size-base);
+  padding: 14px 40px;
+  border-radius: var(--radius-lg);
+  transition: var(--transition-base);
+  box-shadow: var(--shadow-md);
+}
+
+.checkout-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .cart-footer {
+    flex-direction: column;
+    gap: 20px;
+    align-items: stretch;
+  }
+  
+  .total-section {
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+  }
+  
+  .checkout-button {
+    width: 100%;
+  }
 }
 </style>
 

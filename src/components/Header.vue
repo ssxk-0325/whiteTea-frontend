@@ -196,58 +196,176 @@ export default {
 
 <style scoped>
 .header {
-  background-color: #fff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: var(--z-sticky);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  transition: var(--transition-base);
+}
+
+.header:hover {
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
 }
 
 .header-content {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
+  padding: 0 32px;
+  height: 72px;
 }
 
 .logo {
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: var(--transition-base);
+}
+
+.logo:hover {
+  transform: scale(1.05);
 }
 
 .logo h1 {
-  font-size: 24px;
-  color: #409eff;
+  font-size: 26px;
+  font-weight: 700;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   margin: 0;
+  letter-spacing: -0.5px;
 }
 
 .header-menu {
   flex: 1;
+  border-bottom: none;
+  margin: 0 40px;
+}
+
+.header-menu :deep(.el-menu-item) {
+  font-weight: 500;
+  font-size: 15px;
+  transition: var(--transition-base);
+  border-radius: var(--radius-base);
+  margin: 0 4px;
+}
+
+.header-menu :deep(.el-menu-item:hover) {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  color: var(--primary-color);
+}
+
+.header-menu :deep(.el-menu-item.is-active) {
+  background: var(--primary-gradient);
+  color: white;
   border-bottom: none;
 }
 
 .header-right {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 12px;
+}
+
+.header-right :deep(.el-button) {
+  border-radius: var(--radius-base);
+  font-weight: 500;
+  transition: var(--transition-base);
+  padding: 10px 20px;
+}
+
+.header-right :deep(.el-button--primary) {
+  background: var(--primary-gradient);
+  border: none;
+  box-shadow: var(--shadow-sm);
+}
+
+.header-right :deep(.el-button--primary:hover) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .cart-badge {
-  margin-right: 10px;
+  margin-right: 0;
+}
+
+.cart-badge :deep(.el-badge__content) {
+  background: var(--danger-color);
+  border: 2px solid white;
 }
 
 .user-info {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   cursor: pointer;
-  padding: 5px 10px;
+  padding: 8px 16px;
+  border-radius: var(--radius-lg);
+  transition: var(--transition-base);
+  position: relative;
+}
+
+.user-info::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-lg);
+  background: var(--primary-gradient);
+  opacity: 0;
+  transition: var(--transition-base);
+}
+
+.user-info:hover::before {
+  opacity: 0.1;
 }
 
 .user-info:hover {
-  background-color: #f5f5f5;
-  border-radius: 4px;
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.user-info span {
+  font-weight: 500;
+  position: relative;
+  z-index: 1;
+}
+
+.user-info :deep(.el-avatar) {
+  border: 2px solid var(--border-light);
+  transition: var(--transition-base);
+  position: relative;
+  z-index: 1;
+}
+
+.user-info:hover :deep(.el-avatar) {
+  border-color: var(--primary-color);
+  transform: scale(1.1);
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .header-content {
+    padding: 0 16px;
+    height: 64px;
+  }
+  
+  .logo h1 {
+    font-size: 20px;
+  }
+  
+  .header-menu {
+    display: none;
+  }
+  
+  .header-right :deep(.el-button span) {
+    display: none;
+  }
 }
 </style>
 

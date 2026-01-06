@@ -4,7 +4,7 @@
     <div class="toolbar">
       <el-button size="default" @click="loadOrders" style="display: inline-block;">刷新</el-button>
     </div>
-    <el-table :data="orders" style="width: 100%" v-loading="loading">
+    <el-table :data="orders" style="width: 100%" v-loading="loading" class="modern-table">
       <el-table-column prop="orderNo" label="订单号" width="180"></el-table-column>
       <el-table-column prop="userId" label="用户ID" width="100"></el-table-column>
       <el-table-column prop="totalAmount" label="订单金额" width="120">
@@ -116,20 +116,31 @@ export default {
 
 <style scoped>
 .admin-orders {
-  padding: 20px !important;
-  background-color: #fff !important;
-  min-height: calc(100vh - 60px);
+  padding: 32px !important;
+  background: transparent !important;
+  min-height: calc(100vh - 72px);
   width: 100%;
   box-sizing: border-box;
   position: relative;
   z-index: 1;
 }
 
+h2 {
+  margin-bottom: 32px;
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.5;
+}
+
 .toolbar {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   display: flex !important;
   flex-direction: row !important;
-  gap: 10px;
+  gap: 12px;
   align-items: center;
   width: 100%;
 }
@@ -139,14 +150,74 @@ export default {
   display: inline-block !important;
   visibility: visible !important;
   opacity: 1 !important;
+  border-radius: var(--radius-base);
+  font-weight: 500;
+  transition: var(--transition-base);
 }
 
-h2 {
-  margin-bottom: 20px;
-  color: #303133;
-  font-size: 20px;
+.toolbar .el-button--primary {
+  background: var(--primary-gradient);
+  border: none;
+  box-shadow: var(--shadow-sm);
+}
+
+.toolbar .el-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.modern-table {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-base);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+}
+
+.modern-table :deep(.el-table__header) {
+  background: var(--primary-gradient);
+}
+
+.modern-table :deep(.el-table__header th) {
+  background: transparent;
+  color: white;
+  font-weight: 600;
+  border-bottom: none;
+}
+
+.modern-table :deep(.el-table__body tr) {
+  transition: var(--transition-base);
+}
+
+.modern-table :deep(.el-table__body tr:hover) {
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.modern-table :deep(.el-table__row) {
+  border-bottom: 1px solid var(--border-lighter);
+}
+
+.modern-table :deep(.el-tag) {
+  border-radius: var(--radius-full);
   font-weight: 500;
-  line-height: 1.5;
+  padding: 4px 12px;
+}
+
+.modern-table :deep(.el-button) {
+  border-radius: var(--radius-base);
+  font-weight: 500;
+  transition: var(--transition-base);
+}
+
+.modern-table :deep(.el-button--success) {
+  background: linear-gradient(135deg, #67C23A 0%, #85ce61 100%);
+  border: none;
+  box-shadow: var(--shadow-sm);
+}
+
+.modern-table :deep(.el-button:hover) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 </style>
 

@@ -7,7 +7,7 @@
     </div>
     
     <!-- 产品列表 -->
-    <el-table :data="products" style="width: 100%" v-loading="loading">
+    <el-table :data="products" style="width: 100%" v-loading="loading" class="modern-table">
       <el-table-column prop="id" label="ID" width="80"></el-table-column>
       <el-table-column label="产品图片" width="100">
         <template #default="scope">
@@ -330,20 +330,31 @@ export default {
 
 <style scoped>
 .admin-products {
-  padding: 20px !important;
-  background-color: #fff !important;
-  min-height: calc(100vh - 60px);
+  padding: 32px !important;
+  background: transparent !important;
+  min-height: calc(100vh - 72px);
   width: 100%;
   box-sizing: border-box;
   position: relative;
   z-index: 1;
 }
 
+h2 {
+  margin-bottom: 32px;
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.5;
+}
+
 .toolbar {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   display: flex !important;
   flex-direction: row !important;
-  gap: 10px;
+  gap: 12px;
   align-items: center;
   width: 100%;
 }
@@ -353,13 +364,121 @@ export default {
   display: inline-block !important;
   visibility: visible !important;
   opacity: 1 !important;
+  border-radius: var(--radius-base);
+  font-weight: 500;
+  transition: var(--transition-base);
 }
 
-h2 {
-  margin-bottom: 20px;
-  color: #303133;
-  font-size: 20px;
+.toolbar .el-button--primary {
+  background: var(--primary-gradient);
+  border: none;
+  box-shadow: var(--shadow-sm);
+}
+
+.toolbar .el-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.modern-table {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-base);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+}
+
+.modern-table :deep(.el-table__header) {
+  background: var(--primary-gradient);
+}
+
+.modern-table :deep(.el-table__header th) {
+  background: transparent;
+  color: white;
+  font-weight: 600;
+  border-bottom: none;
+}
+
+.modern-table :deep(.el-table__body tr:hover) {
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.modern-table :deep(.el-image) {
+  border-radius: var(--radius-base);
+  box-shadow: var(--shadow-sm);
+}
+
+.modern-table :deep(.el-tag) {
+  border-radius: var(--radius-full);
   font-weight: 500;
-  line-height: 1.5;
+  padding: 4px 12px;
+}
+
+.modern-table :deep(.el-button) {
+  border-radius: var(--radius-base);
+  font-weight: 500;
+  transition: var(--transition-base);
+  margin: 0 4px;
+}
+
+.modern-table :deep(.el-button:hover) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+:deep(.el-pagination) {
+  margin-top: 32px;
+  justify-content: center;
+}
+
+:deep(.el-pagination .el-pager li) {
+  border-radius: var(--radius-base);
+  transition: var(--transition-base);
+}
+
+:deep(.el-pagination .el-pager li.is-active) {
+  background: var(--primary-gradient);
+  color: white;
+}
+
+:deep(.el-dialog) {
+  border-radius: var(--radius-xl);
+}
+
+:deep(.el-dialog__header) {
+  background: var(--primary-gradient);
+  padding: 24px 32px;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+}
+
+:deep(.el-dialog__title) {
+  color: white;
+  font-weight: 700;
+  font-size: var(--font-size-lg);
+}
+
+:deep(.el-form-item__label) {
+  font-weight: 600;
+  color: var(--text-regular);
+}
+
+:deep(.el-input__wrapper),
+:deep(.el-textarea__inner) {
+  border-radius: var(--radius-base);
+  box-shadow: var(--shadow-sm);
+  border: 2px solid var(--border-light);
+  transition: var(--transition-base);
+}
+
+:deep(.el-input__wrapper:hover),
+:deep(.el-textarea__inner:hover) {
+  border-color: var(--primary-color);
+  box-shadow: var(--shadow-base);
+}
+
+:deep(.el-input__wrapper.is-focus),
+:deep(.el-textarea__inner:focus) {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 </style>

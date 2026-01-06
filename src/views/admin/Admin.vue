@@ -52,7 +52,7 @@
           </el-menu-item>
         </el-menu>
       </el-aside>
-      <el-main style="padding: 0; background-color: #f0f2f5; overflow: auto; position: relative;">
+      <el-main style="padding: 0; background: transparent; overflow: auto; position: relative;">
         <router-view />
       </el-main>
     </el-container>
@@ -112,56 +112,93 @@ export default {
 <style scoped>
 .admin-page {
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background: transparent;
 }
 
 .admin-sidebar {
-  background-color: #304156;
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
   min-height: 100vh;
+  box-shadow: var(--shadow-xl);
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-sidebar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--primary-gradient);
+  opacity: 0.1;
+  z-index: 0;
 }
 
 .sidebar-header {
-  padding: 20px;
+  padding: 32px 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  z-index: 1;
 }
 
 .admin-sidebar h2 {
-  color: #fff;
+  color: white;
   text-align: center;
-  margin: 0 0 15px 0;
-  font-size: 18px;
+  margin: 0 0 20px 0;
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .back-home-btn {
   width: 100%;
-  color: #bfcbd9;
-  padding: 8px 0;
+  color: rgba(255, 255, 255, 0.8);
+  padding: 12px 0;
   text-align: center;
   border: none;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-base);
+  transition: var(--transition-base);
+  font-weight: 500;
 }
 
 .back-home-btn:hover {
-  color: #409eff;
-  background-color: rgba(64, 158, 255, 0.1);
+  color: white;
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateX(4px);
 }
 
 .admin-menu {
   border-right: none;
-  background-color: #304156;
+  background: transparent;
+  position: relative;
+  z-index: 1;
 }
 
-.admin-menu .el-menu-item {
-  color: #bfcbd9;
+.admin-menu :deep(.el-menu-item) {
+  color: rgba(255, 255, 255, 0.8);
+  margin: 4px 12px;
+  border-radius: var(--radius-base);
+  transition: var(--transition-base);
+  font-weight: 500;
 }
 
-.admin-menu .el-menu-item:hover {
-  background-color: #263445;
+.admin-menu :deep(.el-menu-item:hover) {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  transform: translateX(4px);
 }
 
-.admin-menu .el-menu-item.is-active {
-  background-color: #409eff;
-  color: #fff;
+.admin-menu :deep(.el-menu-item.is-active) {
+  background: var(--primary-gradient);
+  color: white;
+  box-shadow: var(--shadow-md);
+}
+
+.admin-menu :deep(.el-icon) {
+  margin-right: 8px;
+  font-size: 18px;
 }
 </style>
 

@@ -48,44 +48,66 @@ export default {
 <style scoped>
 .customer-service-float-button {
   position: fixed;
-  right: 30px;
-  bottom: 30px;
-  width: 60px;
-  height: 60px;
-  background: linear-gradient(135deg, #409EFF 0%, #67C23A 100%);
-  border-radius: 50%;
+  right: 32px;
+  bottom: 32px;
+  width: 64px;
+  height: 64px;
+  background: var(--primary-gradient);
+  border-radius: var(--radius-full);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.4);
-  transition: all 0.3s ease;
-  z-index: 999;
+  box-shadow: var(--shadow-xl);
+  transition: var(--transition-base);
+  z-index: var(--z-fixed);
   color: white;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .customer-service-float-button:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 16px rgba(64, 158, 255, 0.6);
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 12px 32px rgba(102, 126, 234, 0.5);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .customer-service-float-button:active {
-  transform: scale(0.95);
+  transform: translateY(-2px) scale(1.02);
+}
+
+.customer-service-float-button :deep(.el-icon) {
+  font-size: 28px;
+  margin-bottom: 2px;
 }
 
 .button-text {
-  font-size: 10px;
+  font-size: 11px;
   margin-top: 2px;
-  font-weight: 500;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
 @media (max-width: 768px) {
   .customer-service-float-button {
     right: 20px;
     bottom: 20px;
-    width: 50px;
-    height: 50px;
+    width: 56px;
+    height: 56px;
+  }
+  
+  .customer-service-float-button :deep(.el-icon) {
+    font-size: 24px;
   }
   
   .button-text {

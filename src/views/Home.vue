@@ -168,41 +168,53 @@ export default {
 <style scoped>
 .home {
   min-height: 100vh;
+  background: transparent;
 }
 
-/* 轮播图容器 */
+/* 轮播图容器 - 现代化设计 */
 .banner-container {
   width: 100%;
-  max-width: 1920px;
-  margin: 0 auto 40px;
+  max-width: 1400px;
+  margin: 0 auto 60px;
   overflow: hidden;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  position: relative;
 }
 
-/* 轮播图项容器 */
+/* 轮播图项容器 - 现代化设计 */
 .banner-item {
   width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: var(--primary-gradient);
   overflow: hidden;
   position: relative;
 }
 
-/* 轮播图图片样式 - 填充容器，保持比例 */
+.banner-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
+  z-index: 1;
+}
+
+/* 轮播图图片样式 */
 .banner-item img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.3s ease;
+  transition: var(--transition-slow);
+  filter: brightness(0.95);
 }
 
 .banner-item:hover img {
-  transform: scale(1.05);
+  transform: scale(1.08);
+  filter: brightness(1);
 }
 
 /* 响应式设计 */
@@ -215,64 +227,214 @@ export default {
 
 .category-section,
 .products-section {
-  margin-top: 40px;
+  margin-top: 80px;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 var(--spacing-base);
 }
 
 .category-section h2,
 .products-section h2 {
-  margin-bottom: 20px;
-  font-size: 24px;
-  color: #333;
+  margin-bottom: 32px;
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-align: center;
+  position: relative;
+  padding-bottom: 16px;
 }
 
+.category-section h2::after,
+.products-section h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 4px;
+  background: var(--primary-gradient);
+  border-radius: var(--radius-full);
+}
+
+/* 分类卡片 - 现代化设计 */
 .category-card {
   text-align: center;
   cursor: pointer;
-  transition: transform 0.3s;
+  transition: var(--transition-base);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-base);
+  position: relative;
+}
+
+.category-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--primary-gradient);
+  opacity: 0;
+  transition: var(--transition-base);
+  z-index: 1;
+}
+
+.category-card:hover::before {
+  opacity: 0.05;
 }
 
 .category-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: var(--shadow-xl);
+}
+
+.category-card :deep(.el-card__body) {
+  padding: 0;
+  position: relative;
+  z-index: 2;
 }
 
 .category-card img {
   width: 100%;
-  height: 150px;
+  height: 200px;
   object-fit: cover;
+  transition: var(--transition-base);
 }
 
+.category-card:hover img {
+  transform: scale(1.1);
+}
+
+.category-card h3 {
+  padding: 20px;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  transition: var(--transition-base);
+}
+
+.category-card:hover h3 {
+  color: var(--primary-color);
+}
+
+/* 产品卡片 - 现代化设计 */
 .product-card {
   cursor: pointer;
-  transition: transform 0.3s;
+  transition: var(--transition-base);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-base);
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--primary-gradient);
+  opacity: 0;
+  transition: var(--transition-base);
+  z-index: 1;
+}
+
+.product-card:hover::before {
+  opacity: 0.03;
 }
 
 .product-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-xl);
+}
+
+.product-card :deep(.el-card__body) {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  position: relative;
+  z-index: 2;
 }
 
 .product-card img {
   width: 100%;
-  height: 200px;
+  height: 280px;
   object-fit: cover;
+  transition: var(--transition-base);
+}
+
+.product-card:hover img {
+  transform: scale(1.08);
 }
 
 .product-info {
-  padding: 10px 0;
+  padding: 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .product-info h3 {
-  font-size: 16px;
-  margin-bottom: 10px;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  margin-bottom: 12px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: var(--text-primary);
 }
 
 .product-info .price {
-  color: #f56c6c;
-  font-size: 20px;
-  font-weight: bold;
-  margin-bottom: 10px;
+  color: var(--danger-color);
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.product-info :deep(.el-button) {
+  margin-top: auto;
+  background: var(--primary-gradient);
+  border: none;
+  color: white;
+  font-weight: 500;
+  border-radius: var(--radius-base);
+  transition: var(--transition-base);
+}
+
+.product-info :deep(.el-button:hover) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .category-section,
+  .products-section {
+    margin-top: 40px;
+    padding: 0 var(--spacing-base);
+  }
+  
+  .category-section h2,
+  .products-section h2 {
+    font-size: var(--font-size-xl);
+  }
+  
+  .banner-container {
+    border-radius: var(--radius-md);
+    margin-bottom: 32px;
+  }
 }
 </style>
 
