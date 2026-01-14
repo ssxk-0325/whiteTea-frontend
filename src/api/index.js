@@ -257,6 +257,9 @@ const api = {
     getUserFavorites: (params) => {
       return service.get('/community/post/favorites', { params })
     },
+    getUserLikes: (params) => {
+      return service.get('/community/post/likes', { params })
+    },
     // 评论相关
     addComment: (commentData) => {
       return service.post('/community/comment/add', commentData)
@@ -416,6 +419,21 @@ const api = {
     },
     clickTag: (tagId) => {
       return service.post(`/tag/${tagId}/click`)
+    }
+  },
+  // 浏览历史相关
+  browseHistory: {
+    record: (data) => {
+      return service.post('/browse-history/record', data)
+    },
+    getList: (params) => {
+      return service.get('/browse-history/list', { params })
+    },
+    clear: () => {
+      return service.delete('/browse-history/clear')
+    },
+    delete: (id) => {
+      return service.delete(`/browse-history/${id}`)
     }
   }
 }

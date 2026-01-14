@@ -210,6 +210,17 @@ export default {
           disliked: false,
           favorited: false
         }
+        
+        // 记录浏览历史
+        if (store.state.user.token) {
+          const images = parseImages(post.value.images)
+          api.browseHistory.record({
+            targetType: 1,
+            targetId: post.value.id,
+            title: post.value.title,
+            image: images.length > 0 ? images[0] : ''
+          }).catch(err => console.error('记录历史失败', err))
+        }
       } catch (error) {
         ElMessage.error('加载帖子失败')
         router.push('/community')

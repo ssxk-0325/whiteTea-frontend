@@ -37,11 +37,19 @@
           </span>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item command="profile">个人中心</el-dropdown-item>
-              <el-dropdown-item command="orders">我的订单</el-dropdown-item>
-              <el-dropdown-item command="coupons">我的券包</el-dropdown-item>
-              <el-dropdown-item command="customerService">智能客服</el-dropdown-item>
-              <el-dropdown-item command="admin" v-if="userType === 1">管理后台</el-dropdown-item>
+              <el-dropdown-item command="profile">
+                <router-link to="/profile" style="text-decoration: none; color: inherit; display: block; width: 100%;">个人中心</router-link>
+              </el-dropdown-item>
+              <el-dropdown-item command="orders">
+                <router-link to="/orders" style="text-decoration: none; color: inherit; display: block; width: 100%;">我的订单</router-link>
+              </el-dropdown-item>
+              <el-dropdown-item command="coupons">
+                <router-link to="/activity/coupons" style="text-decoration: none; color: inherit; display: block; width: 100%;">我的券包</router-link>
+              </el-dropdown-item>
+              <el-dropdown-item command="customerService" @click="goToCustomerService">智能客服</el-dropdown-item>
+              <el-dropdown-item command="admin" v-if="userType === 1">
+                <router-link to="/admin/dashboard" style="text-decoration: none; color: inherit; display: block; width: 100%;">管理后台</router-link>
+              </el-dropdown-item>
               <el-dropdown-item command="logout" divided>退出登录</el-dropdown-item>
             </el-dropdown-menu>
           </template>
@@ -141,12 +149,13 @@ export default {
     }
 
     const handleCommand = (command) => {
+      console.log('Header handleCommand:', command)
       switch (command) {
         case 'profile':
-          router.push('/profile')
+          router.push({ name: 'Profile' }).catch(err => console.error('跳转个人中心失败:', err))
           break
         case 'orders':
-          router.push('/orders')
+          router.push({ name: 'Orders' }).catch(err => console.error('跳转订单失败:', err))
           break
         case 'coupons':
           router.push('/activity/coupons')
@@ -186,6 +195,7 @@ export default {
       handleMenuClick,
       handleCommand,
       goToCustomerService,
+      router,
       ShoppingCart,
       ArrowDown,
       Service

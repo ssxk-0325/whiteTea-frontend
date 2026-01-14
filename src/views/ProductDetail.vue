@@ -128,6 +128,16 @@ export default {
             categoryName.value = category.name
           }
         }
+        
+        // 记录浏览历史
+        if (store.state.user.token) {
+          api.browseHistory.record({
+            targetType: 2,
+            targetId: product.value.id,
+            title: product.value.name,
+            image: product.value.image
+          }).catch(err => console.error('记录历史失败', err))
+        }
       } catch (error) {
         ElMessage.error('加载产品详情失败')
       } finally {

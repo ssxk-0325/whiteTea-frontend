@@ -61,6 +61,7 @@
 <script>
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useStore } from 'vuex'
 import { ElMessage } from 'element-plus'
 import { View, Star, StarFilled, VideoPlay } from '@element-plus/icons-vue'
 import api from '@/api'
@@ -78,6 +79,7 @@ export default {
   setup() {
     const route = useRoute()
     const router = useRouter()
+    const store = useStore()
     const loading = ref(false)
     const video = ref(null)
     const isLiked = ref(false)
@@ -87,6 +89,16 @@ export default {
       try {
         const res = await api.culture.getById(route.params.id)
         video.value = res.data
+        
+        // 记录浏览历史
+        if (store.state.user.token) {
+          api.browseHistory.record({
+            targetType: 3,
+            targetId: video.value.id,
+            title: video.value.title,
+            image: video.value.coverImage
+          }).catch(err => console.error('记录历史失败', err))
+        }
       } catch (error) {
         ElMessage.error('加载视频失败')
         router.push('/culture')
