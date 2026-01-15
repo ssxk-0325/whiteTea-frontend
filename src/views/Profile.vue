@@ -35,45 +35,123 @@
       <!-- 内容选项卡 -->
       <el-tabs v-model="activeTab" class="profile-tabs" @tab-click="handleTabClick">
         <el-tab-pane label="个人信息" name="info">
-          <el-card class="info-card">
-            <template #header>
-              <div class="card-header">
-                <span class="header-title"><el-icon><User /></el-icon> 基本资料</span>
-              </div>
-            </template>
-            <el-form :model="userForm" label-width="100px" class="profile-form">
-              <el-row :gutter="20">
-                <el-col :span="12">
-                  <el-form-item label="用户名">
-                    <el-input v-model="userForm.username" disabled class="modern-input"></el-input>
+          <el-row :gutter="24">
+            <!-- 左侧概览 -->
+            <el-col :span="8">
+              <el-card class="info-overview-card" shadow="never">
+                <div class="overview-header">
+                  <div class="profile-completeness">
+                    <el-progress type="dashboard" :percentage="calculateCompleteness" :color="colors">
+                      <template #default="{ percentage }">
+                        <span class="percentage-value">{{ percentage }}%</span>
+                        <span class="percentage-label">资料完成度</span>
+                      </template>
+                    </el-progress>
+                  </div>
+                </div>
+                <div class="overview-list">
+                  <div class="overview-item">
+                    <el-icon><Calendar /></el-icon>
+                    <span class="item-label">注册时间</span>
+                    <span class="item-value">{{ formatDate(userForm.createTime) || '2024-01-15' }}</span>
+                  </div>
+                  <div class="overview-item">
+                    <el-icon><Lock /></el-icon>
+                    <span class="item-label">账号状态</span>
+                    <el-tag size="small" type="success">正常</el-tag>
+                  </div>
+                  <div class="overview-item">
+                    <el-icon><Message /></el-icon>
+                    <span class="item-label">邮箱验证</span>
+                    <el-tag size="small" :type="userForm.email ? 'success' : 'info'">{{ userForm.email ? '已绑定' : '未绑定' }}</el-tag>
+                  </div>
+                </div>
+                <el-divider></el-divider>
+                <div class="avatar-edit-section">
+                  <el-upload
+                    class="avatar-uploader"
+                    action="/api/upload/image"
+                    :show-file-list="false"
+                    :on-success="handleAvatarSuccess"
+                  >
+                    <el-button type="primary" plain size="small" icon="Camera">修改头像</el-button>
+                  </el-upload>
+                </div>
+              </el-card>
+            </el-col>
+
+            <!-- 右侧表单 -->
+            <el-col :span="16">
+              <el-card class="info-card" shadow="never">
+                <template #header>
+                  <div class="card-header">
+                    <span class="header-title"><el-icon><User /></el-icon> 账号设置</span>
+                    <span class="header-tip">完善资料可以让更多茶友认识你</span>
+                  </div>
+                </template>
+                <el-form :model="userForm" label-position="top" class="profile-form-modern">
+                  <el-row :gutter="20">
+                    <el-col :span="12">
+                      <el-form-item label="用户名">
+                        <template #label>
+                          <span class="custom-label"><el-icon><Monitor /></el-icon> 用户名</span>
+                        </template>
+                        <el-input v-model="userForm.username" disabled class="modern-input"></el-input>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                      <el-form-item label="昵称">
+                        <template #label>
+                          <span class="custom-label"><el-icon><EditPen /></el-icon> 昵称</span>
+                        </template>
+                        <el-input v-model="userForm.nickname" class="modern-input" placeholder="设置你的昵称"></el-input>
+                      </el-form-item>
+                    </el-col>
+                  </el-row>
+                  
+                  <el-row :gutter="20">
+                    <el-col :span="12">
+                      <el-form-item label="手机号">
+                        <template #label>
+                          <span class="custom-label"><el-icon><Iphone /></el-icon> 手机号</span>
+                        </template>
+                        <el-input v-model="userForm.phone" class="modern-input" placeholder="绑定手机号"></el-input>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                      <el-form-item label="邮箱">
+                        <template #label>
+                          <span class="custom-label"><el-icon><Message /></el-icon> 邮箱</span>
+                        </template>
+                        <el-input v-model="userForm.email" class="modern-input" placeholder="设置邮箱地址"></el-input>
+                      </el-form-item>
+                    </el-col>
+                  </el-row>
+
+                  <el-form-item label="个人简介">
+                    <template #label>
+                      <span class="custom-label"><el-icon><Document /></el-icon> 个人简介</span>
+                    </template>
+                    <el-input 
+                      type="textarea" 
+                      v-model="userForm.bio" 
+                      :rows="4" 
+                      class="modern-input-text" 
+                      placeholder="介绍一下你自己，比如：一个热爱福鼎白茶的深度爱好者..."
+                      maxlength="200"
+                      show-word-limit
+                    ></el-input>
                   </el-form-item>
-                </el-col>
-                <el-col :span="12">
-                  <el-form-item label="昵称">
-                    <el-input v-model="userForm.nickname" class="modern-input" placeholder="设置你的昵称"></el-input>
-                  </el-form-item>
-                </el-col>
-              </el-row>
-              <el-row :gutter="20">
-                <el-col :span="12">
-                  <el-form-item label="手机号">
-                    <el-input v-model="userForm.phone" class="modern-input" placeholder="绑定手机号"></el-input>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="12">
-                  <el-form-item label="邮箱">
-                    <el-input v-model="userForm.email" class="modern-input" placeholder="设置邮箱地址"></el-input>
-                  </el-form-item>
-                </el-col>
-              </el-row>
-              <el-form-item label="个人简介">
-                <el-input type="textarea" v-model="userForm.bio" :rows="3" class="modern-input" placeholder="介绍一下你自己..."></el-input>
-              </el-form-item>
-              <el-form-item>
-                <el-button type="primary" @click="updateUser" class="save-button">保存所有修改</el-button>
-              </el-form-item>
-            </el-form>
-          </el-card>
+
+                  <div class="form-actions">
+                    <el-button type="primary" @click="updateUser" class="save-button-modern" size="large">
+                      <el-icon><Check /></el-icon> 保存更改
+                    </el-button>
+                  </div>
+                </el-form>
+              </el-card>
+            </el-col>
+          </el-row>
         </el-tab-pane>
 
         <el-tab-pane label="我的收藏" name="favorites">
@@ -156,7 +234,7 @@
 </template>
 
 <script>
-import { ref, onMounted, reactive } from 'vue'
+import { ref, onMounted, reactive, computed } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -168,7 +246,16 @@ import {
   Clock, 
   Delete, 
   ChatDotRound,
-  Location
+  Location,
+  Calendar,
+  Lock,
+  Monitor,
+  EditPen,
+  Iphone,
+  Check,
+  Document,
+  Message,
+  Camera
 } from '@element-plus/icons-vue'
 import api from '@/api'
 import AppHeader from '@/components/Header.vue'
@@ -184,12 +271,29 @@ export default {
     Clock,
     Delete,
     ChatDotRound,
-    Location
+    Location,
+    Calendar,
+    Lock,
+    Monitor,
+    EditPen,
+    Iphone,
+    Check,
+    Document,
+    Message,
+    Camera
   },
   setup() {
     const store = useStore()
     const router = useRouter()
     const activeTab = ref('info')
+    
+    const colors = [
+      { color: '#f56c6c', percentage: 20 },
+      { color: '#e6a23c', percentage: 40 },
+      { color: '#5cb87a', percentage: 60 },
+      { color: '#1989fa', percentage: 80 },
+      { color: '#6f7ad3', percentage: 100 },
+    ]
     
     const userForm = ref({
       username: '',
@@ -213,6 +317,15 @@ export default {
     const historyList = reactive({
       list: [],
       total: 0
+    })
+
+    const calculateCompleteness = computed(() => {
+      let count = 0
+      const fields = ['nickname', 'phone', 'email', 'avatar', 'bio']
+      fields.forEach(field => {
+        if (userForm.value[field]) count++
+      })
+      return Math.round((count / fields.length) * 100)
     })
 
     const loadUserInfo = async () => {
@@ -330,6 +443,21 @@ export default {
       })
     }
 
+    const handleAvatarSuccess = async (res) => {
+      if (res.code === 200) {
+        userForm.value.avatar = res.data
+        try {
+          await api.user.updateUser(userForm.value)
+          ElMessage.success('头像修改成功')
+          await store.dispatch('user/getUserInfo')
+        } catch (error) {
+          ElMessage.error('更新用户信息失败')
+        }
+      } else {
+        ElMessage.error(res.message || '上传失败')
+      }
+    }
+
     onMounted(() => {
       loadUserInfo()
       // 预加载数量
@@ -353,7 +481,10 @@ export default {
       goToDetail,
       goToTarget,
       deleteHistory,
-      clearHistory
+      clearHistory,
+      calculateCompleteness,
+      colors,
+      handleAvatarSuccess
     }
   }
 }
@@ -461,36 +592,174 @@ export default {
   font-weight: 600;
 }
 
-/* 个人信息卡片 */
-.info-card {
-  border-radius: 12px;
-  border: none;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
+/* 个人信息卡片迭代样式 */
+.info-overview-card {
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid #ebeef5;
+  padding: 20px;
+  height: 100%;
 }
 
-.card-header {
+.overview-header {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.percentage-value {
+  display: block;
+  font-size: 24px;
+  font-weight: 700;
+  color: #303133;
+}
+
+.percentage-label {
+  display: block;
+  font-size: 12px;
+  color: #909399;
+  margin-top: 4px;
+}
+
+.overview-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.overview-item {
   display: flex;
   align-items: center;
+  gap: 12px;
+  font-size: 14px;
+}
+
+.overview-item .el-icon {
+  font-size: 18px;
+  color: #409eff;
+}
+
+.item-label {
+  color: #606266;
+  flex: 1;
+}
+
+.item-value {
+  color: #303133;
+  font-weight: 500;
+}
+
+.avatar-edit-section {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.info-card {
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid #ebeef5;
 }
 
 .header-title {
   font-weight: 700;
   font-size: 18px;
   color: #303133;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.modern-input :deep(.el-input__wrapper) {
-  border-radius: 8px;
-  box-shadow: none;
-  border: 1px solid #dcdfe6;
-  padding: 5px 12px;
+.header-tip {
+  font-size: 13px;
+  color: #909399;
+  margin-left: 12px;
+  font-weight: normal;
 }
 
-.save-button {
-  padding: 12px 30px;
-  border-radius: 8px;
+.profile-form-modern {
+  padding: 10px 0;
+}
+
+.custom-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-weight: 600;
-  margin-top: 10px;
+  color: #303133;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.custom-label .el-icon {
+  color: #409eff;
+  font-size: 16px;
+}
+
+.modern-input :deep(.el-input__wrapper),
+.modern-input-text :deep(.el-textarea__inner) {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  border-bottom: 2px solid #f0f2f5 !important;
+  border-radius: 0 !important;
+  padding: 8px 0 !important;
+  transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+.modern-input :deep(.el-input__inner),
+.modern-input-text :deep(.el-textarea__inner) {
+  color: #303133;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.modern-input :deep(.el-input__inner::placeholder) {
+  color: #c0c4cc;
+  font-weight: normal;
+}
+
+.modern-input :deep(.el-input__wrapper:hover),
+.modern-input-text :deep(.el-textarea__inner:hover) {
+  border-bottom-color: #c0c4cc !important;
+}
+
+.modern-input :deep(.el-input__wrapper.is-focus),
+.modern-input-text :deep(.el-textarea__inner:focus) {
+  border-bottom-color: #409eff !important;
+  transform: translateY(-1px);
+}
+
+/* 禁用状态样式 */
+.modern-input.is-disabled :deep(.el-input__wrapper) {
+  border-bottom-style: dashed !important;
+  background-color: transparent !important;
+}
+
+.modern-input.is-disabled :deep(.el-input__inner) {
+  color: #909399;
+  cursor: not-allowed;
+}
+
+.form-actions {
+  margin-top: 40px;
+  display: flex;
+  justify-content: center; /* 按钮居中，更显大气 */
+}
+
+.save-button-modern {
+  padding: 12px 60px;
+  border-radius: 25px; /* 胶囊型按钮 */
+  font-weight: 700;
+  font-size: 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  transition: all 0.3s;
+}
+
+.save-button-modern:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(64, 158, 255, 0.4);
 }
 
 /* 内容网格布局 */
