@@ -234,11 +234,15 @@
 </template>
 
 <script>
-import { ref, onMounted, reactive, computed } from 'vue'
+import { ref, onMounted, reactive, computed as vueComputed } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { 
+import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+import api from '@/api'
+import AppHeader from '@/components/Header.vue'
+
+const { 
   User, 
   View, 
   Star, 
@@ -256,9 +260,7 @@ import {
   Document,
   Message,
   Camera
-} from '@element-plus/icons-vue'
-import api from '@/api'
-import AppHeader from '@/components/Header.vue'
+} = ElementPlusIconsVue
 
 export default {
   name: 'Profile',
@@ -319,7 +321,7 @@ export default {
       total: 0
     })
 
-    const calculateCompleteness = computed(() => {
+    const calculateCompleteness = vueComputed(() => {
       let count = 0
       const fields = ['nickname', 'phone', 'email', 'avatar', 'bio']
       fields.forEach(field => {
@@ -411,13 +413,19 @@ export default {
     }
 
     const goToDetail = (id) => {
-      router.push(`/post/${id}`)
+      router.push(`/community/post/${id}`)
     }
 
     const goToTarget = (item) => {
-      if (item.targetType === 1) router.push(`/post/${item.targetId}`)
-      else if (item.targetType === 2) router.push(`/product/${item.targetId}`)
-      else if (item.targetType === 3) router.push(`/culture/${item.targetId}`)
+      if (item.targetType === 1) {
+        router.push(`/community/post/${item.targetId}`)
+      } else if (item.targetType === 2) {
+        router.push(`/product/${item.targetId}`)
+      } else if (item.targetType === 3) {
+        // 文化内容需要区分是文章还是视频，这里根据标题或预留逻辑尝试跳转文章
+        // 如果后端记录时能区分更好，目前先统一跳转到 article 路由
+        router.push(`/culture/article/${item.targetId}`)
+      }
     }
 
     const deleteHistory = async (id) => {
