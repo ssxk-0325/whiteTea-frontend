@@ -435,6 +435,20 @@ const api = {
     delete: (id) => {
       return service.delete(`/browse-history/${id}`)
     }
+  },
+  // 门店相关
+  store: {
+    getList: (params) => {
+      return service.get('/store/list', { params })
+    },
+    getById: (id) => {
+      return service.get(`/store/${id}`)
+    },
+    getNearby: (longitude, latitude, radius) => {
+      return service.get('/store/nearby', {
+        params: { longitude, latitude, radius }
+      })
+    }
   }
 }
 

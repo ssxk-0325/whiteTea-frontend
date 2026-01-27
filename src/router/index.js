@@ -129,6 +129,12 @@ const routes = [
     meta: { title: '帖子详情' }
   },
   {
+    path: '/stores',
+    name: 'Stores',
+    component: () => import('../views/Stores.vue'),
+    meta: { title: '门店地图' }
+  },
+  {
     path: '/admin',
     name: 'Admin',
     component: () => import('../views/admin/Admin.vue'),

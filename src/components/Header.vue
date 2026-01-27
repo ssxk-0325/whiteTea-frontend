@@ -46,6 +46,9 @@
               <el-dropdown-item command="coupons">
                 <router-link to="/activity/coupons" style="text-decoration: none; color: inherit; display: block; width: 100%;">我的券包</router-link>
               </el-dropdown-item>
+              <el-dropdown-item command="stores">
+                <router-link to="/stores" style="text-decoration: none; color: inherit; display: block; width: 100%;">门店地图</router-link>
+              </el-dropdown-item>
               <el-dropdown-item command="customerService" @click="goToCustomerService">智能客服</el-dropdown-item>
               <el-dropdown-item command="admin" v-if="userType === 1">
                 <router-link to="/admin/dashboard" style="text-decoration: none; color: inherit; display: block; width: 100%;">管理后台</router-link>
@@ -159,6 +162,9 @@ export default {
           break
         case 'coupons':
           router.push('/activity/coupons')
+          break
+        case 'stores':
+          router.push('/stores')
           break
         case 'customerService':
           goToCustomerService()
