@@ -115,6 +115,12 @@ const api = {
     },
     changePassword: (oldPassword, newPassword) => {
       return service.post('/user/change-password', { oldPassword, newPassword })
+    },
+    // 管理员接口
+    admin: {
+      getList: (params) => {
+        return service.get('/user/admin/list', { params })
+      }
     }
   },
   // 产品相关
