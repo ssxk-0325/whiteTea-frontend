@@ -9,9 +9,14 @@
             <!-- 帖子头部 -->
             <div class="post-header">
               <div class="post-user">
-                <el-avatar :src="post.user?.avatar || '/default-avatar.png'" :size="50"></el-avatar>
+                <el-avatar 
+                  :src="post.user?.avatar || '/default-avatar.png'" 
+                  :size="50"
+                  @click="viewUserInfo(post.user?.id)"
+                  style="cursor: pointer;"
+                ></el-avatar>
                 <div class="user-info">
-                  <div class="username">{{ post.user?.nickname || post.user?.username }}</div>
+                  <div class="username" @click="viewUserInfo(post.user?.id)" style="cursor: pointer;">{{ post.user?.nickname || post.user?.username }}</div>
                   <div class="post-time">{{ formatTime(post.createTime) }}</div>
                 </div>
               </div>
@@ -95,9 +100,14 @@
             <div v-else>
               <div v-for="comment in comments" :key="comment.id" class="comment-item">
                 <div class="comment-header">
-                  <el-avatar :src="comment.user?.avatar || '/default-avatar.png'" :size="40"></el-avatar>
+                  <el-avatar 
+                    :src="comment.user?.avatar || '/default-avatar.png'" 
+                    :size="40"
+                    @click="viewUserInfo(comment.user?.id)"
+                    style="cursor: pointer;"
+                  ></el-avatar>
                   <div class="comment-user-info">
-                    <div class="comment-username">{{ comment.user?.nickname || comment.user?.username }}</div>
+                    <div class="comment-username" @click="viewUserInfo(comment.user?.id)" style="cursor: pointer;">{{ comment.user?.nickname || comment.user?.username }}</div>
                     <div class="comment-time">{{ formatTime(comment.createTime) }}</div>
                   </div>
                   <el-button
@@ -114,9 +124,14 @@
                 <!-- 回复列表 -->
                 <div v-if="comment.replies && comment.replies.length > 0" class="replies-list">
                   <div v-for="reply in comment.replies" :key="reply.id" class="reply-item">
-                    <el-avatar :src="reply.user?.avatar || '/default-avatar.png'" :size="30"></el-avatar>
+                    <el-avatar 
+                      :src="reply.user?.avatar || '/default-avatar.png'" 
+                      :size="30"
+                      @click="viewUserInfo(reply.user?.id)"
+                      style="cursor: pointer;"
+                    ></el-avatar>
                     <div class="reply-content">
-                      <span class="reply-username">{{ reply.user?.nickname || reply.user?.username }}</span>
+                      <span class="reply-username" @click="viewUserInfo(reply.user?.id)" style="cursor: pointer;">{{ reply.user?.nickname || reply.user?.username }}</span>
                       <span class="reply-text">{{ reply.content }}</span>
                     </div>
                     <el-button
@@ -153,6 +168,9 @@
             </div>
           </div>
         </el-card>
+
+        <!-- 用户信息对话框 -->
+        <UserInfoDialog v-model="showUserInfoDialog" :userId="selectedUserId" />
       </el-main>
     </el-container>
   </div>
@@ -166,11 +184,13 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { View, ChatDotRound, Star, StarFilled, CircleClose, CircleCheck } from '@element-plus/icons-vue'
 import api from '@/api'
 import Header from '@/components/Header.vue'
+import UserInfoDialog from '@/components/UserInfoDialog.vue'
 
 export default {
   name: 'PostDetail',
   components: {
     Header,
+    UserInfoDialog,
     View,
     ChatDotRound,
     Like: Star,
@@ -196,6 +216,8 @@ export default {
       disliked: false,
       favorited: false
     })
+    const showUserInfoDialog = ref(false)
+    const selectedUserId = ref(null)
 
     const isLoggedIn = computed(() => store.getters['user/isLoggedIn'])
     const currentUserId = computed(() => store.state.user.userInfo?.id)
@@ -417,6 +439,12 @@ export default {
       return tagMap[type] || 'info'
     }
 
+    const viewUserInfo = (userId) => {
+      if (!userId) return
+      selectedUserId.value = userId
+      showUserInfoDialog.value = true
+    }
+
     onMounted(() => {
       loadPostDetail()
       loadComments()
@@ -433,6 +461,9 @@ export default {
       userActions,
       isLoggedIn,
       currentUserId,
+      showUserInfoDialog,
+      selectedUserId,
+      viewUserInfo,
       handleLike,
       handleDislike,
       handleFavorite,

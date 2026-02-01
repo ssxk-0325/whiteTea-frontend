@@ -39,9 +39,14 @@
             <el-card v-for="post in posts" :key="post.id" class="post-card" @click="viewPostDetail(post.id)">
               <div class="post-header">
                 <div class="post-user">
-                  <el-avatar :src="post.user?.avatar || '/default-avatar.png'" :size="40"></el-avatar>
+                  <el-avatar 
+                    :src="post.user?.avatar || '/default-avatar.png'" 
+                    :size="40"
+                    @click.stop="viewUserInfo(post.user?.id)"
+                    style="cursor: pointer;"
+                  ></el-avatar>
                   <div class="user-info">
-                    <div class="username">{{ post.user?.nickname || post.user?.username }}</div>
+                    <div class="username" @click.stop="viewUserInfo(post.user?.id)" style="cursor: pointer;">{{ post.user?.nickname || post.user?.username }}</div>
                     <div class="post-time">{{ formatTime(post.createTime) }}</div>
                   </div>
                 </div>
@@ -120,6 +125,9 @@
             <el-button type="primary" @click="submitPost" :loading="submitting">发布</el-button>
           </template>
         </el-dialog>
+
+        <!-- 用户信息对话框 -->
+        <UserInfoDialog v-model="showUserInfoDialog" :userId="selectedUserId" />
       </el-main>
     </el-container>
   </div>
@@ -133,11 +141,13 @@ import { ElMessage } from 'element-plus'
 import { Plus, View, ChatDotRound, Star } from '@element-plus/icons-vue'
 import api from '@/api'
 import Header from '@/components/Header.vue'
+import UserInfoDialog from '@/components/UserInfoDialog.vue'
 
 export default {
   name: 'Community',
   components: {
     Header,
+    UserInfoDialog,
     Plus,
     View,
     ChatDotRound,
@@ -157,6 +167,8 @@ export default {
     const submitting = ref(false)
     const postFormRef = ref(null)
     const imageList = ref([])
+    const showUserInfoDialog = ref(false)
+    const selectedUserId = ref(null)
 
     const isLoggedIn = computed(() => store.getters['user/isLoggedIn'])
 
@@ -198,6 +210,12 @@ export default {
 
     const viewPostDetail = (id) => {
       router.push(`/community/post/${id}`)
+    }
+
+    const viewUserInfo = (userId) => {
+      if (!userId) return
+      selectedUserId.value = userId
+      showUserInfoDialog.value = true
     }
 
     const submitPost = async () => {
@@ -307,8 +325,11 @@ export default {
       postFormRef,
       imageList,
       isLoggedIn,
+      showUserInfoDialog,
+      selectedUserId,
       loadPosts,
       viewPostDetail,
+      viewUserInfo,
       submitPost,
       handleImageChange,
       parseImages,

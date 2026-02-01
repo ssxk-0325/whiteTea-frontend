@@ -107,6 +107,9 @@ const api = {
     getUserInfo: () => {
       return service.get('/user/info')
     },
+    getUserById: (userId) => {
+      return service.get(`/user/info/${userId}`)
+    },
     updateUser: (user) => {
       return service.put('/user/update', user)
     },
