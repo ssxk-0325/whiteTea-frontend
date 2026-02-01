@@ -7,9 +7,9 @@
           <h2 class="page-title">购物车</h2>
         </div>
         <el-card class="cart-card" v-loading="loading">
-          <el-table :data="cartList" style="width: 100%" class="modern-table">
-          <el-table-column type="selection" width="55"></el-table-column>
-          <el-table-column label="商品" width="300">
+          <el-table v-if="!loading && cartList.length > 0" :data="cartList" style="width: 100%" class="modern-table">
+          <el-table-column type="selection" width="55" align="center"></el-table-column>
+          <el-table-column label="商品" min-width="300" align="center" show-overflow-tooltip>
             <template #default="scope">
               <div class="product-cell">
                 <img :src="scope.row.product?.image || '/default-product.png'" :alt="scope.row.product?.name" />
@@ -17,33 +17,43 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="单价" width="120">
+          <el-table-column label="单价" width="140" align="right">
             <template #default="scope">
-              ¥{{ formatPrice(scope.row.product?.price) }}
+              <span class="price-text">¥{{ formatPrice(scope.row.product?.price) }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="数量" width="150">
+          <el-table-column label="数量" width="180" align="center">
             <template #default="scope">
               <el-input-number
                 v-model="scope.row.quantity"
                 :min="1"
                 @change="updateQuantity(scope.row)"
+                class="quantity-input"
               />
             </template>
           </el-table-column>
-          <el-table-column label="小计" width="120">
+          <el-table-column label="小计" width="140" align="right">
             <template #default="scope">
-              ¥{{ formatSubtotal(scope.row.product?.price, scope.row.quantity) }}
+              <span class="price-text">¥{{ formatSubtotal(scope.row.product?.price, scope.row.quantity) }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="100">
+          <el-table-column label="操作" width="120" align="center" fixed="right">
             <template #default="scope">
               <el-button type="danger" size="small" @click="removeItem(scope.row.id)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
-          </el-table>
-          <el-empty v-if="!loading && cartList.length === 0" description="购物车是空的，快去选购吧~" />
+        <div v-if="!loading && cartList.length === 0" class="empty-cart">
+          <div class="empty-cart-icon">
+            <el-icon :size="120"><ShoppingCart /></el-icon>
+          </div>
+          <h3 class="empty-cart-title">购物车是空的</h3>
+          <p class="empty-cart-desc">快去挑选心仪的商品吧~</p>
+          <el-button type="primary" size="large" @click="goShopping" class="go-shopping-btn">
+            <el-icon><Goods /></el-icon>
+            去购物
+          </el-button>
+        </div>
         </el-card>
         <div class="cart-footer" v-if="cartList.length > 0">
           <el-button type="danger" @click="clearCart" class="clear-button">清空购物车</el-button>
@@ -65,6 +75,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { ShoppingCart, Goods } from '@element-plus/icons-vue'
 import Header from '@/components/Header.vue'
 
 export default {
@@ -144,6 +155,10 @@ export default {
       router.push('/checkout')
     }
 
+    const goShopping = () => {
+      router.push('/products')
+    }
+
     const formatPrice = (price) => {
       if (!price) return '0.00'
       return Number(price).toFixed(2)
@@ -175,7 +190,10 @@ export default {
       updateQuantity,
       removeItem,
       clearCart,
-      checkout
+      checkout,
+      goShopping,
+      ShoppingCart,
+      Goods
     }
   }
 }
@@ -216,6 +234,15 @@ export default {
 .modern-table {
   border-radius: var(--radius-base);
   overflow: hidden;
+  width: 100%;
+}
+
+.modern-table :deep(.el-table) {
+  width: 100% !important;
+}
+
+.modern-table :deep(.el-table__body-wrapper) {
+  width: 100%;
 }
 
 .modern-table :deep(.el-table__header) {
@@ -227,25 +254,42 @@ export default {
   color: var(--text-primary);
   font-weight: 600;
   border-bottom: 2px solid var(--border-light);
+  padding: 16px 12px;
+}
+
+.modern-table :deep(.el-table__body td) {
+  padding: 20px 12px;
+  border-bottom: 1px solid var(--border-lighter);
+}
+
+.modern-table :deep(.el-table__row) {
+  transition: var(--transition-base);
 }
 
 .modern-table :deep(.el-table__row:hover) {
   background: rgba(102, 126, 234, 0.03);
 }
 
+.modern-table :deep(.el-table__row:last-child td) {
+  border-bottom: none;
+}
+
 .product-cell {
   display: flex;
   align-items: center;
-  gap: 16px;
+  justify-content: center;
+  gap: 12px;
+  margin: 0 auto;
 }
 
 .product-cell img {
-  width: 80px;
-  height: 80px;
+  width: 70px;
+  height: 70px;
   object-fit: cover;
   border-radius: var(--radius-base);
   box-shadow: var(--shadow-sm);
   transition: var(--transition-base);
+  flex-shrink: 0;
 }
 
 .product-cell:hover img {
@@ -256,6 +300,26 @@ export default {
 .product-cell span {
   font-weight: 500;
   color: var(--text-primary);
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.price-text {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: var(--font-size-base);
+}
+
+.quantity-input {
+  width: 100%;
+}
+
+.quantity-input :deep(.el-input-number) {
+  width: 100%;
+}
+
+.quantity-input :deep(.el-input__wrapper) {
+  width: 100%;
 }
 
 .cart-footer {
@@ -321,6 +385,64 @@ export default {
 }
 
 .checkout-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.empty-cart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  min-height: 400px;
+}
+
+.empty-cart-icon {
+  color: var(--text-placeholder);
+  margin-bottom: 24px;
+  opacity: 0.6;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.empty-cart-title {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 12px 0;
+}
+
+.empty-cart-desc {
+  font-size: var(--font-size-base);
+  color: var(--text-regular);
+  margin: 0 0 32px 0;
+}
+
+.go-shopping-btn {
+  background: var(--primary-gradient);
+  border: none;
+  color: white;
+  font-weight: 600;
+  font-size: var(--font-size-base);
+  padding: 14px 40px;
+  border-radius: var(--radius-lg);
+  transition: var(--transition-base);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.go-shopping-btn:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
