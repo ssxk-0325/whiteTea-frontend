@@ -4,7 +4,7 @@
     <div class="toolbar">
       <el-button size="default" @click="loadOrders" style="display: inline-block;">刷新</el-button>
     </div>
-    <el-table :data="orders" style="width: 100%" v-loading="loading" class="modern-table">
+    <el-table :data="orders" style="width: 100%" v-loading="loading">
       <el-table-column prop="orderNo" label="订单号" width="180"></el-table-column>
       <el-table-column prop="userId" label="用户ID" width="100"></el-table-column>
       <el-table-column prop="totalAmount" label="订单金额" width="120">
@@ -168,21 +168,45 @@ h2 {
 
 .modern-table {
   border-radius: var(--radius-lg);
-  overflow: hidden;
+  overflow: visible;
   box-shadow: var(--shadow-base);
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
 }
 
+.modern-table :deep(.el-table__inner-wrapper) {
+  overflow: visible;
+}
+
+.modern-table :deep(.el-table__header-wrapper) {
+  overflow: visible;
+}
+
 .modern-table :deep(.el-table__header) {
   background: var(--primary-gradient);
+  display: table-header-group;
 }
 
 .modern-table :deep(.el-table__header th) {
-  background: transparent;
-  color: white;
+  background: transparent !important;
+  color: white !important;
   font-weight: 600;
   border-bottom: none;
+  padding: 16px 12px;
+  text-align: center;
+}
+
+.modern-table :deep(.el-table__header th .cell) {
+  color: white !important;
+  font-weight: 600;
+}
+
+.modern-table :deep(.el-table__header th.is-leaf) {
+  color: white !important;
+}
+
+.modern-table :deep(.el-table__header th .cell *) {
+  color: white !important;
 }
 
 .modern-table :deep(.el-table__body tr) {

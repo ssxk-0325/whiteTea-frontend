@@ -7,7 +7,7 @@
     </div>
     
     <!-- 产品列表 -->
-    <el-table :data="products" style="width: 100%" v-loading="loading" class="modern-table">
+    <el-table :data="products" style="width: 100%" v-loading="loading">
       <el-table-column prop="id" label="ID" width="80"></el-table-column>
       <el-table-column label="产品图片" width="100">
         <template #default="scope">
@@ -382,21 +382,45 @@ h2 {
 
 .modern-table {
   border-radius: var(--radius-lg);
-  overflow: hidden;
+  overflow: visible;
   box-shadow: var(--shadow-base);
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
 }
 
+.modern-table :deep(.el-table__inner-wrapper) {
+  overflow: visible;
+}
+
+.modern-table :deep(.el-table__header-wrapper) {
+  overflow: visible;
+}
+
 .modern-table :deep(.el-table__header) {
   background: var(--primary-gradient);
+  display: table-header-group;
 }
 
 .modern-table :deep(.el-table__header th) {
-  background: transparent;
-  color: white;
+  background: transparent !important;
+  color: white !important;
   font-weight: 600;
   border-bottom: none;
+  padding: 16px 12px;
+  text-align: center;
+}
+
+.modern-table :deep(.el-table__header th .cell) {
+  color: white !important;
+  font-weight: 600;
+}
+
+.modern-table :deep(.el-table__header th.is-leaf) {
+  color: white !important;
+}
+
+.modern-table :deep(.el-table__header th .cell *) {
+  color: white !important;
 }
 
 .modern-table :deep(.el-table__body tr:hover) {
