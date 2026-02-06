@@ -371,6 +371,9 @@ const api = {
   admin: {
     getStats: () => {
       return service.get('/admin/stats')
+    },
+    getChartData: () => {
+      return service.get('/admin/chart-data')
     }
   },
   // 趣味问答相关

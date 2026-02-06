@@ -134,59 +134,77 @@ export default {
       orderCount: 0,
       totalSales: '0.00'
     })
+    
+    const chartData = ref({
+      orderStatus: [],
+      monthlySales: [],
+      userGrowth: []
+    })
 
     // 扇形图配置 - 订单状态分布
-    const pieChartOption = computed(() => ({
-      tooltip: {
-        trigger: 'item',
-        formatter: '{a} <br/>{b}: {c} ({d}%)'
-      },
-      legend: {
-        orient: 'vertical',
-        left: '10%',
-        top: 'middle',
-        align: 'left'
-      },
-      series: [
-        {
-          name: '订单状态',
-          type: 'pie',
-          center: ['60%', '50%'],
-          radius: ['40%', '70%'],
-          avoidLabelOverlap: false,
-          itemStyle: {
-            borderRadius: 10,
-            borderColor: '#fff',
-            borderWidth: 2
-          },
-          label: {
-            show: false,
-            position: 'center'
-          },
-          emphasis: {
+    const pieChartOption = computed(() => {
+      const colorMap = {
+        '待付款': '#ff9f40',
+        '待发货': '#4facfe',
+        '待收货': '#00f2fe',
+        '已完成': '#43e97b',
+        '已取消': '#f5576c'
+      }
+      
+      const data = chartData.value.orderStatus.map(item => ({
+        value: item.value || 0,
+        name: item.name,
+        itemStyle: { color: colorMap[item.name] || '#909399' }
+      }))
+      
+      return {
+        tooltip: {
+          trigger: 'item',
+          formatter: '{a} <br/>{b}: {c} ({d}%)'
+        },
+        legend: {
+          orient: 'vertical',
+          left: '10%',
+          top: 'middle',
+          align: 'left'
+        },
+        series: [
+          {
+            name: '订单状态',
+            type: 'pie',
+            center: ['60%', '50%'],
+            radius: ['40%', '70%'],
+            avoidLabelOverlap: false,
+            itemStyle: {
+              borderRadius: 10,
+              borderColor: '#fff',
+              borderWidth: 2
+            },
             label: {
-              show: true,
-              fontSize: '20',
-              fontWeight: 'bold'
-            }
-          },
-          labelLine: {
-            show: false
-          },
-          data: [
-            { value: 35, name: '待付款', itemStyle: { color: '#ff9f40' } },
-            { value: 28, name: '已付款', itemStyle: { color: '#4facfe' } },
-            { value: 25, name: '已完成', itemStyle: { color: '#43e97b' } },
-            { value: 12, name: '已取消', itemStyle: { color: '#f5576c' } }
-          ]
-        }
-      ]
-    }))
+              show: false,
+              position: 'center'
+            },
+            emphasis: {
+              label: {
+                show: true,
+                fontSize: '20',
+                fontWeight: 'bold'
+              }
+            },
+            labelLine: {
+              show: false
+            },
+            data: data
+          }
+        ]
+      }
+    })
 
     // 柱形图配置 - 月度销售额
     const barChartOption = computed(() => {
-      const months = ['1月', '2月', '3月', '4月', '5月', '6月']
-      const sales = [12000, 19000, 15000, 22000, 18000, 25000]
+      const monthlySales = chartData.value.monthlySales || []
+      const months = monthlySales.map(item => item.month)
+      const sales = monthlySales.map(item => item.sales || 0)
       
       return {
         tooltip: {
@@ -205,7 +223,7 @@ export default {
         },
         xAxis: {
           type: 'category',
-          data: months,
+          data: months.length > 0 ? months : ['1月', '2月', '3月', '4月', '5月', '6月'],
           axisTick: {
             alignWithLabel: true
           }
@@ -235,7 +253,7 @@ export default {
                 ]
               }
             },
-            data: sales
+            data: sales.length > 0 ? sales : [0, 0, 0, 0, 0, 0]
           }
         ]
       }
@@ -243,8 +261,9 @@ export default {
 
     // 折线图配置 - 用户增长趋势
     const lineChartOption = computed(() => {
-      const dates = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
-      const newUsers = [12, 19, 15, 25, 22, 18, 24]
+      const userGrowth = chartData.value.userGrowth || []
+      const dates = userGrowth.map(item => item.date)
+      const newUsers = userGrowth.map(item => item.count || 0)
       
       return {
         tooltip: {
@@ -261,7 +280,7 @@ export default {
         xAxis: {
           type: 'category',
           boundaryGap: false,
-          data: dates
+          data: dates.length > 0 ? dates : ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
         },
         yAxis: {
           type: 'value',
@@ -294,7 +313,7 @@ export default {
                 ]
               }
             },
-            data: newUsers
+            data: newUsers.length > 0 ? newUsers : [0, 0, 0, 0, 0, 0, 0]
           }
         ]
       }
@@ -303,6 +322,7 @@ export default {
     const loadStats = async () => {
       loading.value = true
       try {
+        // 加载基础统计数据
         const res = await api.admin.getStats()
         if (res.data) {
           stats.value = {
@@ -312,9 +332,19 @@ export default {
             totalSales: (res.data.totalSales || 0).toFixed(2)
           }
         }
+        
+        // 加载图表数据
+        const chartRes = await api.admin.getChartData()
+        if (chartRes.data) {
+          chartData.value = {
+            orderStatus: chartRes.data.orderStatus || [],
+            monthlySales: chartRes.data.monthlySales || [],
+            userGrowth: chartRes.data.userGrowth || []
+          }
+        }
       } catch (error) {
         // 如果接口不存在，使用默认值
-        console.warn('统计接口未实现，使用默认值')
+        console.warn('统计接口未实现，使用默认值', error)
       } finally {
         loading.value = false
       }
@@ -327,6 +357,7 @@ export default {
     return {
       loading,
       stats,
+      chartData,
       pieChartOption,
       barChartOption,
       lineChartOption
