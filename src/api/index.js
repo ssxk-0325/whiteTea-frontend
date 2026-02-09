@@ -207,6 +207,9 @@ const api = {
         const params = status !== undefined ? { status } : {}
         return service.get('/order/admin/list', { params })
       },
+      getById: (id) => {
+        return service.get(`/order/admin/${id}`)
+      },
       ship: (id) => {
         return service.post(`/order/admin/${id}/ship`)
       }

@@ -28,6 +28,82 @@
       </el-table-column>
     </el-table>
     <el-empty v-if="!loading && orders.length === 0" description="暂无订单"></el-empty>
+
+    <!-- 订单详情对话框 -->
+    <el-dialog
+      v-model="dialogVisible"
+      title="订单详情"
+      width="800px"
+      :close-on-click-modal="false"
+    >
+      <div v-loading="detailLoading" v-if="orderDetail">
+        <div class="order-header">
+          <div>
+            <span>订单号：{{ orderDetail.order.orderNo }}</span>
+            <el-tag :type="getStatusType(orderDetail.order.status)" style="margin-left: 10px;">
+              {{ getStatusText(orderDetail.order.status) }}
+            </el-tag>
+          </div>
+        </div>
+        <el-divider />
+        
+        <h3>商品信息</h3>
+        <el-table :data="orderDetail.items" style="width: 100%; margin-bottom: 20px;">
+          <el-table-column label="商品" width="300">
+            <template #default="scope">
+              <div class="product-cell">
+                <img :src="scope.row.productImage || '/default-product.png'" :alt="scope.row.productName" />
+                <span>{{ scope.row.productName }}</span>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column label="单价" width="120">
+            <template #default="scope">
+              ¥{{ Number(scope.row.price).toFixed(2) }}
+            </template>
+          </el-table-column>
+          <el-table-column label="数量" width="100">
+            <template #default="scope">
+              {{ scope.row.quantity }}
+            </template>
+          </el-table-column>
+          <el-table-column label="小计" width="120">
+            <template #default="scope">
+              ¥{{ Number(scope.row.subtotal).toFixed(2) }}
+            </template>
+          </el-table-column>
+        </el-table>
+
+        <el-divider />
+
+        <h3>收货信息</h3>
+        <div class="address-info">
+          <p><strong>收货人：</strong>{{ orderDetail.order.receiverName }}</p>
+          <p><strong>联系电话：</strong>{{ orderDetail.order.receiverPhone }}</p>
+          <p><strong>收货地址：</strong>{{ orderDetail.order.receiverAddress }}</p>
+        </div>
+
+        <el-divider />
+
+        <h3>订单信息</h3>
+        <div class="order-info">
+          <p><strong>用户ID：</strong>{{ orderDetail.order.userId }}</p>
+          <p><strong>订单金额：</strong>¥{{ Number(orderDetail.order.totalAmount).toFixed(2) }}</p>
+          <p><strong>实付金额：</strong>¥{{ Number(orderDetail.order.payAmount).toFixed(2) }}</p>
+          <p><strong>支付方式：</strong>{{ getPayTypeText(orderDetail.order.payType) }}</p>
+          <p><strong>创建时间：</strong>{{ formatTime(orderDetail.order.createTime) }}</p>
+          <p v-if="orderDetail.order.payTime"><strong>支付时间：</strong>{{ formatTime(orderDetail.order.payTime) }}</p>
+          <p v-if="orderDetail.order.shipTime"><strong>发货时间：</strong>{{ formatTime(orderDetail.order.shipTime) }}</p>
+          <p v-if="orderDetail.order.completeTime"><strong>完成时间：</strong>{{ formatTime(orderDetail.order.completeTime) }}</p>
+          <p v-if="orderDetail.order.remark"><strong>备注：</strong>{{ orderDetail.order.remark }}</p>
+        </div>
+      </div>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="dialogVisible = false">关闭</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -41,6 +117,9 @@ export default {
   setup() {
     const orders = ref([])
     const loading = ref(false)
+    const dialogVisible = ref(false)
+    const detailLoading = ref(false)
+    const orderDetail = ref(null)
 
     const getStatusText = (status) => {
       const statusMap = {
@@ -48,7 +127,9 @@ export default {
         1: '待发货',
         2: '待收货',
         3: '已完成',
-        4: '已取消'
+        4: '已取消',
+        5: '退款中',
+        6: '已退款'
       }
       return statusMap[status] || '未知'
     }
@@ -59,9 +140,26 @@ export default {
         1: 'info',
         2: 'primary',
         3: 'success',
-        4: 'danger'
+        4: 'danger',
+        5: 'warning',
+        6: 'info'
       }
       return typeMap[status] || 'info'
+    }
+
+    const getPayTypeText = (payType) => {
+      const typeMap = {
+        0: '未支付',
+        1: '微信支付',
+        2: '支付宝',
+        3: '银行卡'
+      }
+      return typeMap[payType] || '未知'
+    }
+
+    const formatTime = (time) => {
+      if (!time) return '-'
+      return new Date(time).toLocaleString('zh-CN')
     }
 
     const loadOrders = async () => {
@@ -76,8 +174,18 @@ export default {
       }
     }
 
-    const viewOrder = (order) => {
-      ElMessage.info('查看订单功能待实现')
+    const viewOrder = async (order) => {
+      dialogVisible.value = true
+      detailLoading.value = true
+      try {
+        const res = await api.order.admin.getById(order.id)
+        orderDetail.value = res.data
+      } catch (error) {
+        ElMessage.error('加载订单详情失败')
+        dialogVisible.value = false
+      } finally {
+        detailLoading.value = false
+      }
     }
 
     const shipOrder = async (id) => {
@@ -104,8 +212,13 @@ export default {
     return {
       orders,
       loading,
+      dialogVisible,
+      detailLoading,
+      orderDetail,
       getStatusText,
       getStatusType,
+      getPayTypeText,
+      formatTime,
       loadOrders,
       viewOrder,
       shipOrder
@@ -242,6 +355,55 @@ h2 {
 .modern-table :deep(.el-button:hover) {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.product-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.product-cell img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: var(--radius-base);
+}
+
+.address-info,
+.order-info {
+  margin: 20px 0;
+}
+
+.address-info p,
+.order-info p {
+  margin-bottom: 10px;
+  line-height: 1.8;
+}
+
+h3 {
+  margin: 20px 0 10px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+:deep(.el-dialog__header) {
+  padding: 20px 20px 10px;
+}
+
+:deep(.el-dialog__body) {
+  padding: 20px;
+}
+
+:deep(.el-dialog__footer) {
+  padding: 10px 20px 20px;
 }
 </style>
 
