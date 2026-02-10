@@ -120,6 +120,9 @@ const api = {
     admin: {
       getList: (params) => {
         return service.get('/user/admin/list', { params })
+      },
+      update: (user) => {
+        return service.put('/user/admin/update', user)
       }
     }
   },

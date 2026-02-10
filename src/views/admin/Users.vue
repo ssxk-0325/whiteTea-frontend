@@ -53,11 +53,79 @@
       @current-change="loadUsers"
       style="margin-top: 20px; text-align: center;"
     />
+
+    <!-- 编辑用户对话框 -->
+    <el-dialog
+      v-model="editDialogVisible"
+      title="编辑用户"
+      width="600px"
+      @close="handleEditDialogClose"
+    >
+      <el-form
+        ref="editFormRef"
+        :model="editForm"
+        :rules="editFormRules"
+        label-width="100px"
+      >
+        <el-form-item label="用户名">
+          <el-input v-model="editForm.username" disabled></el-input>
+        </el-form-item>
+        <el-form-item label="昵称" prop="nickname">
+          <el-input v-model="editForm.nickname" placeholder="请输入昵称"></el-input>
+        </el-form-item>
+        <el-form-item label="手机号" prop="phone">
+          <el-input v-model="editForm.phone" placeholder="请输入手机号"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="editForm.email" placeholder="请输入邮箱"></el-input>
+        </el-form-item>
+        <el-form-item label="性别" prop="gender">
+          <el-radio-group v-model="editForm.gender">
+            <el-radio :label="0">未知</el-radio>
+            <el-radio :label="1">男</el-radio>
+            <el-radio :label="2">女</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="生日" prop="birthday">
+          <el-date-picker
+            v-model="editForm.birthday"
+            type="date"
+            placeholder="选择生日"
+            value-format="YYYY-MM-DD"
+            style="width: 100%"
+          />
+        </el-form-item>
+        <el-form-item label="用户类型" prop="userType">
+          <el-radio-group v-model="editForm.userType">
+            <el-radio :label="0">普通用户</el-radio>
+            <el-radio :label="1">管理员</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="状态" prop="status">
+          <el-radio-group v-model="editForm.status">
+            <el-radio :label="1">启用</el-radio>
+            <el-radio :label="0">禁用</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="个人简介" prop="bio">
+          <el-input
+            v-model="editForm.bio"
+            type="textarea"
+            :rows="3"
+            placeholder="请输入个人简介"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="editDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleSaveUser" :loading="saving">保存</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
 import api from '@/api'
@@ -71,6 +139,34 @@ export default {
     const currentPage = ref(1)
     const pageSize = ref(10)
     const total = ref(0)
+    const editDialogVisible = ref(false)
+    const editFormRef = ref(null)
+    const saving = ref(false)
+    
+    const editForm = reactive({
+      id: null,
+      username: '',
+      nickname: '',
+      phone: '',
+      email: '',
+      gender: 0,
+      birthday: null,
+      userType: 0,
+      status: 1,
+      bio: ''
+    })
+
+    const editFormRules = {
+      nickname: [
+        { required: true, message: '请输入昵称', trigger: 'blur' }
+      ],
+      phone: [
+        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
+      ],
+      email: [
+        { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
+      ]
+    }
 
     const loadUsers = async () => {
       loading.value = true
@@ -91,7 +187,68 @@ export default {
     }
 
     const editUser = (user) => {
-      ElMessage.info('编辑用户功能待实现')
+      // 填充表单数据
+      editForm.id = user.id
+      editForm.username = user.username || ''
+      editForm.nickname = user.nickname || ''
+      editForm.phone = user.phone || ''
+      editForm.email = user.email || ''
+      editForm.gender = user.gender !== undefined ? user.gender : 0
+      editForm.birthday = user.birthday || null
+      editForm.userType = user.userType !== undefined ? user.userType : 0
+      editForm.status = user.status !== undefined ? user.status : 1
+      editForm.bio = user.bio || ''
+      
+      editDialogVisible.value = true
+    }
+
+    const handleEditDialogClose = () => {
+      editFormRef.value?.resetFields()
+      Object.assign(editForm, {
+        id: null,
+        username: '',
+        nickname: '',
+        phone: '',
+        email: '',
+        gender: 0,
+        birthday: null,
+        userType: 0,
+        status: 1,
+        bio: ''
+      })
+    }
+
+    const handleSaveUser = async () => {
+      if (!editFormRef.value) return
+      
+      try {
+        await editFormRef.value.validate()
+        saving.value = true
+        
+        const updateData = {
+          id: editForm.id,
+          nickname: editForm.nickname,
+          phone: editForm.phone || null,
+          email: editForm.email || null,
+          gender: editForm.gender,
+          birthday: editForm.birthday || null,
+          userType: editForm.userType,
+          status: editForm.status,
+          bio: editForm.bio || null
+        }
+        
+        await api.user.admin.update(updateData)
+        ElMessage.success('更新成功')
+        editDialogVisible.value = false
+        loadUsers() // 刷新列表
+      } catch (error) {
+        if (error.message && !error.message.includes('validate')) {
+          ElMessage.error(error.message || '更新失败')
+        }
+        console.error('更新用户失败:', error)
+      } finally {
+        saving.value = false
+      }
     }
 
     onMounted(() => {
@@ -107,7 +264,14 @@ export default {
       total,
       loadUsers,
       editUser,
-      Search
+      Search,
+      editDialogVisible,
+      editForm,
+      editFormRef,
+      editFormRules,
+      saving,
+      handleEditDialogClose,
+      handleSaveUser
     }
   }
 }
