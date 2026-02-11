@@ -269,13 +269,16 @@ export default {
 }
 
 .option-item {
-  display: block;
-  padding: 15px;
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
   margin-bottom: 10px;
   border: 2px solid #e4e7ed;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .option-item:hover {
@@ -298,6 +301,16 @@ export default {
   background-color: #fef0f0;
 }
 
+.option-item .el-radio__input {
+  margin-right: 12px;
+}
+
+.option-item .el-radio__label {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
 .option-label {
   font-weight: bold;
   margin-right: 10px;
@@ -306,6 +319,7 @@ export default {
 
 .option-text {
   flex: 1;
+  line-height: 1.6;
 }
 
 .explanation {
