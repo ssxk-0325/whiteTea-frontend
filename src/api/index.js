@@ -467,6 +467,42 @@ const api = {
         params: { longitude, latitude, radius }
       })
     }
+  },
+  // 奖品相关
+  reward: {
+    getList: (params) => {
+      return service.get('/reward/list', { params })
+    },
+    getById: (id) => {
+      return service.get(`/reward/${id}`)
+    },
+    exchange: (id) => {
+      return service.post(`/reward/${id}/exchange`)
+    },
+    getMyExchanges: () => {
+      return service.get('/reward/my-exchanges')
+    },
+    getMyPoints: () => {
+      return service.get('/reward/my-points')
+    },
+    // 管理员接口
+    admin: {
+      getList: (params) => {
+        return service.get('/reward/admin/list', { params })
+      },
+      create: (data) => {
+        return service.post('/reward/admin/create', data)
+      },
+      update: (data) => {
+        return service.put('/reward/admin/update', data)
+      },
+      delete: (id) => {
+        return service.delete(`/reward/admin/${id}`)
+      },
+      processExchange: (id, data) => {
+        return service.post(`/reward/admin/exchange/${id}/process`, data)
+      }
+    }
   }
 }
 

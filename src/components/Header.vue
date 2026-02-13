@@ -15,6 +15,8 @@
         <el-menu-item index="products" @click="handleMenuClick('/products')">产品</el-menu-item>
         <el-menu-item index="culture" @click="handleMenuClick('/culture')">白茶文化</el-menu-item>
         <el-menu-item index="activity" @click="handleMenuClick('/activity')">活动</el-menu-item>
+        <el-menu-item index="quiz" @click="handleMenuClick('/quiz')">趣味问答</el-menu-item>
+        <el-menu-item index="rewards" @click="handleMenuClick('/rewards')">积分商城</el-menu-item>
         <el-menu-item index="community" @click="handleMenuClick('/community')">社区</el-menu-item>
       </el-menu>
       <div class="header-right">
@@ -45,6 +47,12 @@
               </el-dropdown-item>
               <el-dropdown-item command="coupons">
                 <router-link to="/activity/coupons" style="text-decoration: none; color: inherit; display: block; width: 100%;">我的券包</router-link>
+              </el-dropdown-item>
+              <el-dropdown-item command="rewards">
+                <router-link to="/rewards" style="text-decoration: none; color: inherit; display: block; width: 100%;">积分商城</router-link>
+              </el-dropdown-item>
+              <el-dropdown-item command="exchanges">
+                <router-link to="/rewards/exchanges" style="text-decoration: none; color: inherit; display: block; width: 100%;">兑换记录</router-link>
               </el-dropdown-item>
               <el-dropdown-item command="stores">
                 <router-link to="/stores" style="text-decoration: none; color: inherit; display: block; width: 100%;">门店地图</router-link>

@@ -45,7 +45,7 @@
               <div v-if="hasAnswered && question.explanation" class="explanation">
                 <el-alert
                   :type="answerResult.isCorrect ? 'success' : 'error'"
-                  :title="answerResult.isCorrect ? '回答正确！' : '回答错误'"
+                  :title="answerResult.isCorrect ? `回答正确！获得${getPointsReward()}积分` : '回答错误'"
                   :closable="false"
                 >
                   <template #default>
@@ -211,6 +211,15 @@ export default {
       return tagMap[difficulty] || 'info'
     }
 
+    const getPointsReward = () => {
+      if (!question.value) return 0
+      const difficulty = question.value.difficulty
+      if (difficulty === 1) return 5  // 简单
+      if (difficulty === 2) return 10  // 中等
+      if (difficulty === 3) return 15  // 困难
+      return 0
+    }
+
     onMounted(() => {
       loadQuestion()
     })
@@ -230,7 +239,8 @@ export default {
       getCategoryText,
       getCategoryTag,
       getDifficultyText,
-      getDifficultyTag
+      getDifficultyTag,
+      getPointsReward
     }
   }
 }

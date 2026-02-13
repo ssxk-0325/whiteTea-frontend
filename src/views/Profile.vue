@@ -16,6 +16,10 @@
             </div>
           </div>
           <div class="user-stats">
+            <div class="stat-item" @click="$router.push('/rewards')" style="cursor: pointer;">
+              <span class="stat-value">{{ userForm.points || 0 }}</span>
+              <span class="stat-label">积分</span>
+            </div>
             <div class="stat-item">
               <span class="stat-value">{{ favoritePosts.total || 0 }}</span>
               <span class="stat-label">收藏</span>

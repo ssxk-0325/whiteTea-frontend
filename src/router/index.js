@@ -111,6 +111,18 @@ const routes = [
     meta: { title: '答题', requiresAuth: true }
   },
   {
+    path: '/rewards',
+    name: 'Rewards',
+    component: () => import('../views/Rewards.vue'),
+    meta: { title: '积分商城' }
+  },
+  {
+    path: '/rewards/exchanges',
+    name: 'RewardExchanges',
+    component: () => import('../views/RewardExchanges.vue'),
+    meta: { title: '兑换记录', requiresAuth: true }
+  },
+  {
     path: '/customer-service',
     name: 'CustomerService',
     component: () => import('../views/CustomerService.vue'),
