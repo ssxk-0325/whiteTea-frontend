@@ -31,12 +31,8 @@ service.interceptors.response.use(
     if (res.code === 200) {
       return res
     } else {
-      // 检查是否是token过期或无效的错误
+      // 业务错误：仅提示，不跳转登录（只有 HTTP 401 时才跳转）
       const message = res.message || '请求失败'
-      if (isTokenExpiredError(message)) {
-        handleTokenExpired()
-        return Promise.reject(new Error(message))
-      }
       ElMessage.error(message)
       return Promise.reject(new Error(message))
     }
@@ -46,38 +42,21 @@ service.interceptors.response.use(
     if (error.response) {
       const status = error.response.status
       const message = error.response.data?.message || error.response.data?.data?.message || '请求失败'
-      
-      // 处理401未授权或token过期
-      if (status === 401 || isTokenExpiredError(message)) {
+      // 仅当 HTTP 401 时跳转登录；其他错误只提示
+      if (status === 401) {
         handleTokenExpired()
       } else {
         ElMessage.error(message)
       }
     } else {
-      // 网络错误或其他错误
       const errorMessage = error.message || '网络错误，请稍后重试'
-      if (isTokenExpiredError(errorMessage)) {
-        handleTokenExpired()
-      } else {
-        ElMessage.error(errorMessage)
-      }
+      ElMessage.error(errorMessage)
     }
     return Promise.reject(error)
   }
 )
 
-// 判断是否是token过期或无效的错误
-function isTokenExpiredError(message) {
-  if (!message) return false
-  const msg = message.toLowerCase()
-  return msg.includes('过期') || 
-         msg.includes('expired') || 
-         msg.includes('token') && (msg.includes('无效') || msg.includes('invalid') || msg.includes('失效')) ||
-         msg.includes('未登录') ||
-         msg.includes('unauthorized')
-}
-
-// 处理token过期
+// 处理token过期（仅在有 HTTP 401 时由拦截器调用）
 function handleTokenExpired() {
   // 清除用户信息
   store.dispatch('user/logout')
@@ -349,6 +328,9 @@ const api = {
       },
       delete: (id) => {
         return service.delete(`/activity/admin/${id}`)
+      },
+      verifyCoupon: (couponCode) => {
+        return service.post('/activity/admin/verify-coupon', { couponCode })
       }
     }
   },

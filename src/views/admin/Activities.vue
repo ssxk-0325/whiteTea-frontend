@@ -3,6 +3,7 @@
     <h2>活动管理</h2>
     <div class="toolbar">
       <el-button type="primary" size="default" @click="showAddDialog = true" style="display: inline-block;">添加活动</el-button>
+      <el-button type="success" size="default" @click="showVerifyDialog = true" style="display: inline-block;">核销券</el-button>
       <el-button size="default" @click="loadActivities" style="display: inline-block;">刷新</el-button>
       <el-select v-model="filterType" @change="loadActivities" style="width: 150px; margin-left: 10px;" clearable>
         <el-option label="全部类型" :value="null"></el-option>
@@ -180,6 +181,36 @@
         <el-button type="primary" @click="saveActivity" :loading="saving">保存</el-button>
       </template>
     </el-dialog>
+
+    <!-- 核销券对话框 -->
+    <el-dialog
+      v-model="showVerifyDialog"
+      title="核销活动券"
+      width="500px"
+      @close="resetVerifyForm"
+    >
+      <el-form :model="verifyForm" label-width="100px" ref="verifyFormRef">
+        <el-form-item label="券码" prop="couponCode" :rules="[{ required: true, message: '请输入券码', trigger: 'blur' }]">
+          <el-input 
+            v-model="verifyForm.couponCode" 
+            placeholder="请输入券码"
+            @keyup.enter="handleVerifyCoupon"
+            clearable
+          ></el-input>
+        </el-form-item>
+        <el-alert
+          v-if="verifyResult"
+          :title="verifyResult.message"
+          :type="verifyResult.type"
+          :closable="false"
+          style="margin-top: 10px;"
+        />
+      </el-form>
+      <template #footer>
+        <el-button @click="showVerifyDialog = false">取消</el-button>
+        <el-button type="primary" @click="handleVerifyCoupon" :loading="verifying">核销</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -202,6 +233,10 @@ export default {
     const total = ref(0)
     const filterType = ref(null)
     const activityFormRef = ref(null)
+    const showVerifyDialog = ref(false)
+    const verifying = ref(false)
+    const verifyFormRef = ref(null)
+    const verifyResult = ref(null)
 
     const activityForm = ref({
       name: '',
@@ -216,6 +251,10 @@ export default {
       totalCoupons: 0,
       maxParticipants: 0,
       status: 0
+    })
+
+    const verifyForm = ref({
+      couponCode: ''
     })
 
     const rules = {
@@ -423,6 +462,49 @@ export default {
       return tagMap[status] || 'info'
     }
 
+    const handleVerifyCoupon = async () => {
+      if (!verifyFormRef.value) return
+      
+      await verifyFormRef.value.validate(async (valid) => {
+        if (valid) {
+          verifying.value = true
+          verifyResult.value = null
+          try {
+            await api.activity.admin.verifyCoupon(verifyForm.value.couponCode)
+            verifyResult.value = {
+              message: '核销成功！',
+              type: 'success'
+            }
+            ElMessage.success('核销成功')
+            // 清空输入框
+            verifyForm.value.couponCode = ''
+            // 3秒后清除提示
+            setTimeout(() => {
+              verifyResult.value = null
+            }, 3000)
+          } catch (error) {
+            verifyResult.value = {
+              message: error.message || '核销失败',
+              type: 'error'
+            }
+            ElMessage.error(error.message || '核销失败')
+          } finally {
+            verifying.value = false
+          }
+        }
+      })
+    }
+
+    const resetVerifyForm = () => {
+      verifyForm.value = {
+        couponCode: ''
+      }
+      verifyResult.value = null
+      if (verifyFormRef.value) {
+        verifyFormRef.value.resetFields()
+      }
+    }
+
     onMounted(() => {
       loadActivities()
     })
@@ -454,7 +536,14 @@ export default {
       getTypeText,
       getTypeTag,
       getStatusText,
-      getStatusTag
+      getStatusTag,
+      showVerifyDialog,
+      verifying,
+      verifyForm,
+      verifyFormRef,
+      verifyResult,
+      handleVerifyCoupon,
+      resetVerifyForm
     }
   }
 }
