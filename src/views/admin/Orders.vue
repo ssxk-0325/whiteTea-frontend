@@ -7,6 +7,13 @@
     <el-table :data="orders" style="width: 100%" v-loading="loading">
       <el-table-column prop="orderNo" label="订单号" width="180"></el-table-column>
       <el-table-column prop="userId" label="用户ID" width="100"></el-table-column>
+      <el-table-column label="配送方式" width="100">
+        <template #default="scope">
+          <el-tag :type="scope.row.deliveryType === 2 ? 'warning' : 'primary'" size="small">
+            {{ scope.row.deliveryType === 2 ? '线下自提' : '线上配送' }}
+          </el-tag>
+        </template>
+      </el-table-column>
       <el-table-column prop="totalAmount" label="订单金额" width="120">
         <template #default="scope">
           ¥{{ Number(scope.row.totalAmount).toFixed(2) }}
@@ -76,11 +83,12 @@
 
         <el-divider />
 
-        <h3>收货信息</h3>
+        <h3>{{ orderDetail.order.deliveryType === 2 ? '自提信息' : '收货信息' }}</h3>
         <div class="address-info">
-          <p><strong>收货人：</strong>{{ orderDetail.order.receiverName }}</p>
+          <p><strong>配送方式：</strong>{{ orderDetail.order.deliveryType === 2 ? '线下自提' : '线上配送' }}</p>
+          <p><strong>{{ orderDetail.order.deliveryType === 2 ? '取货人' : '收货人' }}：</strong>{{ orderDetail.order.receiverName }}</p>
           <p><strong>联系电话：</strong>{{ orderDetail.order.receiverPhone }}</p>
-          <p><strong>收货地址：</strong>{{ orderDetail.order.receiverAddress }}</p>
+          <p><strong>{{ orderDetail.order.deliveryType === 2 ? '自提门店/地址' : '收货地址' }}：</strong>{{ orderDetail.order.receiverAddress }}</p>
         </div>
 
         <el-divider />

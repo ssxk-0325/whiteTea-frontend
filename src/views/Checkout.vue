@@ -6,8 +6,19 @@
         <h2>结算</h2>
         <el-row :gutter="20">
           <el-col :span="16">
-            <!-- 收货地址 -->
-            <el-card class="address-card">
+            <!-- 配送方式 -->
+            <el-card class="delivery-type-card">
+              <template #header>
+                <span>配送方式</span>
+              </template>
+              <el-radio-group v-model="deliveryType" class="delivery-type-group">
+                <el-radio :label="1" border size="large">线上配送</el-radio>
+                <el-radio :label="2" border size="large">线下自提</el-radio>
+              </el-radio-group>
+            </el-card>
+
+            <!-- 线上配送：收货地址 -->
+            <el-card v-if="deliveryType === 1" class="address-card">
               <template #header>
                 <div class="card-header">
                   <span>收货地址</span>
@@ -34,6 +45,32 @@
                 </el-radio>
               </el-radio-group>
               <el-empty v-if="addresses.length === 0" description="暂无收货地址，请添加"></el-empty>
+            </el-card>
+
+            <!-- 线下自提：选择门店 -->
+            <el-card v-if="deliveryType === 2" class="store-card">
+              <template #header>
+                <span>自提门店</span>
+              </template>
+              <el-radio-group v-model="selectedStoreId">
+                <el-radio
+                  v-for="store in storeList"
+                  :key="store.id"
+                  :label="store.id"
+                  class="store-radio"
+                >
+                  <div class="store-info">
+                    <div class="store-name">{{ store.name }}</div>
+                    <div class="store-address">{{ store.address }}</div>
+                    <div class="store-meta" v-if="store.phone || store.businessHours">
+                      <span v-if="store.phone">电话：{{ store.phone }}</span>
+                      <span v-if="store.businessHours" style="margin-left: 12px;">营业时间：{{ store.businessHours }}</span>
+                    </div>
+                  </div>
+                </el-radio>
+              </el-radio-group>
+              <el-empty v-if="storeList.length === 0 && !storeLoading" description="暂无营业门店"></el-empty>
+              <div v-if="storeLoading" style="padding: 20px; text-align: center;">加载门店中...</div>
             </el-card>
 
             <!-- 商品信息 -->
@@ -92,7 +129,7 @@
                 style="width: 100%; margin-top: 20px;"
                 :loading="submitting"
                 @click="submitOrder"
-                :disabled="!selectedAddressId || cartList.length === 0"
+                :disabled="!canSubmit || cartList.length === 0"
               >
                 提交订单
               </el-button>
@@ -136,7 +173,7 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { ElMessage } from 'element-plus'
@@ -152,8 +189,12 @@ export default {
     const router = useRouter()
     const store = useStore()
     const cartList = ref([])
+    const deliveryType = ref(1) // 1-线上配送 2-线下自提
     const addresses = ref([])
     const selectedAddressId = ref(null)
+    const storeList = ref([])
+    const selectedStoreId = ref(null)
+    const storeLoading = ref(false)
     const showAddressDialog = ref(false)
     const submitting = ref(false)
     const addressFormRef = ref(null)
@@ -219,6 +260,27 @@ export default {
       }
     }
 
+    const loadStores = async () => {
+      storeLoading.value = true
+      try {
+        const res = await api.store.getList()
+        storeList.value = (res.data || []).filter(s => s.status === 1)
+        if (storeList.value.length > 0 && !selectedStoreId.value) {
+          selectedStoreId.value = storeList.value[0].id
+        }
+      } catch (error) {
+        console.error('加载门店失败:', error)
+      } finally {
+        storeLoading.value = false
+      }
+    }
+
+    const canSubmit = computed(() => {
+      if (deliveryType.value === 1) return !!selectedAddressId.value
+      if (deliveryType.value === 2) return !!selectedStoreId.value
+      return false
+    })
+
     const saveAddress = async () => {
       if (!addressFormRef.value) return
       await addressFormRef.value.validate(async (valid) => {
@@ -250,8 +312,12 @@ export default {
     }
 
     const submitOrder = async () => {
-      if (!selectedAddressId.value) {
+      if (deliveryType.value === 1 && !selectedAddressId.value) {
         ElMessage.warning('请选择收货地址')
+        return
+      }
+      if (deliveryType.value === 2 && !selectedStoreId.value) {
+        ElMessage.warning('请选择自提门店')
         return
       }
       if (cartList.value.length === 0) {
@@ -261,13 +327,18 @@ export default {
 
       submitting.value = true
       try {
-        const selectedAddress = addresses.value.find(addr => addr.id === selectedAddressId.value)
         const orderData = {
-          addressId: selectedAddressId.value,
-          receiverName: selectedAddress.receiverName,
-          receiverPhone: selectedAddress.receiverPhone,
-          receiverAddress: `${selectedAddress.province}${selectedAddress.city}${selectedAddress.district}${selectedAddress.detail}`,
+          deliveryType: deliveryType.value,
           remark: ''
+        }
+        if (deliveryType.value === 1) {
+          const selectedAddress = addresses.value.find(addr => addr.id === selectedAddressId.value)
+          orderData.addressId = selectedAddressId.value
+          orderData.receiverName = selectedAddress.receiverName
+          orderData.receiverPhone = selectedAddress.receiverPhone
+          orderData.receiverAddress = `${selectedAddress.province || ''}${selectedAddress.city || ''}${selectedAddress.district || ''}${selectedAddress.detail || ''}`
+        } else {
+          orderData.storeId = selectedStoreId.value
         }
         const res = await api.order.create(orderData)
         ElMessage.success('订单创建成功')
@@ -303,14 +374,30 @@ export default {
     onMounted(() => {
       loadCart()
       loadAddresses()
+      loadStores()
+    })
+
+    watch(deliveryType, () => {
+      selectedAddressId.value = null
+      selectedStoreId.value = storeList.value.length > 0 ? storeList.value[0].id : null
+      if (deliveryType.value === 1) {
+        const defaultAddress = addresses.value.find(addr => addr.isDefault === 1)
+        if (defaultAddress) selectedAddressId.value = defaultAddress.id
+        else if (addresses.value.length > 0) selectedAddressId.value = addresses.value[0].id
+      }
     })
 
     return {
       cartList,
+      deliveryType,
       addresses,
       selectedAddressId,
+      storeList,
+      selectedStoreId,
+      storeLoading,
       showAddressDialog,
       submitting,
+      canSubmit,
       addressForm,
       addressRules,
       addressFormRef,
@@ -398,6 +485,48 @@ export default {
 .total-price {
   color: #f56c6c;
   font-size: 20px;
+}
+
+.delivery-type-card {
+  margin-bottom: 20px;
+}
+
+.delivery-type-group {
+  display: flex;
+  gap: 16px;
+}
+
+.store-card .store-radio {
+  display: block;
+  margin-bottom: 15px;
+  padding: 15px;
+  border: 1px solid #e4e7ed;
+  border-radius: 4px;
+}
+
+.store-card .store-radio:hover {
+  border-color: #409eff;
+}
+
+.store-info {
+  margin-left: 10px;
+}
+
+.store-name {
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.store-address {
+  color: #666;
+  font-size: 14px;
+}
+
+.store-meta {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #999;
 }
 </style>
 
