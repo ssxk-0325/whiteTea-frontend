@@ -31,8 +31,13 @@ service.interceptors.response.use(
     if (res.code === 200) {
       return res
     } else {
-      // 业务错误：仅提示，不跳转登录（只有 HTTP 401 时才跳转）
       const message = res.message || '请求失败'
+      const skipRedirect = response.config.skipAuthRedirect === true
+      // Token 过期/无效时跳转登录，除非该请求标记了 skipAuthRedirect（如核销券弹窗）
+      if (!skipRedirect && isTokenExpiredError(message)) {
+        handleTokenExpired()
+        return Promise.reject(new Error(message))
+      }
       ElMessage.error(message)
       return Promise.reject(new Error(message))
     }
@@ -42,8 +47,8 @@ service.interceptors.response.use(
     if (error.response) {
       const status = error.response.status
       const message = error.response.data?.message || error.response.data?.data?.message || '请求失败'
-      // 仅当 HTTP 401 时跳转登录；其他错误只提示
-      if (status === 401) {
+      const skipRedirect = error.config?.skipAuthRedirect === true
+      if (status === 401 && !skipRedirect) {
         handleTokenExpired()
       } else {
         ElMessage.error(message)
@@ -56,7 +61,18 @@ service.interceptors.response.use(
   }
 )
 
-// 处理token过期（仅在有 HTTP 401 时由拦截器调用）
+// 判断是否为 token 过期/无效类错误（用于决定是否跳转登录）
+function isTokenExpiredError(message) {
+  if (!message) return false
+  const msg = (message + '').toLowerCase()
+  return msg.includes('过期') ||
+    msg.includes('expired') ||
+    (msg.includes('token') && (msg.includes('无效') || msg.includes('invalid') || msg.includes('失效'))) ||
+    msg.includes('未登录') ||
+    msg.includes('unauthorized')
+}
+
+// 处理 token 过期：清除登录态并跳转登录页
 function handleTokenExpired() {
   // 清除用户信息
   store.dispatch('user/logout')
@@ -330,7 +346,7 @@ const api = {
         return service.delete(`/activity/admin/${id}`)
       },
       verifyCoupon: (couponCode) => {
-        return service.post('/activity/admin/verify-coupon', { couponCode })
+        return service.post('/activity/admin/verify-coupon', { couponCode }, { skipAuthRedirect: true })
       }
     }
   },
