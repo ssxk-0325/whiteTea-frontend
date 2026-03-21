@@ -7,7 +7,7 @@
         <div class="user-header-bg"></div>
         <div class="user-header-content">
           <div class="user-info-main">
-            <el-avatar :size="100" :src="userForm.avatar" class="user-avatar">
+            <el-avatar :size="100" :src="userForm.avatar || DEFAULT_USER_AVATAR" class="user-avatar">
               {{ userForm.nickname?.charAt(0) || userForm.username?.charAt(0) }}
             </el-avatar>
             <div class="user-text">
@@ -245,6 +245,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import api from '@/api'
 import AppHeader from '@/components/Header.vue'
+import { DEFAULT_USER_AVATAR } from '@/constants/assets'
 
 const { 
   User, 
@@ -480,6 +481,7 @@ export default {
 
     return {
       activeTab,
+      DEFAULT_USER_AVATAR,
       userForm,
       favoritePosts,
       likedPosts,

@@ -8,7 +8,7 @@
     <div v-loading="loading" class="user-info-content">
       <div v-if="userInfo" class="user-detail">
         <div class="user-avatar-section">
-          <el-avatar :src="userInfo.avatar || '/default-avatar.png'" :size="100"></el-avatar>
+          <el-avatar :src="userInfo.avatar || DEFAULT_USER_AVATAR" :size="100"></el-avatar>
         </div>
         <div class="user-info-section">
           <div class="info-item">
@@ -51,6 +51,7 @@
 import { ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import api from '@/api'
+import { DEFAULT_USER_AVATAR } from '@/constants/assets'
 
 export default {
   name: 'UserInfoDialog',
@@ -114,6 +115,7 @@ export default {
       visible,
       loading,
       userInfo,
+      DEFAULT_USER_AVATAR,
       formatTime,
       handleClose
     }

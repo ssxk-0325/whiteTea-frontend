@@ -10,7 +10,7 @@
             <div class="post-header">
               <div class="post-user">
                 <el-avatar 
-                  :src="post.user?.avatar || '/default-avatar.png'" 
+                  :src="post.user?.avatar || DEFAULT_USER_AVATAR" 
                   :size="50"
                   @click="viewUserInfo(post.user?.id)"
                   style="cursor: pointer;"
@@ -101,7 +101,7 @@
               <div v-for="comment in comments" :key="comment.id" class="comment-item">
                 <div class="comment-header">
                   <el-avatar 
-                    :src="comment.user?.avatar || '/default-avatar.png'" 
+                    :src="comment.user?.avatar || DEFAULT_USER_AVATAR" 
                     :size="40"
                     @click="viewUserInfo(comment.user?.id)"
                     style="cursor: pointer;"
@@ -125,7 +125,7 @@
                 <div v-if="comment.replies && comment.replies.length > 0" class="replies-list">
                   <div v-for="reply in comment.replies" :key="reply.id" class="reply-item">
                     <el-avatar 
-                      :src="reply.user?.avatar || '/default-avatar.png'" 
+                      :src="reply.user?.avatar || DEFAULT_USER_AVATAR" 
                       :size="30"
                       @click="viewUserInfo(reply.user?.id)"
                       style="cursor: pointer;"
@@ -184,6 +184,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { View, ChatDotRound, Star, StarFilled, CircleClose, CircleCheck } from '@element-plus/icons-vue'
 import api from '@/api'
 import Header from '@/components/Header.vue'
+import { DEFAULT_USER_AVATAR } from '@/constants/assets'
 import UserInfoDialog from '@/components/UserInfoDialog.vue'
 
 export default {
@@ -452,6 +453,7 @@ export default {
 
     return {
       loading,
+      DEFAULT_USER_AVATAR,
       commentsLoading,
       post,
       comments,

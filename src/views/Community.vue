@@ -40,7 +40,7 @@
               <div class="post-header">
                 <div class="post-user">
                   <el-avatar 
-                    :src="post.user?.avatar || '/default-avatar.png'" 
+                    :src="post.user?.avatar || DEFAULT_USER_AVATAR" 
                     :size="40"
                     @click.stop="viewUserInfo(post.user?.id)"
                     style="cursor: pointer;"
@@ -141,6 +141,7 @@ import { ElMessage } from 'element-plus'
 import { Plus, View, ChatDotRound, Star } from '@element-plus/icons-vue'
 import api from '@/api'
 import Header from '@/components/Header.vue'
+import { DEFAULT_USER_AVATAR } from '@/constants/assets'
 import UserInfoDialog from '@/components/UserInfoDialog.vue'
 
 export default {
@@ -312,6 +313,7 @@ export default {
 
     return {
       loading,
+      DEFAULT_USER_AVATAR,
       posts,
       currentPage,
       pageSize,

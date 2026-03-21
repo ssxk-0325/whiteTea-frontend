@@ -33,7 +33,7 @@
         </el-badge>
         <el-dropdown v-if="isLoggedIn" @command="handleCommand">
           <span class="user-info">
-            <el-avatar :src="userInfo?.avatar" :size="30">{{ userInfo?.nickname?.charAt(0) }}</el-avatar>
+            <el-avatar :src="userInfo?.avatar || DEFAULT_USER_AVATAR" :size="30">{{ userInfo?.nickname?.charAt(0) }}</el-avatar>
             <span>{{ userInfo?.nickname || userInfo?.username }}</span>
             <el-icon><ArrowDown /></el-icon>
           </span>
@@ -76,6 +76,7 @@ import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 import { ShoppingCart, ArrowDown, Service } from '@element-plus/icons-vue'
+import { DEFAULT_USER_AVATAR } from '@/constants/assets'
 import { ElMessageBox, ElMessage } from 'element-plus'
 
 export default {
@@ -204,6 +205,7 @@ export default {
       userInfo,
       userType,
       cartCount,
+      DEFAULT_USER_AVATAR,
       activeIndex,
       handleSelect,
       handleMenuClick,
