@@ -87,6 +87,7 @@ import { ElMessage } from 'element-plus'
 import { Calendar, Clock, Ticket, Star, Check } from '@element-plus/icons-vue'
 import api from '@/api'
 import Header from '@/components/Header.vue'
+import { ACTIVITY_TYPE_LABELS, ACTIVITY_TYPE_TAGS } from '@/constants/activityTypes'
 
 export default {
   name: 'ActivityDetail',
@@ -180,25 +181,8 @@ export default {
       return new Date(time).toLocaleString('zh-CN')
     }
 
-    const getTypeText = (type) => {
-      const typeMap = {
-        1: '茶艺课',
-        2: '茶园参观',
-        3: '线下品鉴会',
-        4: '制茶体验'
-      }
-      return typeMap[type] || '未知'
-    }
-
-    const getTypeTag = (type) => {
-      const tagMap = {
-        1: 'success',
-        2: 'warning',
-        3: 'info',
-        4: 'danger'
-      }
-      return tagMap[type] || 'info'
-    }
+    const getTypeText = (type) => ACTIVITY_TYPE_LABELS[type] || '未知'
+    const getTypeTag = (type) => ACTIVITY_TYPE_TAGS[type] || 'info'
 
     onMounted(() => {
       loadActivity()

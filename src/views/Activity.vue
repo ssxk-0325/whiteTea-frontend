@@ -4,6 +4,7 @@
     <el-container>
       <el-main style="max-width: 1200px; margin: 0 auto;">
         <h2>精彩活动</h2>
+        <p class="page-subtitle">茶艺课、茶园参观、品鉴会与制茶体验等线下体验类活动。采摘用工、批发培训请见 <router-link to="/services/industry" class="inline-link">产业服务</router-link>。</p>
 
         <!-- 筛选栏 -->
         <div class="filter-bar">
@@ -79,11 +80,12 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { Calendar, Star, Clock, Ticket } from '@element-plus/icons-vue'
 import api from '@/api'
 import Header from '@/components/Header.vue'
+import { ACTIVITY_TYPE_LABELS, ACTIVITY_TYPE_TAGS } from '@/constants/activityTypes'
 
 export default {
   name: 'Activity',
@@ -96,6 +98,7 @@ export default {
   },
   setup() {
     const router = useRouter()
+    const route = useRoute()
     const loading = ref(false)
     const activities = ref([])
     const currentPage = ref(1)
@@ -109,7 +112,8 @@ export default {
       try {
         const params = {
           page: currentPage.value - 1,
-          size: pageSize.value
+          size: pageSize.value,
+          category: 'experience'
         }
         if (filterType.value !== null) {
           params.type = filterType.value
@@ -144,25 +148,8 @@ export default {
       return new Date(time).toLocaleDateString('zh-CN')
     }
 
-    const getTypeText = (type) => {
-      const typeMap = {
-        1: '茶艺课',
-        2: '茶园参观',
-        3: '线下品鉴会',
-        4: '制茶体验'
-      }
-      return typeMap[type] || '未知'
-    }
-
-    const getTypeTag = (type) => {
-      const tagMap = {
-        1: 'success',
-        2: 'warning',
-        3: 'info',
-        4: 'danger'
-      }
-      return tagMap[type] || 'info'
-    }
+    const getTypeText = (type) => ACTIVITY_TYPE_LABELS[type] || '未知'
+    const getTypeTag = (type) => ACTIVITY_TYPE_TAGS[type] || 'info'
 
     const getActivityStatus = (activity) => {
       const now = new Date()
@@ -181,9 +168,30 @@ export default {
       return 'grab'
     }
 
+    const redirectIndustryIfNeeded = () => {
+      const t = route.query.type
+      if (t === '5' || t === '6' || t === 5 || t === 6) {
+        router.replace({
+          path: '/services/industry',
+          query: { tab: String(t) === '5' || t === 5 ? 'pick' : 'wholesale' }
+        })
+        return true
+      }
+      return false
+    }
+
     onMounted(() => {
+      if (redirectIndustryIfNeeded()) return
       loadActivities()
     })
+
+    watch(
+      () => route.query.type,
+      () => {
+        if (redirectIndustryIfNeeded()) return
+        loadActivities()
+      }
+    )
 
     return {
       loading,
@@ -208,6 +216,18 @@ export default {
 <style scoped>
 .activity-page {
   min-height: 100vh;
+}
+
+.page-subtitle {
+  margin: 0 0 18px;
+  font-size: 14px;
+  color: #666;
+  line-height: 1.6;
+}
+
+.inline-link {
+  color: #2d6a4f;
+  font-weight: 600;
 }
 
 .filter-bar {

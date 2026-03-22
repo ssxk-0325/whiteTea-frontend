@@ -1,16 +1,19 @@
 <template>
   <div id="app">
     <router-view />
+    <IndustryServiceFloatButton />
     <CustomerServiceFloatButton />
   </div>
 </template>
 
 <script>
+import IndustryServiceFloatButton from './components/IndustryServiceFloatButton.vue'
 import CustomerServiceFloatButton from './components/CustomerServiceFloatButton.vue'
 
 export default {
   name: 'App',
   components: {
+    IndustryServiceFloatButton,
     CustomerServiceFloatButton
   }
 }

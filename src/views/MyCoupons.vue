@@ -34,6 +34,9 @@
                     <el-icon v-if="coupon.couponType === 1"><Coffee /></el-icon>
                     <el-icon v-else-if="coupon.couponType === 2"><Location /></el-icon>
                     <el-icon v-else-if="coupon.couponType === 3"><Star /></el-icon>
+                    <el-icon v-else-if="coupon.couponType === 4"><Tools /></el-icon>
+                    <el-icon v-else-if="coupon.couponType === 5"><Crop /></el-icon>
+                    <el-icon v-else-if="coupon.couponType === 6"><Shop /></el-icon>
                     <el-icon v-else><Tools /></el-icon>
                   </div>
                   <div class="coupon-info">
@@ -71,8 +74,9 @@
 
 <script>
 import { ref, onMounted } from 'vue'
-import { Coffee, Location, Star, Tools } from '@element-plus/icons-vue'
+import { Coffee, Location, Star, Tools, Crop, Shop } from '@element-plus/icons-vue'
 import api from '@/api'
+import { ACTIVITY_TYPE_LABELS } from '@/constants/activityTypes'
 import Header from '@/components/Header.vue'
 
 export default {
@@ -82,7 +86,9 @@ export default {
     Coffee,
     Location,
     Star,
-    Tools
+    Tools,
+    Crop,
+    Shop
   },
   setup() {
     const loading = ref(false)
@@ -128,15 +134,7 @@ export default {
       return tagMap[status] || 'info'
     }
 
-    const getTypeText = (type) => {
-      const typeMap = {
-        1: '茶艺课',
-        2: '茶园参观',
-        3: '线下品鉴会',
-        4: '制茶体验'
-      }
-      return typeMap[type] || '未知'
-    }
+    const getTypeText = (type) => ACTIVITY_TYPE_LABELS[type] || '未知'
 
     onMounted(() => {
       loadCoupons()

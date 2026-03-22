@@ -69,6 +69,12 @@ const routes = [
     meta: { title: '白茶文化' }
   },
   {
+    path: '/services/industry',
+    name: 'IndustryServices',
+    component: () => import('../views/IndustryServices.vue'),
+    meta: { title: '产业服务' }
+  },
+  {
     path: '/activity',
     name: 'Activity',
     component: () => import('../views/Activity.vue'),
