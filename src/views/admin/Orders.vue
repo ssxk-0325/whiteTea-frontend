@@ -59,7 +59,7 @@
           <el-table-column label="商品" width="300">
             <template #default="scope">
               <div class="product-cell">
-                <img :src="scope.row.productImage || '/default-product.png'" :alt="scope.row.productName" />
+                <img :src="scope.row.productImage || DEFAULT_PRODUCT_IMAGE" :alt="scope.row.productName" />
                 <span>{{ scope.row.productName }}</span>
               </div>
             </template>
@@ -119,6 +119,7 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import api from '@/api'
+import { DEFAULT_PRODUCT_IMAGE } from '@/constants/assets'
 
 export default {
   name: 'AdminOrders',
@@ -219,6 +220,7 @@ export default {
 
     return {
       orders,
+      DEFAULT_PRODUCT_IMAGE,
       loading,
       dialogVisible,
       detailLoading,

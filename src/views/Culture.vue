@@ -44,8 +44,8 @@
               <el-col :span="8" v-for="content in contents" :key="content.id">
                 <el-card class="content-card" @click="viewContent(content)">
                   <div class="content-cover">
-                    <img v-if="content.coverImage" :src="content.coverImage" :alt="content.title" />
-                    <div v-else class="default-cover">
+                    <img :src="content.coverImage || DEFAULT_COVER_IMAGE" :alt="content.title" />
+                    <div v-if="!content.coverImage" class="cover-type-badge">
                       <el-icon v-if="content.contentType === 1"><Document /></el-icon>
                       <el-icon v-else><VideoPlay /></el-icon>
                     </div>
@@ -91,6 +91,7 @@ import { useRouter } from 'vue-router'
 import { Document, VideoPlay, View, Star, QuestionFilled } from '@element-plus/icons-vue'
 import api from '@/api'
 import Header from '@/components/Header.vue'
+import { DEFAULT_COVER_IMAGE } from '@/constants/assets'
 
 export default {
   name: 'Culture',
@@ -194,6 +195,7 @@ export default {
 
     return {
       loading,
+      DEFAULT_COVER_IMAGE,
       contents,
       currentPage,
       pageSize,
@@ -258,15 +260,19 @@ export default {
   object-fit: cover;
 }
 
-.default-cover {
-  width: 100%;
-  height: 100%;
+.cover-type-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  font-size: 48px;
+  font-size: 22px;
 }
 
 .video-badge {

@@ -50,11 +50,8 @@
             <el-row :gutter="20">
               <el-col :span="8" v-for="reward in rewards" :key="reward.id">
                 <el-card class="reward-card" shadow="hover">
-                  <div class="reward-image" v-if="reward.image">
-                    <el-image :src="reward.image" fit="cover" style="width: 100%; height: 200px;" />
-                  </div>
-                  <div class="reward-image-placeholder" v-else>
-                    <el-icon :size="60"><Picture /></el-icon>
+                  <div class="reward-image">
+                    <el-image :src="reward.image || DEFAULT_PRODUCT_IMAGE" fit="cover" style="width: 100%; height: 200px;" />
                   </div>
                   <div class="reward-content">
                     <h3 class="reward-name">{{ reward.name }}</h3>
@@ -104,15 +101,14 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Picture } from '@element-plus/icons-vue'
 import api from '@/api'
 import Header from '@/components/Header.vue'
+import { DEFAULT_PRODUCT_IMAGE } from '@/constants/assets'
 
 export default {
   name: 'Rewards',
   components: {
-    Header,
-    Picture
+    Header
   },
   setup() {
     const router = useRouter()
@@ -214,6 +210,7 @@ export default {
 
     return {
       loading,
+      DEFAULT_PRODUCT_IMAGE,
       rewards,
       currentPage,
       pageSize,

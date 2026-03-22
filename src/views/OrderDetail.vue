@@ -22,7 +22,7 @@
               <el-table-column label="商品" width="300">
                 <template #default="scope">
                   <div class="product-cell">
-                    <img :src="scope.row.productImage || '/default-product.png'" :alt="scope.row.productName" />
+                    <img :src="scope.row.productImage || DEFAULT_PRODUCT_IMAGE" :alt="scope.row.productName" />
                     <span>{{ scope.row.productName }}</span>
                   </div>
                 </template>
@@ -88,6 +88,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import api from '@/api'
 import Header from '@/components/Header.vue'
+import { DEFAULT_PRODUCT_IMAGE } from '@/constants/assets'
 
 export default {
   name: 'OrderDetail',
@@ -213,6 +214,7 @@ export default {
 
     return {
       loading,
+      DEFAULT_PRODUCT_IMAGE,
       order,
       orderItems,
       getStatusText,

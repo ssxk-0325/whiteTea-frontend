@@ -12,7 +12,7 @@
       <el-table-column label="产品图片" width="100">
         <template #default="scope">
           <el-image
-            :src="scope.row.image || '/default-product.png'"
+            :src="scope.row.image || DEFAULT_PRODUCT_IMAGE"
             style="width: 60px; height: 60px;"
             fit="cover"
           />
@@ -131,6 +131,7 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import api from '@/api'
+import { DEFAULT_PRODUCT_IMAGE } from '@/constants/assets'
 
 export default {
   name: 'AdminProducts',
@@ -306,6 +307,7 @@ export default {
 
     return {
       loading,
+      DEFAULT_PRODUCT_IMAGE,
       saving,
       showAddDialog,
       editingProduct,

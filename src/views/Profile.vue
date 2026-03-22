@@ -213,7 +213,7 @@
                   {{ formatTime(item.updateTime) }}
                 </div>
                 <div class="history-content">
-                  <el-image :src="item.image" class="history-img" fit="cover" v-if="item.image">
+                  <el-image :src="item.image || DEFAULT_PRODUCT_IMAGE" class="history-img" fit="cover">
                     <template #error><div class="image-slot"><el-icon><View /></el-icon></div></template>
                   </el-image>
                   <div class="history-info">
@@ -245,7 +245,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import api from '@/api'
 import AppHeader from '@/components/Header.vue'
-import { DEFAULT_USER_AVATAR } from '@/constants/assets'
+import { DEFAULT_USER_AVATAR, DEFAULT_PRODUCT_IMAGE } from '@/constants/assets'
 
 const { 
   User, 
@@ -482,6 +482,7 @@ export default {
     return {
       activeTab,
       DEFAULT_USER_AVATAR,
+      DEFAULT_PRODUCT_IMAGE,
       userForm,
       favoritePosts,
       likedPosts,

@@ -12,7 +12,7 @@
       <el-table-column label="分类图片" width="100">
         <template #default="scope">
           <el-image
-            :src="scope.row.image || '/default-category.png'"
+            :src="scope.row.image || DEFAULT_CATEGORY_IMAGE"
             style="width: 60px; height: 60px;"
             fit="cover"
           />
@@ -103,6 +103,7 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import api from '@/api'
+import { DEFAULT_CATEGORY_IMAGE } from '@/constants/assets'
 
 export default {
   name: 'AdminCategories',
@@ -236,6 +237,7 @@ export default {
 
     return {
       loading,
+      DEFAULT_CATEGORY_IMAGE,
       saving,
       showAddDialog,
       editingCategory,

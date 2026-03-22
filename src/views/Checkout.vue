@@ -82,7 +82,7 @@
                 <el-table-column label="商品" width="300">
                   <template #default="scope">
                     <div class="product-cell">
-                      <img :src="scope.row.product?.image || '/default-product.png'" :alt="scope.row.product?.name" />
+                      <img :src="scope.row.product?.image || DEFAULT_PRODUCT_IMAGE" :alt="scope.row.product?.name" />
                       <span>{{ scope.row.product?.name }}</span>
                     </div>
                   </template>
@@ -179,6 +179,7 @@ import { useStore } from 'vuex'
 import { ElMessage } from 'element-plus'
 import api from '@/api'
 import Header from '@/components/Header.vue'
+import { DEFAULT_PRODUCT_IMAGE } from '@/constants/assets'
 
 export default {
   name: 'Checkout',
@@ -389,6 +390,7 @@ export default {
 
     return {
       cartList,
+      DEFAULT_PRODUCT_IMAGE,
       deliveryType,
       addresses,
       selectedAddressId,

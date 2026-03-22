@@ -18,8 +18,8 @@
               
               <h2 class="question-title">{{ question.question }}</h2>
               
-              <div v-if="question.image" class="question-image">
-                <el-image :src="question.image" fit="cover" style="width: 100%; max-height: 300px;" />
+              <div class="question-image">
+                <el-image :src="question.image || DEFAULT_COVER_IMAGE" fit="cover" style="width: 100%; max-height: 300px;" />
               </div>
 
               <!-- 选项 -->
@@ -89,6 +89,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import api from '@/api'
 import Header from '@/components/Header.vue'
+import { DEFAULT_COVER_IMAGE } from '@/constants/assets'
 
 export default {
   name: 'QuizDetail',
@@ -226,6 +227,7 @@ export default {
 
     return {
       loading,
+      DEFAULT_COVER_IMAGE,
       submitting,
       question,
       selectedAnswer,

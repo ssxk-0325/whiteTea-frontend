@@ -25,7 +25,7 @@
           <el-row :gutter="20">
             <el-col :span="6" v-for="category in categories" :key="category.id">
               <el-card class="category-card" @click="goToProducts(category.id)">
-                <img :src="category.image || '/default-category.png'" :alt="category.name" />
+                <img :src="category.image || DEFAULT_CATEGORY_IMAGE" :alt="category.name" />
                 <h3>{{ category.name }}</h3>
               </el-card>
             </el-col>
@@ -38,7 +38,7 @@
           <el-row :gutter="20">
             <el-col :span="6" v-for="product in hotProducts" :key="product.id">
               <el-card class="product-card" @click="goToProductDetail(product.id)">
-                <img :src="product.image || '/default-product.png'" :alt="product.name" />
+                <img :src="product.image || DEFAULT_PRODUCT_IMAGE" :alt="product.name" />
                 <div class="product-info">
                   <h3>{{ product.name }}</h3>
                   <p class="price">¥{{ product.price }}</p>
@@ -60,6 +60,7 @@ import { ElMessage } from 'element-plus'
 import api from '@/api'
 import store from '@/store'
 import Header from '@/components/Header.vue'
+import { HOME_BANNERS, DEFAULT_CATEGORY_IMAGE, DEFAULT_PRODUCT_IMAGE } from '@/constants/assets'
 
 export default {
   name: 'Home',
@@ -68,10 +69,7 @@ export default {
   },
   setup() {
     const router = useRouter()
-    const banners = ref([
-      { id: 1, title: '福鼎白茶', image: '/images/福鼎白茶.jpg' },
-      { id: 2, title: '优质茶叶', image: '/images/优质茶叶.jpg' }
-    ])
+    const banners = ref([...HOME_BANNERS])
     const categories = ref([])
     const hotProducts = ref([])
     const bannerHeight = ref('500px')
@@ -155,6 +153,8 @@ export default {
       categories,
       hotProducts,
       bannerHeight,
+      DEFAULT_CATEGORY_IMAGE,
+      DEFAULT_PRODUCT_IMAGE,
       goToProducts,
       goToProductDetail,
       addToCart,

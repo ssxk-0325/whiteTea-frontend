@@ -27,7 +27,7 @@
         <el-row :gutter="20">
           <el-col :span="6" v-for="product in products" :key="product.id">
             <el-card class="product-card" @click="goToDetail(product.id)">
-              <img :src="product.image || '/default-product.png'" :alt="product.name" />
+              <img :src="product.image || DEFAULT_PRODUCT_IMAGE" :alt="product.name" />
               <div class="product-info">
                 <h3>{{ product.name }}</h3>
                 <p class="price">¥{{ product.price }}</p>
@@ -56,6 +56,7 @@ import { useStore } from 'vuex'
 import { ElMessage } from 'element-plus'
 import api from '@/api'
 import Header from '@/components/Header.vue'
+import { DEFAULT_PRODUCT_IMAGE } from '@/constants/assets'
 
 export default {
   name: 'Products',
@@ -152,6 +153,7 @@ export default {
 
     return {
       categories,
+      DEFAULT_PRODUCT_IMAGE,
       products,
       keyword,
       currentPage,

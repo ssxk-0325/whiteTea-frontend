@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="800" height="450">
+  <defs>
+    <linearGradient id="cv" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#dfece3"/>
+      <stop offset="50%" style="stop-color:#b8d4c4"/>
+      <stop offset="100%" style="stop-color:#8fb39a"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#cv)"/>
+  <g opacity="0.35" fill="#fff">
+    <ellipse cx="200" cy="120" rx="120" ry="40"/>
+    <ellipse cx="600" cy="80" rx="100" ry="35"/>
+  </g>
+  <text x="400" y="230" text-anchor="middle" font-family="system-ui,sans-serif" font-size="28" fill="#4a6b55" font-weight="600">}6‡</text>
+  <text x="400" y="270" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" fill="#5a7a6a">b`M</text>
+</svg>

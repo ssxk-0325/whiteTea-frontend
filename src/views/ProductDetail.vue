@@ -8,10 +8,10 @@
             <el-col :span="12">
               <div class="image-container">
                 <el-image 
-                  :src="product.image || '/default-product.png'" 
+                  :src="product.image || DEFAULT_PRODUCT_IMAGE" 
                   fit="contain" 
                   class="product-image"
-                  :preview-src-list="[product.image || '/default-product.png']"
+                  :preview-src-list="[product.image || DEFAULT_PRODUCT_IMAGE]"
                 />
               </div>
             </el-col>
@@ -101,6 +101,7 @@ import { useStore } from 'vuex'
 import { ElMessage } from 'element-plus'
 import api from '@/api'
 import Header from '@/components/Header.vue'
+import { DEFAULT_PRODUCT_IMAGE } from '@/constants/assets'
 
 export default {
   name: 'ProductDetail',
@@ -135,7 +136,7 @@ export default {
             targetType: 2,
             targetId: product.value.id,
             title: product.value.name,
-            image: product.value.image
+            image: product.value.image || DEFAULT_PRODUCT_IMAGE
           }).catch(err => console.error('记录历史失败', err))
         }
       } catch (error) {
@@ -168,6 +169,7 @@ export default {
 
     return {
       loading,
+      DEFAULT_PRODUCT_IMAGE,
       product,
       categoryName,
       quantity,

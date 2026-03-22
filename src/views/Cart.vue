@@ -12,7 +12,7 @@
           <el-table-column label="商品" min-width="300" align="center" show-overflow-tooltip>
             <template #default="scope">
               <div class="product-cell">
-                <img :src="scope.row.product?.image || '/default-product.png'" :alt="scope.row.product?.name" />
+                <img :src="scope.row.product?.image || DEFAULT_PRODUCT_IMAGE" :alt="scope.row.product?.name" />
                 <span>{{ scope.row.product?.name }}</span>
               </div>
             </template>
@@ -77,6 +77,7 @@ import { useStore } from 'vuex'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ShoppingCart, Goods } from '@element-plus/icons-vue'
 import Header from '@/components/Header.vue'
+import { DEFAULT_PRODUCT_IMAGE } from '@/constants/assets'
 
 export default {
   name: 'Cart',
@@ -183,6 +184,7 @@ export default {
 
     return {
       loading,
+      DEFAULT_PRODUCT_IMAGE,
       cartList,
       totalPrice,
       formatPrice,

@@ -28,7 +28,7 @@
             <el-divider />
             <div class="order-items">
               <div v-for="item in order.items" :key="item.id" class="order-item">
-                <img :src="item.productImage || '/default-product.png'" :alt="item.productName" />
+                <img :src="item.productImage || DEFAULT_PRODUCT_IMAGE" :alt="item.productName" />
                 <div class="item-info">
                   <h4>{{ item.productName }}</h4>
                   <p>¥{{ Number(item.price).toFixed(2) }} x {{ item.quantity }}</p>
@@ -65,6 +65,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import api from '@/api'
 import Header from '@/components/Header.vue'
+import { DEFAULT_PRODUCT_IMAGE } from '@/constants/assets'
 
 export default {
   name: 'Orders',
@@ -179,6 +180,7 @@ export default {
 
     return {
       activeTab,
+      DEFAULT_PRODUCT_IMAGE,
       orders,
       loading,
       loadOrders,

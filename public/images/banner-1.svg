@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400">
+  <defs>
+    <linearGradient id="b1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3d6b4f"/>
+      <stop offset="100%" style="stop-color:#7a9b86"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="400" fill="url(#b1)"/>
+  <circle cx="900" cy="120" r="180" fill="#fff" opacity="0.08"/>
+  <circle cx="200" cy="320" r="140" fill="#fff" opacity="0.06"/>
+  <text x="600" y="190" text-anchor="middle" font-family="system-ui,sans-serif" font-size="42" fill="#fff" font-weight="700">è}6</text>
+  <text x="600" y="240" text-anchor="middle" font-family="system-ui,sans-serif" font-size="18" fill="#e8f4ec">üß0 ∑ ôá</text>
+</svg>
