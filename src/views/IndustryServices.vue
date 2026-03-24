@@ -6,7 +6,7 @@
         <header class="page-header">
           <h1>产业服务</h1>
           <p class="lead">
-            采摘招募与批发培训面向茶园用工、渠道合作与大客户赋能，与「精彩活动」中的茶艺课、品鉴会等体验类活动区分，便于您快速找到对接入口。
+            本页聚焦福鼎本地产业对接：一侧汇总茶厂、采茶地发布的采茶用工招募；另一侧对接白茶收购与白茶种植技术培训。与「精彩活动」中的茶艺课、品鉴会等体验类内容区分，便于按需查找。
           </p>
         </header>
 
@@ -18,11 +18,11 @@
                 <h2>采摘招募</h2>
               </div>
               <p class="intro-text">
-                季节性采茶用工、茶园体验采摘或短期帮工招募，连接茶农与参与者，体现从茶园到采摘环节的产业服务。
+                福鼎各乡镇茶厂、合作社与采茶地发布的采茶季用工信息：在点头、磻溪、白琳、管阳等产区及周边茶园招采茶工、短期帮工，按斤计酬或日结，具体以茶厂/基地现场约定为准。
               </p>
               <ul class="intro-list">
-                <li>适合：采茶季用工、研学团体、体验用户</li>
-                <li>说明：具体岗位、补贴与日程以单场活动为准</li>
+                <li>适合：有采茶经验者、愿意进园务工的本地及周边劳动者</li>
+                <li>说明：平台展示招募场次，工期、地点、待遇以单场活动及线下对接为准</li>
               </ul>
             </el-card>
           </el-col>
@@ -33,25 +33,25 @@
                 <h2>批发与培训</h2>
               </div>
               <p class="intro-text">
-                面向茶叶店主、企业采购与渠道伙伴：在批发供货基础上提供仓储、冲泡、品鉴与门店动销等培训，体现「不仅供货，还做服务」。
+                面向茶企、收购商与种植户：福鼎白茶毛茶与成品茶的批量收购对接，以及白茶种植技术培训——涵盖茶园选址、茶树管护、采摘标准与初制要点等，帮助提升原料品质与种植效益。
               </p>
               <ul class="intro-list">
-                <li>适合：批发商、连锁门店、企业集采</li>
-                <li>说明：可结合线下场次或定制培训方案</li>
+                <li>收购：适配有批量出货需求的合作社、茶农与经销商询价对接</li>
+                <li>培训：适准备新扩茶园、改良种植或标准化管理的个人与主体</li>
               </ul>
             </el-card>
           </el-col>
         </el-row>
 
         <div class="section-anchor" id="list">
-          <h2 class="section-title">开放中的招募与对接</h2>
-          <p class="section-hint">以下为平台发布的产业类活动，报名与领券规则见单场详情。</p>
+          <h2 class="section-title">福鼎本地招募与对接</h2>
+          <p class="section-hint">以下为平台发布的产业类场次（茶厂采茶地用工、收购与种植培训等），报名与规则以单场详情为准。</p>
         </div>
 
         <el-tabs v-model="activeTab" class="industry-tabs" @tab-change="onTabChange">
           <el-tab-pane label="采摘招募" name="pick">
             <div v-loading="loadingPick" class="list-wrap">
-              <el-empty v-if="!loadingPick && pickList.length === 0" description="暂无采摘招募类对接，敬请期待" />
+              <el-empty v-if="!loadingPick && pickList.length === 0" description="暂无茶厂/采茶地采茶用工招募，敬请期待" />
               <el-row v-else :gutter="20">
                 <el-col :span="8" :xs="24" v-for="activity in pickList" :key="activity.id">
                   <el-card class="activity-card" @click="viewActivity(activity)">
@@ -77,7 +77,7 @@
             <div v-loading="loadingWholesale" class="list-wrap">
               <el-empty
                 v-if="!loadingWholesale && wholesaleList.length === 0"
-                description="暂无批发与培训类对接，敬请期待"
+                description="暂无白茶收购或种植培训类对接，敬请期待"
               />
               <el-row v-else :gutter="20">
                 <el-col :span="8" :xs="24" v-for="activity in wholesaleList" :key="activity.id">
