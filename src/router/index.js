@@ -200,6 +200,12 @@ const routes = [
         meta: { title: '活动管理' }
       },
       {
+        path: 'industry-applications',
+        name: 'IndustryApplications',
+        component: () => import('../views/admin/IndustryApplications.vue'),
+        meta: { title: '产业服务报名审核' }
+      },
+      {
         path: 'quiz',
         name: 'AdminQuiz',
         component: () => import('../views/admin/Quiz.vue'),

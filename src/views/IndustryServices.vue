@@ -179,7 +179,10 @@ export default {
     }
 
     const viewActivity = (activity) => {
-      router.push(`/activity/${activity.id}`)
+      router.push({
+        path: `/activity/${activity.id}`,
+        query: { from: 'industry' }
+      })
     }
 
     const applyTabFromRoute = () => {

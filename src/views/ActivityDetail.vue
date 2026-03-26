@@ -21,18 +21,37 @@
                 <div class="activity-details">
                   <div class="detail-item">
                     <el-icon><Clock /></el-icon>
-                    <span>活动时间：{{ formatDateTime(activity.startTime) }} - {{ formatDateTime(activity.endTime) }}</span>
+                    <span>{{ isIndustryService ? '信息时间' : '活动时间' }}：{{ formatDateTime(activity.startTime) }} - {{ formatDateTime(activity.endTime) }}</span>
                   </div>
-                  <div class="detail-item" v-if="activity.couponStartTime">
+                  <div class="detail-item" v-if="!isIndustryService && activity.couponStartTime">
                     <el-icon><Ticket /></el-icon>
                     <span>抢券时间：{{ formatDateTime(activity.couponStartTime) }} - {{ formatDateTime(activity.couponEndTime) }}</span>
                   </div>
-                  <div class="detail-item" v-if="activity.totalCoupons > 0">
+                  <div class="detail-item" v-if="!isIndustryService && activity.totalCoupons > 0">
                     <el-icon><Star /></el-icon>
                     <span>剩余券数：{{ activity.totalCoupons - activity.issuedCoupons }}/{{ activity.totalCoupons }}</span>
                   </div>
                 </div>
-                <div class="grab-section">
+                <div v-if="isIndustryService" class="industry-join">
+                  <el-button v-if="!isLoggedIn" type="primary" @click="$router.push('/login')">登录后加入</el-button>
+                  <el-button
+                    v-else-if="!myIndustryJoin"
+                    type="primary"
+                    size="large"
+                    style="width: 200px;"
+                    @click="openJoinDialog"
+                  >
+                    我要加入
+                  </el-button>
+                  <el-tag v-else :type="getJoinTag(myIndustryJoin.status)" size="large">
+                    {{ getJoinText(myIndustryJoin.status) }}
+                  </el-tag>
+                  <div v-if="myIndustryJoin" class="join-hint">
+                    <span v-if="myIndustryJoin.adminRemark">审核备注：{{ myIndustryJoin.adminRemark }}</span>
+                    <span v-else>已提交申请，管理员审核后会更新状态</span>
+                  </div>
+                </div>
+                <div class="grab-section" v-if="!isIndustryService">
                   <el-button
                     v-if="canGrab"
                     type="primary"
@@ -69,13 +88,34 @@
             </div>
             <el-divider />
             <div class="activity-description">
-              <h3>活动详情</h3>
+              <h3>{{ isIndustryService ? '信息详情' : '活动详情' }}</h3>
               <div v-html="activity.description"></div>
             </div>
           </div>
         </el-card>
       </el-main>
     </el-container>
+
+    <el-dialog v-model="showJoinDialog" title="填写基础信息" width="520px" @close="resetJoinForm">
+      <el-form :model="joinForm" :rules="joinRules" label-width="90px" ref="joinFormRef">
+        <el-form-item label="姓名" prop="realName">
+          <el-input v-model="joinForm.realName" placeholder="请输入姓名" />
+        </el-form-item>
+        <el-form-item label="手机号" prop="phone">
+          <el-input v-model="joinForm.phone" placeholder="请输入手机号" />
+        </el-form-item>
+        <el-form-item label="所在地" prop="location">
+          <el-input v-model="joinForm.location" placeholder="如：福鼎·点头镇（可选）" />
+        </el-form-item>
+        <el-form-item label="备注" prop="remark">
+          <el-input v-model="joinForm.remark" type="textarea" :rows="3" placeholder="可填写经验、可到岗时间等（可选）" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="showJoinDialog = false">取消</el-button>
+        <el-button type="primary" :loading="joining" @click="submitJoin">提交</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -107,20 +147,46 @@ export default {
     const grabbing = ref(false)
     const activity = ref(null)
     const hasGrabbed = ref(false)
+    const myIndustryJoin = ref(null)
+    const showJoinDialog = ref(false)
+    const joining = ref(false)
+    const joinFormRef = ref(null)
+    const joinForm = ref({
+      realName: '',
+      phone: '',
+      location: '',
+      remark: ''
+    })
 
     const isLoggedIn = computed(() => store.getters['user/isLoggedIn'])
+    const isIndustryService = computed(() => {
+      const t = activity.value?.type
+      return t === 5 || t === 6
+    })
+
+    const joinRules = {
+      realName: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
+      phone: [{ required: true, message: '请输入手机号', trigger: 'blur' }]
+    }
 
     const loadActivity = async () => {
       loading.value = true
       try {
         const res = await api.activity.getById(route.params.id)
         activity.value = res.data
-        if (isLoggedIn.value) {
+        if (isLoggedIn.value && !isIndustryService.value) {
           checkGrabbed()
         }
+        if (isLoggedIn.value && isIndustryService.value) {
+          loadMyJoin()
+        }
       } catch (error) {
-        ElMessage.error('加载活动失败')
-        router.push('/activity')
+        ElMessage.error('加载详情失败')
+        if (route.query.from === 'industry') {
+          router.push('/services/industry')
+        } else {
+          router.push('/activity')
+        }
       } finally {
         loading.value = false
       }
@@ -135,8 +201,17 @@ export default {
       }
     }
 
+    const loadMyJoin = async () => {
+      try {
+        const res = await api.activity.getMyIndustryJoin(route.params.id)
+        myIndustryJoin.value = res.data || null
+      } catch (e) {
+        myIndustryJoin.value = null
+      }
+    }
+
     const canGrab = computed(() => {
-      if (!activity.value || !isLoggedIn.value || hasGrabbed.value) {
+      if (isIndustryService.value || !activity.value || !isLoggedIn.value || hasGrabbed.value) {
         return false
       }
       const now = new Date()
@@ -184,6 +259,47 @@ export default {
     const getTypeText = (type) => ACTIVITY_TYPE_LABELS[type] || '未知'
     const getTypeTag = (type) => ACTIVITY_TYPE_TAGS[type] || 'info'
 
+    const getJoinText = (status) => {
+      const map = { 0: '已提交，待审核', 1: '审核通过', 2: '已驳回' }
+      return map[status] || '未知状态'
+    }
+    const getJoinTag = (status) => {
+      const map = { 0: 'warning', 1: 'success', 2: 'danger' }
+      return map[status] || 'info'
+    }
+
+    const openJoinDialog = () => {
+      if (!isLoggedIn.value) {
+        ElMessage.info('请先登录')
+        router.push('/login')
+        return
+      }
+      showJoinDialog.value = true
+    }
+
+    const resetJoinForm = () => {
+      joinForm.value = { realName: '', phone: '', location: '', remark: '' }
+      if (joinFormRef.value) joinFormRef.value.resetFields()
+    }
+
+    const submitJoin = async () => {
+      if (!joinFormRef.value) return
+      await joinFormRef.value.validate(async (valid) => {
+        if (!valid) return
+        joining.value = true
+        try {
+          await api.activity.joinIndustry(route.params.id, joinForm.value)
+          ElMessage.success('已提交，等待管理员审核')
+          showJoinDialog.value = false
+          await loadMyJoin()
+        } catch (e) {
+          ElMessage.error(e.message || '提交失败')
+        } finally {
+          joining.value = false
+        }
+      })
+    }
+
     onMounted(() => {
       loadActivity()
     })
@@ -194,11 +310,23 @@ export default {
       activity,
       hasGrabbed,
       isLoggedIn,
+      isIndustryService,
+      myIndustryJoin,
+      showJoinDialog,
+      joining,
+      joinFormRef,
+      joinForm,
+      joinRules,
       canGrab,
       handleGrab,
       formatDateTime,
       getTypeText,
-      getTypeTag
+      getTypeTag,
+      getJoinText,
+      getJoinTag,
+      openJoinDialog,
+      resetJoinForm,
+      submitJoin
     }
   }
 }
@@ -264,6 +392,16 @@ export default {
 
 .grab-section {
   margin-top: 30px;
+}
+
+.industry-join {
+  margin-top: 22px;
+}
+
+.join-hint {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #666;
 }
 
 .activity-description {

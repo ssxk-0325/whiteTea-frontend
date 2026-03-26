@@ -38,10 +38,14 @@
             <el-icon><VideoPlay /></el-icon>
             <span>文化内容</span>
           </el-menu-item>
-          <el-menu-item index="/admin/activities">
-            <el-icon><Calendar /></el-icon>
-            <span>活动管理</span>
-          </el-menu-item>
+        <el-menu-item index="/admin/activities">
+          <el-icon><Calendar /></el-icon>
+          <span>活动管理</span>
+        </el-menu-item>
+        <el-menu-item index="/admin/industry-applications">
+          <el-icon><Bell /></el-icon>
+          <span>产业报名审核</span>
+        </el-menu-item>
           <el-menu-item index="/admin/quiz">
             <el-icon><QuestionFilled /></el-icon>
             <span>问答管理</span>
@@ -62,7 +66,7 @@
 <script>
 import { computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { DataBoard, Menu, Goods, Document, User, House, VideoPlay, Calendar, QuestionFilled } from '@element-plus/icons-vue'
+  import { DataBoard, Menu, Goods, Document, User, House, VideoPlay, Calendar, QuestionFilled, Bell } from '@element-plus/icons-vue'
 
 export default {
   name: 'Admin',
@@ -75,6 +79,7 @@ export default {
     House,
     VideoPlay,
     Calendar,
+    Bell,
     QuestionFilled
   },
   setup() {

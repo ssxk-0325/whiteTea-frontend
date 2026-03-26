@@ -331,6 +331,13 @@ const api = {
     getMyCoupons: (params) => {
       return service.get('/activity/coupons', { params })
     },
+    // 产业服务：加入申请
+    joinIndustry: (activityId, data) => {
+      return service.post(`/activity/${activityId}/join`, data)
+    },
+    getMyIndustryJoin: (activityId) => {
+      return service.get(`/activity/${activityId}/my-join`)
+    },
     // 管理员接口
     admin: {
       getList: (params) => {
@@ -347,6 +354,12 @@ const api = {
       },
       verifyCoupon: (couponCode) => {
         return service.post('/activity/admin/verify-coupon', { couponCode }, { skipAuthRedirect: true })
+      },
+      getIndustryJoins: (params) => {
+        return service.get('/activity/admin/industry-joins', { params })
+      },
+      reviewIndustryJoin: (id, data) => {
+        return service.put(`/activity/admin/industry-joins/${id}/review`, data)
       }
     }
   },
