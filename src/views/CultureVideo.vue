@@ -23,10 +23,14 @@
               </div>
             </div>
             <el-divider />
+            <div class="video-cover">
+              <el-image :src="resolveCultureCoverSrc(video)" fit="cover" style="width: 100%; max-height: 360px;" />
+            </div>
+            <el-divider />
             <div class="video-player-container">
               <video
                 v-if="video.videoUrl"
-                :src="video.videoUrl"
+                :src="resolveUploadUrl(video.videoUrl)"
                 controls
                 style="width: 100%; max-height: 600px;"
                 @play="handleVideoPlay"
@@ -66,6 +70,8 @@ import { ElMessage } from 'element-plus'
 import { View, Star, StarFilled, VideoPlay } from '@element-plus/icons-vue'
 import api from '@/api'
 import Header from '@/components/Header.vue'
+import { resolveCultureCoverSrc } from '@/utils/cultureCover'
+import { resolveUploadUrl } from '@/utils/uploadUrl'
 
 export default {
   name: 'CultureVideo',
@@ -96,7 +102,7 @@ export default {
             targetType: 3,
             targetId: video.value.id,
             title: video.value.title,
-            image: video.value.coverImage
+            image: resolveCultureCoverSrc(video.value)
           }).catch(err => console.error('记录历史失败', err))
         }
       } catch (error) {
@@ -172,6 +178,8 @@ export default {
     return {
       loading,
       video,
+      resolveCultureCoverSrc,
+      resolveUploadUrl,
       isLiked,
       handleVideoPlay,
       handleLike,
@@ -187,6 +195,12 @@ export default {
 <style scoped>
 .video-page {
   min-height: 100vh;
+}
+
+.video-cover {
+  border-radius: 4px;
+  overflow: hidden;
+  background: #f5f5f5;
 }
 
 .video-header {

@@ -21,7 +21,7 @@
             </div>
             <el-divider />
             <div class="article-cover">
-              <el-image :src="article.coverImage || DEFAULT_COVER_IMAGE" fit="cover" style="width: 100%; max-height: 400px;"></el-image>
+              <el-image :src="resolveCultureCoverSrc(article)" fit="cover" style="width: 100%; max-height: 400px;"></el-image>
             </div>
             <div class="article-content" v-html="article.content"></div>
             <el-divider />
@@ -49,7 +49,7 @@ import { ElMessage } from 'element-plus'
 import { View, Star, StarFilled } from '@element-plus/icons-vue'
 import api from '@/api'
 import Header from '@/components/Header.vue'
-import { DEFAULT_COVER_IMAGE } from '@/constants/assets'
+import { resolveCultureCoverSrc } from '@/utils/cultureCover'
 
 export default {
   name: 'CultureArticle',
@@ -79,7 +79,7 @@ export default {
             targetType: 3,
             targetId: article.value.id,
             title: article.value.title,
-            image: article.value.coverImage || DEFAULT_COVER_IMAGE
+            image: resolveCultureCoverSrc(article.value)
           }).catch(err => console.error('记录历史失败', err))
         }
       } catch (error) {
@@ -139,7 +139,7 @@ export default {
 
     return {
       loading,
-      DEFAULT_COVER_IMAGE,
+      resolveCultureCoverSrc,
       article,
       isLiked,
       handleLike,

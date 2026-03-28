@@ -18,12 +18,10 @@
       <el-table-column label="封面" width="100">
         <template #default="scope">
           <el-image
-            v-if="scope.row.coverImage"
-            :src="scope.row.coverImage"
+            :src="resolveCultureCoverSrc(scope.row)"
             style="width: 60px; height: 60px;"
             fit="cover"
           />
-          <span v-else>无封面</span>
         </template>
       </el-table-column>
       <el-table-column prop="title" label="标题" width="200"></el-table-column>
@@ -110,8 +108,7 @@
               <el-button type="primary">上传封面</el-button>
             </el-upload>
             <el-image
-              v-if="contentForm.coverImage"
-              :src="contentForm.coverImage"
+              :src="resolveCultureCoverSrc(contentForm)"
               style="width: 100px; height: 100px;"
               fit="cover"
             />
@@ -165,6 +162,7 @@ import { ref, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import api from '@/api'
 import store from '@/store'
+import { resolveCultureCoverSrc } from '@/utils/cultureCover'
 
 export default {
   name: 'AdminCulture',
@@ -463,7 +461,8 @@ export default {
       getTypeText,
       getTypeTag,
       handleAddArticle,
-      handleAddVideo
+      handleAddVideo,
+      resolveCultureCoverSrc
     }
   }
 }

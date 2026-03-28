@@ -44,7 +44,7 @@
               <el-col :span="8" v-for="content in contents" :key="content.id">
                 <el-card class="content-card" @click="viewContent(content)">
                   <div class="content-cover">
-                    <img :src="content.coverImage || DEFAULT_COVER_IMAGE" :alt="content.title" />
+                    <img :src="resolveCultureCoverSrc(content)" :alt="content.title" />
                     <div v-if="!content.coverImage" class="cover-type-badge">
                       <el-icon v-if="content.contentType === 1"><Document /></el-icon>
                       <el-icon v-else><VideoPlay /></el-icon>
@@ -91,7 +91,7 @@ import { useRouter } from 'vue-router'
 import { Document, VideoPlay, View, Star, QuestionFilled } from '@element-plus/icons-vue'
 import api from '@/api'
 import Header from '@/components/Header.vue'
-import { DEFAULT_COVER_IMAGE } from '@/constants/assets'
+import { resolveCultureCoverSrc } from '@/utils/cultureCover'
 
 export default {
   name: 'Culture',
@@ -195,7 +195,7 @@ export default {
 
     return {
       loading,
-      DEFAULT_COVER_IMAGE,
+      resolveCultureCoverSrc,
       contents,
       currentPage,
       pageSize,
