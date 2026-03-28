@@ -23,7 +23,7 @@
         <template #default="scope">
           <el-image
             v-if="scope.row.image"
-            :src="scope.row.image"
+            :src="resolveUploadUrl(scope.row.image)"
             style="width: 60px; height: 60px;"
             fit="cover"
           />
@@ -101,6 +101,7 @@
               :action="uploadImageUrl"
               :headers="uploadHeaders"
               :on-success="handleImageSuccess"
+              :on-error="handleImageUploadError"
               :before-upload="beforeImageUpload"
               :show-file-list="false"
             >
@@ -108,7 +109,7 @@
             </el-upload>
             <el-image
               v-if="activityForm.image"
-              :src="activityForm.image"
+              :src="resolveUploadUrl(activityForm.image)"
               style="width: 100px; height: 100px;"
               fit="cover"
             />
@@ -224,6 +225,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import api from '@/api'
 import store from '@/store'
 import { ACTIVITY_TYPE_LABELS, ACTIVITY_TYPE_TAGS } from '@/constants/activityTypes'
+import { resolveUploadUrl } from '@/utils/uploadUrl'
 
 export default {
   name: 'AdminActivities',
@@ -275,10 +277,12 @@ export default {
     })
 
     const uploadHeaders = computed(() => {
-      const token = store.getters['user/token']
-      return {
-        'Authorization': `Bearer ${token}`
+      const token = store.state.user.token
+      const headers = {}
+      if (token) {
+        headers.Authorization = `Bearer ${token}`
       }
+      return headers
     })
 
     const handleImageSuccess = (response) => {
@@ -288,6 +292,10 @@ export default {
       } else {
         ElMessage.error(response.message || '上传失败')
       }
+    }
+
+    const handleImageUploadError = () => {
+      ElMessage.error('图片上传失败，请检查是否登录过期或网络是否正常')
     }
 
     const beforeImageUpload = (file) => {
@@ -514,6 +522,7 @@ export default {
       uploadHeaders,
       handleImageSuccess,
       beforeImageUpload,
+      handleImageUploadError,
       loadActivities,
       editActivity,
       saveActivity,
@@ -531,7 +540,8 @@ export default {
       verifyFormRef,
       verifyResult,
       handleVerifyCoupon,
-      resetVerifyForm
+      resetVerifyForm,
+      resolveUploadUrl
     }
   }
 }

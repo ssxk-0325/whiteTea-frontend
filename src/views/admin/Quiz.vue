@@ -212,10 +212,12 @@ export default {
     })
 
     const uploadHeaders = computed(() => {
-      const token = store.getters['user/token']
-      return {
-        'Authorization': `Bearer ${token}`
+      const token = store.state.user.token
+      const headers = {}
+      if (token) {
+        headers.Authorization = `Bearer ${token}`
       }
+      return headers
     })
 
     const handleImageSuccess = (response) => {
