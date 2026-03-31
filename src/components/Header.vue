@@ -14,7 +14,15 @@
         <el-menu-item index="home" @click="handleMenuClick('/')">首页</el-menu-item>
         <el-menu-item index="products" @click="handleMenuClick('/products')">产品</el-menu-item>
         <el-menu-item index="culture" @click="handleMenuClick('/culture')">白茶文化</el-menu-item>
-        <el-menu-item index="activity" @click="handleMenuClick('/activity')">活动</el-menu-item>
+        <el-sub-menu index="services">
+          <template #title>多样化服务</template>
+          <el-menu-item index="offline-service" @click="handleMenuClick('/activity')">
+            线下体验服务
+          </el-menu-item>
+          <el-menu-item index="industry-service" @click="handleMenuClick('/services/industry')">
+            产业服务
+          </el-menu-item>
+        </el-sub-menu>
         <el-menu-item index="quiz" @click="handleMenuClick('/quiz')">趣味问答</el-menu-item>
         <el-menu-item index="rewards" @click="handleMenuClick('/rewards')">积分商城</el-menu-item>
         <el-menu-item index="community" @click="handleMenuClick('/community')">社区</el-menu-item>
@@ -101,7 +109,8 @@ export default {
       if (path === '/') return 'home'
       if (path.startsWith('/products')) return 'products'
       if (path.startsWith('/culture')) return 'culture'
-      if (path.startsWith('/activity')) return 'activity'
+      if (path.startsWith('/activity')) return 'offline-service'
+      if (path.startsWith('/services/industry')) return 'industry-service'
       if (path.startsWith('/community')) return 'community'
       return ''
     })
@@ -118,6 +127,12 @@ export default {
           break
         case 'culture':
           targetRoute = '/culture'
+          break
+        case 'offline-service':
+          targetRoute = '/activity'
+          break
+        case 'industry-service':
+          targetRoute = '/services/industry'
           break
         case 'activity':
           targetRoute = '/activity'
