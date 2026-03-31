@@ -174,7 +174,7 @@
 
 <script>
 import { ref, computed, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { ElMessage } from 'element-plus'
 import api from '@/api'
@@ -187,8 +187,27 @@ export default {
     Header
   },
   setup() {
+    const route = useRoute()
     const router = useRouter()
     const store = useStore()
+
+    const parseCartIdsFromRoute = () => {
+      const q = route.query.cartIds
+      if (q == null) return []
+      const parts = Array.isArray(q) ? q : [q]
+      const ids = []
+      for (const p of parts) {
+        String(p)
+          .split(',')
+          .map((s) => s.trim())
+          .forEach((s) => {
+            if (!s) return
+            const n = Number(s)
+            if (!Number.isNaN(n) && n > 0) ids.push(n)
+          })
+      }
+      return [...new Set(ids)]
+    }
     const cartList = ref([])
     const deliveryType = ref(1) // 1-线上配送 2-线下自提
     const addresses = ref([])
@@ -235,9 +254,16 @@ export default {
     const loadCart = async () => {
       try {
         await store.dispatch('cart/getCartList')
-        cartList.value = store.state.cart.cartList
-        if (cartList.value.length === 0) {
-          ElMessage.warning('购物车为空，请先添加商品')
+        const all = store.state.cart.cartList
+        const ids = parseCartIdsFromRoute()
+        if (ids.length === 0) {
+          ElMessage.warning('请先选择要结算的商品')
+          router.push('/cart')
+          return
+        }
+        cartList.value = all.filter((item) => ids.includes(item.id))
+        if (cartList.value.length === 0 || cartList.value.length !== ids.length) {
+          ElMessage.warning('所选商品已失效或变更，请返回购物车重新选择')
           router.push('/cart')
         }
       } catch (error) {
@@ -341,11 +367,10 @@ export default {
         } else {
           orderData.storeId = selectedStoreId.value
         }
+        orderData.cartIds = cartList.value.map((item) => item.id)
         const res = await api.order.create(orderData)
         ElMessage.success('订单创建成功')
-        // 清空购物车
-        await store.dispatch('cart/clearCart')
-        // 跳转到订单详情或订单列表
+        await store.dispatch('cart/getCartList')
         router.push(`/order/${res.data.id}`)
       } catch (error) {
         ElMessage.error(error.message || '订单创建失败')

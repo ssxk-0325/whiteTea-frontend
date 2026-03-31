@@ -7,7 +7,15 @@
           <h2 class="page-title">购物车</h2>
         </div>
         <el-card class="cart-card" v-loading="loading">
-          <el-table v-if="!loading && cartList.length > 0" :data="cartList" style="width: 100%" class="modern-table">
+          <el-table
+            v-if="!loading && cartList.length > 0"
+            ref="tableRef"
+            row-key="id"
+            :data="cartList"
+            style="width: 100%"
+            class="modern-table"
+            @selection-change="handleSelectionChange"
+          >
           <el-table-column type="selection" width="55" align="center"></el-table-column>
           <el-table-column label="商品" min-width="300" align="center" show-overflow-tooltip>
             <template #default="scope">
@@ -59,10 +67,18 @@
           <el-button type="danger" @click="clearCart" class="clear-button">清空购物车</el-button>
           <div class="total-section">
             <div class="total-info">
-              <span class="total-label">总计：</span>
+              <span class="total-label">已选合计（{{ selectedRows.length }} 件）：</span>
               <span class="total-price">¥{{ totalPrice.toFixed(2) }}</span>
             </div>
-            <el-button type="primary" size="large" @click="checkout" class="checkout-button">去结算</el-button>
+            <el-button
+              type="primary"
+              size="large"
+              @click="checkout"
+              class="checkout-button"
+              :disabled="selectedRows.length === 0"
+            >
+              去结算
+            </el-button>
           </div>
         </div>
       </el-main>
@@ -71,7 +87,7 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -89,13 +105,24 @@ export default {
     const store = useStore()
     const loading = ref(false)
     const cartList = ref([])
+    const tableRef = ref(null)
+    const selectedRows = ref([])
+
+    const handleSelectionChange = (rows) => {
+      selectedRows.value = rows
+    }
 
     const loadCart = async () => {
       loading.value = true
       try {
         await store.dispatch('cart/getCartList')
-        // 这里需要根据实际API返回的数据结构调整
         cartList.value = store.state.cart.cartList
+        await nextTick()
+        if (tableRef.value && cartList.value.length > 0) {
+          cartList.value.forEach((row) => {
+            tableRef.value.toggleRowSelection(row, true)
+          })
+        }
       } catch (error) {
         ElMessage.error('加载购物车失败')
       } finally {
@@ -149,11 +176,12 @@ export default {
     }
 
     const checkout = () => {
-      if (cartList.value.length === 0) {
-        ElMessage.warning('购物车为空')
+      if (selectedRows.value.length === 0) {
+        ElMessage.warning('请先勾选要结算的商品')
         return
       }
-      router.push('/checkout')
+      const cartIds = selectedRows.value.map((r) => r.id).join(',')
+      router.push({ path: '/checkout', query: { cartIds } })
     }
 
     const goShopping = () => {
@@ -171,7 +199,7 @@ export default {
     }
 
     const totalPrice = computed(() => {
-      return cartList.value.reduce((sum, item) => {
+      return selectedRows.value.reduce((sum, item) => {
         const price = item.product?.price ? Number(item.product.price) : 0
         const quantity = item.quantity || 0
         return sum + price * quantity
@@ -184,6 +212,9 @@ export default {
 
     return {
       loading,
+      tableRef,
+      selectedRows,
+      handleSelectionChange,
       DEFAULT_PRODUCT_IMAGE,
       cartList,
       totalPrice,
