@@ -48,6 +48,23 @@
             </el-col>
           </el-row>
         </div>
+
+        <!-- 猜你喜欢（登录后展示） -->
+        <div class="products-section" v-if="recommendProducts.length">
+          <h2>猜你喜欢</h2>
+          <el-row :gutter="20">
+            <el-col :span="6" v-for="product in recommendProducts" :key="product.id">
+              <el-card class="product-card" @click="goToProductDetail(product.id)">
+                <img :src="product.image || DEFAULT_PRODUCT_IMAGE" :alt="product.name" />
+                <div class="product-info">
+                  <h3>{{ product.name }}</h3>
+                  <p class="price">¥{{ product.price }}</p>
+                  <el-button type="primary" size="small" @click.stop="addToCart(product.id)">加入购物车</el-button>
+                </div>
+              </el-card>
+            </el-col>
+          </el-row>
+        </div>
       </el-main>
     </el-container>
   </div>
@@ -72,6 +89,7 @@ export default {
     const banners = ref([...HOME_BANNERS])
     const categories = ref([])
     const hotProducts = ref([])
+    const recommendProducts = ref([])
     const bannerHeight = ref('500px')
 
     // 图片加载成功
@@ -112,6 +130,20 @@ export default {
       }
     }
 
+    const loadRecommendProducts = async () => {
+      if (!store.state.user.token) {
+        recommendProducts.value = []
+        return
+      }
+      try {
+        const res = await api.product.getRecommendProducts(4)
+        recommendProducts.value = res.data || []
+      } catch (error) {
+        console.error('加载猜你喜欢失败:', error)
+        recommendProducts.value = []
+      }
+    }
+
     const goToProducts = (categoryId) => {
       router.push({ name: 'Products', query: { categoryId } })
     }
@@ -146,12 +178,14 @@ export default {
     onMounted(() => {
       loadCategories()
       loadHotProducts()
+      loadRecommendProducts()
     })
 
     return {
       banners,
       categories,
       hotProducts,
+      recommendProducts,
       bannerHeight,
       DEFAULT_CATEGORY_IMAGE,
       DEFAULT_PRODUCT_IMAGE,
@@ -159,7 +193,8 @@ export default {
       goToProductDetail,
       addToCart,
       onImageLoad,
-      onImageError
+      onImageError,
+      loadRecommendProducts
     }
   }
 }

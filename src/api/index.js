@@ -132,6 +132,10 @@ const api = {
     getHotProducts: (params) => {
       return service.get('/product/hot', { params })
     },
+    getRecommendProducts: (limit = 8) => {
+      const params = { limit }
+      return service.get('/product/recommend', { params })
+    },
     add: (product) => {
       return service.post('/product/add', product)
     },
