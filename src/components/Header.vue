@@ -10,6 +10,7 @@
         @select="handleSelect"
         class="header-menu"
         :router="false"
+        :ellipsis="false"
       >
         <el-menu-item index="home" @click="handleMenuClick('/')">首页</el-menu-item>
         <el-menu-item index="products" @click="handleMenuClick('/products')">产品</el-menu-item>
@@ -23,9 +24,8 @@
             产业服务
           </el-menu-item>
         </el-sub-menu>
-        <el-menu-item index="quiz" @click="handleMenuClick('/quiz')">趣味问答</el-menu-item>
         <el-menu-item index="rewards" @click="handleMenuClick('/rewards')">积分商城</el-menu-item>
-        <el-menu-item index="community" @click="handleMenuClick('/community')">社区</el-menu-item>
+        <el-menu-item index="community" @click="handleMenuClick('/community')">福鼎白茶社区</el-menu-item>
       </el-menu>
       <div class="header-right">
         <el-button 
