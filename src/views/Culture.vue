@@ -2,39 +2,53 @@
   <div class="culture-page">
     <Header />
     <el-container>
-      <el-main style="max-width: 1200px; margin: 0 auto;">
-        <h2>白茶文化科普中心</h2>
+      <el-main class="culture-main">
+        <section class="top-panel">
+          <div class="top-panel-header">
+            <div>
+              <h2 class="page-title">白茶文化科普中心</h2>
+              <p class="page-subtitle">探索白茶知识、制作工艺与品鉴技巧</p>
+            </div>
+            <el-button type="primary" class="quiz-btn" @click="goToQuiz">
+              <el-icon><QuestionFilled /></el-icon>
+              趣味问答
+            </el-button>
+          </div>
 
-        <!-- 筛选栏 -->
-        <div class="filter-bar">
-          <el-button type="primary" @click="goToQuiz" style="margin-right: 20px;">
-            <el-icon><QuestionFilled /></el-icon>
-            趣味问答
-          </el-button>
-          <el-radio-group v-model="filterContentType" @change="loadContents">
-            <el-radio-button :label="null">全部</el-radio-button>
-            <el-radio-button :label="1">文章</el-radio-button>
-            <el-radio-button :label="2">视频</el-radio-button>
-          </el-radio-group>
-          <el-radio-group v-model="filterType" @change="loadContents" style="margin-left: 20px;">
-            <el-radio-button :label="null">全部分类</el-radio-button>
-            <el-radio-button :label="1">白茶知识</el-radio-button>
-            <el-radio-button :label="2">制作工艺</el-radio-button>
-            <el-radio-button :label="3">品鉴技巧</el-radio-button>
-            <el-radio-button :label="4">历史文化</el-radio-button>
-          </el-radio-group>
-          <el-input
-            v-model="keyword"
-            placeholder="搜索内容"
-            style="width: 300px; margin-left: 20px;"
-            @keyup.enter="loadContents"
-            clearable
-          >
-            <template #append>
-              <el-button @click="loadContents">搜索</el-button>
-            </template>
-          </el-input>
-        </div>
+          <!-- 筛选栏 -->
+          <div class="filter-grid">
+            <div class="filter-group">
+              <span class="group-label">内容类型</span>
+              <el-radio-group v-model="filterContentType" @change="loadContents">
+                <el-radio-button :label="null">全部</el-radio-button>
+                <el-radio-button :label="1">文章</el-radio-button>
+                <el-radio-button :label="2">视频</el-radio-button>
+              </el-radio-group>
+            </div>
+            <div class="filter-group">
+              <span class="group-label">内容分类</span>
+              <el-radio-group v-model="filterType" @change="loadContents">
+                <el-radio-button :label="null">全部分类</el-radio-button>
+                <el-radio-button :label="1">白茶知识</el-radio-button>
+                <el-radio-button :label="2">制作工艺</el-radio-button>
+                <el-radio-button :label="3">品鉴技巧</el-radio-button>
+                <el-radio-button :label="4">历史文化</el-radio-button>
+              </el-radio-group>
+            </div>
+            <div class="search-box">
+              <el-input
+                v-model="keyword"
+                placeholder="搜索文章/视频标题"
+                @keyup.enter="loadContents"
+                clearable
+              >
+                <template #append>
+                  <el-button @click="loadContents">搜索</el-button>
+                </template>
+              </el-input>
+            </div>
+          </div>
+        </section>
 
         <!-- 内容列表 -->
         <div v-loading="loading" class="contents-container">
@@ -220,12 +234,67 @@ export default {
   min-height: 100vh;
 }
 
-.filter-bar {
+.culture-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px 24px;
+}
+
+.top-panel {
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  margin-bottom: 20px;
+}
+
+.top-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.page-subtitle {
+  margin: 8px 0 0;
+  color: #606266;
+  font-size: 14px;
+}
+
+.quiz-btn {
+  flex-shrink: 0;
+}
+
+.filter-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.filter-group {
   display: flex;
   align-items: center;
-  margin-bottom: 20px;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+.group-label {
+  min-width: 70px;
+  color: #606266;
+  font-size: 14px;
+}
+
+.search-box {
+  width: 100%;
+  max-width: 420px;
 }
 
 .contents-container {
@@ -329,5 +398,33 @@ export default {
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
+}
+
+@media (max-width: 768px) {
+  .culture-main {
+    padding: 20px 12px;
+  }
+
+  .top-panel {
+    padding: 16px;
+  }
+
+  .top-panel-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .page-title {
+    font-size: 22px;
+  }
+
+  .group-label {
+    min-width: auto;
+    width: 100%;
+  }
+
+  .search-box {
+    max-width: none;
+  }
 }
 </style>
