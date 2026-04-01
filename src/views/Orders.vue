@@ -22,6 +22,7 @@
               <div>
                 <span>订单号：{{ order.orderNo }}</span>
                 <el-tag :type="order.deliveryType === 2 ? 'warning' : 'info'" size="small" style="margin-left: 8px;">{{ order.deliveryType === 2 ? '线下自提' : '线上配送' }}</el-tag>
+                <el-tag :type="order.orderMode === 1 ? 'success' : 'info'" size="small" style="margin-left: 8px;">{{ order.orderMode === 1 ? '拼团单' : '普通单' }}</el-tag>
                 <el-button type="text" @click="viewOrderDetail(order.id)" style="margin-left: 10px;">查看详情</el-button>
               </div>
               <el-tag :type="getStatusType(order.status)">{{ getStatusText(order.status) }}</el-tag>
@@ -45,6 +46,7 @@
               </div>
               <div class="order-actions">
                 <div class="total-amount">总计：¥{{ Number(order.payAmount).toFixed(2) }}</div>
+                <div class="discount-tip" v-if="Number(order.discountAmount || 0) > 0">已优惠 ¥{{ Number(order.discountAmount || 0).toFixed(2) }}</div>
                 <div class="actions">
                   <el-button v-if="order.status === 0" type="primary" @click="openPayDialog(order.id)">去付款</el-button>
                   <el-button v-if="order.status === 0" @click="cancelOrder(order.id)">取消订单</el-button>
@@ -398,6 +400,11 @@ export default {
   display: flex;
   gap: 12px;
   justify-content: flex-end;
+}
+
+.discount-tip {
+  color: #67c23a;
+  font-size: 13px;
 }
 
 .actions :deep(.el-button) {

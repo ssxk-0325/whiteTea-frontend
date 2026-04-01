@@ -58,8 +58,14 @@
 
             <h3>订单信息</h3>
             <div class="order-info">
+              <p><strong>下单模式：</strong>{{ order.orderMode === 1 ? '拼团购买' : '普通购买' }}</p>
               <p><strong>订单金额：</strong>¥{{ Number(order.totalAmount).toFixed(2) }}</p>
+              <p><strong>拼团优惠：</strong>-¥{{ Number(order.groupDiscountAmount || 0).toFixed(2) }}</p>
+              <p><strong>批发优惠：</strong>-¥{{ Number(order.wholesaleDiscountAmount || 0).toFixed(2) }}</p>
+              <p><strong>优惠券抵扣：</strong>-¥{{ Number(order.couponDiscountAmount || 0).toFixed(2) }}</p>
               <p><strong>实付金额：</strong>¥{{ Number(order.payAmount).toFixed(2) }}</p>
+              <p><strong>购物返积分：</strong>{{ order.rewardPoints || 0 }}</p>
+              <p v-if="order.couponCode"><strong>使用券码：</strong>{{ order.couponCode }}</p>
               <p><strong>支付方式：</strong>{{ getPayTypeText(order.payType) }}</p>
               <p><strong>创建时间：</strong>{{ formatTime(order.createTime) }}</p>
               <p v-if="order.payTime"><strong>支付时间：</strong>{{ formatTime(order.payTime) }}</p>

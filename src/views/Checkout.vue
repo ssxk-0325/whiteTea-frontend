@@ -109,6 +109,30 @@
                 </el-table-column>
               </el-table>
             </el-card>
+
+            <el-card class="discount-card" style="margin-top: 20px;">
+              <template #header>
+                <span>优惠方式</span>
+              </template>
+              <el-form label-width="110px">
+                <el-form-item label="下单模式">
+                  <el-radio-group v-model="orderMode">
+                    <el-radio :label="0">普通购买</el-radio>
+                    <el-radio :label="1">拼团购买（9折）</el-radio>
+                  </el-radio-group>
+                </el-form-item>
+                <el-form-item label="优惠券">
+                  <el-select v-model="selectedCouponId" clearable placeholder="可选未使用优惠券（不选则不使用）" style="width: 100%">
+                    <el-option
+                      v-for="coupon in availableCoupons"
+                      :key="coupon.id"
+                      :label="`${coupon.couponName}（${coupon.couponCode}）`"
+                      :value="coupon.id"
+                    />
+                  </el-select>
+                </el-form-item>
+              </el-form>
+            </el-card>
           </el-col>
           <el-col :span="8">
             <el-card class="summary-card">
@@ -123,10 +147,26 @@
                 <span>运费：</span>
                 <span>¥0.00</span>
               </div>
+              <div class="summary-item">
+                <span>拼团优惠：</span>
+                <span>-¥{{ groupDiscount.toFixed(2) }}</span>
+              </div>
+              <div class="summary-item">
+                <span>批发优惠：</span>
+                <span>-¥{{ wholesaleDiscount.toFixed(2) }}</span>
+              </div>
+              <div class="summary-item">
+                <span>优惠券抵扣：</span>
+                <span>-¥{{ couponDiscount.toFixed(2) }}</span>
+              </div>
               <el-divider />
               <div class="summary-item total">
                 <span>应付总额：</span>
-                <span class="total-price">¥{{ totalPrice.toFixed(2) }}</span>
+                <span class="total-price">¥{{ payAmount.toFixed(2) }}</span>
+              </div>
+              <div class="summary-item">
+                <span>本单可得积分：</span>
+                <span>{{ rewardPointsPreview }}</span>
               </div>
               <el-button
                 type="primary"
@@ -223,6 +263,9 @@ export default {
     const showAddressDialog = ref(false)
     const submitting = ref(false)
     const addressFormRef = ref(null)
+    const orderMode = ref(0)
+    const availableCoupons = ref([])
+    const selectedCouponId = ref(null)
 
     const addressForm = ref({
       receiverName: '',
@@ -307,6 +350,15 @@ export default {
       }
     }
 
+    const loadCoupons = async () => {
+      try {
+        const res = await api.activity.getMyCoupons({ status: 0 })
+        availableCoupons.value = res.data || []
+      } catch (error) {
+        availableCoupons.value = []
+      }
+    }
+
     const canSubmit = computed(() => {
       if (deliveryType.value === 1) return !!selectedAddressId.value
       if (deliveryType.value === 2) return !!selectedStoreId.value
@@ -361,7 +413,9 @@ export default {
       try {
         const orderData = {
           deliveryType: deliveryType.value,
-          remark: ''
+          remark: '',
+          orderMode: orderMode.value,
+          couponId: selectedCouponId.value
         }
         if (deliveryType.value === 1) {
           const selectedAddress = addresses.value.find(addr => addr.id === selectedAddressId.value)
@@ -402,10 +456,53 @@ export default {
       }, 0)
     })
 
+    const totalQuantity = computed(() => {
+      return cartList.value.reduce((sum, item) => sum + (item.quantity || 0), 0)
+    })
+
+    const groupDiscount = computed(() => {
+      if (orderMode.value !== 1) return 0
+      return Number((totalPrice.value * 0.1).toFixed(2))
+    })
+
+    const wholesaleDiscountRate = computed(() => {
+      if (totalQuantity.value >= 20) return 0.15
+      if (totalQuantity.value >= 10) return 0.08
+      return 0
+    })
+
+    const wholesaleDiscount = computed(() => Number((totalPrice.value * wholesaleDiscountRate.value).toFixed(2)))
+
+    const selectedCoupon = computed(() => availableCoupons.value.find(c => c.id === selectedCouponId.value))
+
+    const couponDiscount = computed(() => {
+      const coupon = selectedCoupon.value
+      if (!coupon) return 0
+      const type = Number(coupon.couponType)
+      if (type === 1) return Math.min(20, totalPrice.value)
+      if (type === 2) return Math.min(30, totalPrice.value)
+      if (type === 3) return Math.min(50, totalPrice.value)
+      if (type === 4) return Math.min(80, totalPrice.value)
+      if (type === 5) return Number((totalPrice.value * 0.05).toFixed(2))
+      if (type === 6) return Number((totalPrice.value * 0.12).toFixed(2))
+      return Math.min(10, totalPrice.value)
+    })
+
+    const payAmount = computed(() => {
+      const v = totalPrice.value - groupDiscount.value - wholesaleDiscount.value - couponDiscount.value
+      return Number(Math.max(v, 0).toFixed(2))
+    })
+
+    const rewardPointsPreview = computed(() => {
+      const base = Math.floor(payAmount.value)
+      return orderMode.value === 1 ? base + 10 : base
+    })
+
     onMounted(() => {
       loadCart()
       loadAddresses()
       loadStores()
+      loadCoupons()
     })
 
     watch(deliveryType, () => {
@@ -430,11 +527,19 @@ export default {
       storeLoading,
       showAddressDialog,
       submitting,
+      orderMode,
+      availableCoupons,
+      selectedCouponId,
       canSubmit,
       addressForm,
       addressRules,
       addressFormRef,
       totalPrice,
+      groupDiscount,
+      wholesaleDiscount,
+      couponDiscount,
+      payAmount,
+      rewardPointsPreview,
       formatPrice,
       formatSubtotal,
       saveAddress,

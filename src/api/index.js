@@ -65,9 +65,10 @@ service.interceptors.response.use(
 function isTokenExpiredError(message) {
   if (!message) return false
   const msg = (message + '').toLowerCase()
-  return msg.includes('过期') ||
-    msg.includes('expired') ||
+  return (msg.includes('token') && (msg.includes('过期') || msg.includes('expired'))) ||
     (msg.includes('token') && (msg.includes('无效') || msg.includes('invalid') || msg.includes('失效'))) ||
+    msg.includes('jwt expired') ||
+    msg.includes('signature') ||
     msg.includes('未登录') ||
     msg.includes('unauthorized')
 }
