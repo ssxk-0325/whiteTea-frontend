@@ -2,13 +2,13 @@
   <div class="checkout-page">
     <Header />
     <el-container>
-      <el-main style="max-width: 1200px; margin: 0 auto;">
-        <el-alert type="warning" show-icon :closable="false" style="margin-bottom: 20px;">
+      <el-main class="checkout-main">
+        <el-alert type="warning" show-icon :closable="false" class="checkout-alert">
           下单前若有疑问，请先
           <el-link type="primary" @click="router.push('/customer-service')">联系商家</el-link>
           确认规格、库存与发货时间。
         </el-alert>
-        <h2>结算</h2>
+        <h2 class="checkout-title">结算</h2>
         <el-row :gutter="20">
           <el-col :span="16">
             <!-- 配送方式 -->
@@ -26,11 +26,11 @@
             <el-card v-if="deliveryType === 1" class="address-card">
               <template #header>
                 <div class="card-header">
-                  <span>收货地址</span>
+                  <span class="section-title">收货地址</span>
                   <el-button type="primary" size="small" @click="showAddressDialog = true">新增地址</el-button>
                 </div>
               </template>
-              <el-radio-group v-model="selectedAddressId">
+              <el-radio-group v-model="selectedAddressId" class="address-group">
                 <el-radio
                   v-for="address in addresses"
                   :key="address.id"
@@ -171,7 +171,7 @@
               <el-button
                 type="primary"
                 size="large"
-                style="width: 100%; margin-top: 20px;"
+                class="submit-btn"
                 :loading="submitting"
                 @click="submitOrder"
                 :disabled="!canSubmit || cartList.length === 0"
@@ -552,6 +552,30 @@ export default {
 <style scoped>
 .checkout-page {
   min-height: 100vh;
+  background: #f3f6fb;
+}
+
+.checkout-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 0 40px;
+}
+
+.checkout-alert {
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+
+.checkout-title {
+  margin: 0 0 20px;
+  font-size: 30px;
+  color: #1f2d3d;
+  letter-spacing: 1px;
+}
+
+.section-title {
+  font-weight: 600;
+  color: #1f2d3d;
 }
 
 .card-header {
@@ -560,20 +584,60 @@ export default {
   align-items: center;
 }
 
-.address-radio {
-  display: block;
-  margin-bottom: 15px;
-  padding: 15px;
-  border: 1px solid #e4e7ed;
-  border-radius: 4px;
+.address-group {
+  display: grid;
+  gap: 12px;
 }
 
-.address-radio:hover {
+.address-radio {
+  margin: 0;
+}
+
+/* Element Plus 的 el-radio 默认有固定高度/行内布局，多行内容时边框只包住第一行，需整体放开 */
+.address-card :deep(.el-radio.address-radio) {
+  width: 100%;
+  margin-right: 0;
+  padding: 14px 16px;
+  border: 1px solid #e4e7ed;
+  border-radius: 12px;
+  background: #fafcff;
+  transition: all .2s ease;
+  display: flex !important;
+  flex-direction: row;
+  align-items: flex-start;
+  align-content: flex-start;
+  height: auto !important;
+  min-height: 0 !important;
+  line-height: normal;
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+.address-card :deep(.el-radio.address-radio:hover) {
   border-color: #409eff;
+  background: #f4f9ff;
+}
+
+.address-card :deep(.el-radio__input) {
+  flex-shrink: 0;
+  margin-top: 4px;
+  align-self: flex-start;
+}
+
+.address-card :deep(.el-radio__label) {
+  flex: 1;
+  min-width: 0;
+  width: auto !important;
+  max-width: 100%;
+  display: block !important;
+  padding-left: 10px;
+  white-space: normal !important;
+  line-height: 1.5;
+  word-break: break-word;
 }
 
 .address-info {
-  margin-left: 10px;
+  width: 100%;
 }
 
 .address-header {
@@ -595,6 +659,32 @@ export default {
 .address-detail {
   color: #666;
   font-size: 14px;
+  line-height: 1.7;
+}
+
+.address-card :deep(.el-radio.address-radio.is-checked) {
+  border-color: #409eff;
+  background: linear-gradient(180deg, #f6fbff 0%, #edf6ff 100%);
+  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.16);
+}
+
+.address-card :deep(.el-card__header),
+.store-card :deep(.el-card__header),
+.products-card :deep(.el-card__header),
+.discount-card :deep(.el-card__header),
+.summary-card :deep(.el-card__header) {
+  padding: 14px 20px;
+}
+
+.address-card :deep(.el-card__body),
+.store-card :deep(.el-card__body),
+.products-card :deep(.el-card__body),
+.discount-card :deep(.el-card__body) {
+  padding: 18px 20px;
+}
+
+.summary-card :deep(.el-card__body) {
+  padding: 20px;
 }
 
 .product-cell {
@@ -613,11 +703,13 @@ export default {
   display: flex;
   justify-content: space-between;
   margin-bottom: 10px;
+  color: #4a5568;
 }
 
 .summary-item.total {
   font-size: 18px;
   font-weight: bold;
+  color: #1f2d3d;
 }
 
 .total-price {
@@ -627,6 +719,17 @@ export default {
 
 .delivery-type-card {
   margin-bottom: 20px;
+}
+
+.delivery-type-card,
+.address-card,
+.store-card,
+.products-card,
+.discount-card,
+.summary-card {
+  border-radius: 14px;
+  border: 1px solid #e8edf3;
+  box-shadow: 0 6px 18px rgba(17, 24, 39, 0.06);
 }
 
 .delivery-type-group {
@@ -665,6 +768,19 @@ export default {
   margin-top: 4px;
   font-size: 12px;
   color: #999;
+}
+
+.summary-card {
+  position: sticky;
+  top: 18px;
+}
+
+.submit-btn {
+  width: 100%;
+  margin-top: 20px;
+  height: 44px;
+  font-weight: 600;
+  border-radius: 10px;
 }
 </style>
 
