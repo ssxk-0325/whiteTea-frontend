@@ -3,6 +3,11 @@
     <Header />
     <el-container>
       <el-main style="max-width: 1200px; margin: 0 auto;">
+        <el-alert type="warning" show-icon :closable="false" style="margin-bottom: 20px;">
+          下单前若有疑问，请先
+          <el-link type="primary" @click="router.push('/customer-service')">联系商家</el-link>
+          确认规格、库存与发货时间。
+        </el-alert>
         <h2>结算</h2>
         <el-row :gutter="20">
           <el-col :span="16">
@@ -414,6 +419,7 @@ export default {
     })
 
     return {
+      router,
       cartList,
       DEFAULT_PRODUCT_IMAGE,
       deliveryType,

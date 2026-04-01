@@ -158,7 +158,7 @@
           </el-row>
         </el-tab-pane>
 
-        <el-tab-pane label="我的收藏" name="favorites">
+        <el-tab-pane label="社区收藏" name="favorites">
           <div v-if="favoritePosts.list.length > 0" class="content-grid">
             <el-card v-for="post in favoritePosts.list" :key="post.id" class="content-card" shadow="hover" @click="goToDetail(post.id)">
               <div class="card-image" v-if="post.images">
@@ -176,6 +176,21 @@
             </el-card>
           </div>
           <el-empty v-else description="暂无收藏内容"></el-empty>
+        </el-tab-pane>
+
+        <el-tab-pane label="商品收藏" name="productFavs">
+          <div v-if="productFavorites.list.length > 0" class="content-grid">
+            <el-card v-for="p in productFavorites.list" :key="p.id" class="content-card" shadow="hover" @click="goToProduct(p.id)">
+              <div class="card-image" v-if="p.image">
+                <img :src="p.image" :alt="p.name">
+              </div>
+              <div class="card-body">
+                <h3 class="post-title">{{ p.name }}</h3>
+                <p class="post-excerpt price-line">¥{{ Number(p.price).toFixed(2) }}</p>
+              </div>
+            </el-card>
+          </div>
+          <el-empty v-else description="暂无收藏商品"></el-empty>
         </el-tab-pane>
 
         <el-tab-pane label="我的点赞" name="likes">
@@ -316,6 +331,11 @@ export default {
       total: 0
     })
 
+    const productFavorites = reactive({
+      list: [],
+      total: 0
+    })
+
     const likedPosts = reactive({
       list: [],
       total: 0
@@ -354,6 +374,17 @@ export default {
       }
     }
 
+    const loadProductFavorites = async () => {
+      try {
+        const res = await api.product.favorite.list({ page: 1, size: 100 })
+        const page = res.data
+        productFavorites.list = page.records || []
+        productFavorites.total = page.total || 0
+      } catch (error) {
+        console.error('加载商品收藏失败', error)
+      }
+    }
+
     const loadLikes = async () => {
       try {
         const res = await api.community.getUserLikes({ page: 0, size: 100 })
@@ -386,6 +417,7 @@ export default {
 
     const handleTabClick = (tab) => {
       if (tab.props.name === 'favorites') loadFavorites()
+      if (tab.props.name === 'productFavs') loadProductFavorites()
       if (tab.props.name === 'likes') loadLikes()
       if (tab.props.name === 'history') loadHistory()
     }
@@ -419,6 +451,10 @@ export default {
 
     const goToDetail = (id) => {
       router.push(`/community/post/${id}`)
+    }
+
+    const goToProduct = (id) => {
+      router.push(`/product/${id}`)
     }
 
     const goToTarget = (item) => {
@@ -475,6 +511,7 @@ export default {
       loadUserInfo()
       // 预加载数量
       loadFavorites()
+      loadProductFavorites()
       loadLikes()
       loadHistory()
     })
@@ -485,6 +522,7 @@ export default {
       DEFAULT_PRODUCT_IMAGE,
       userForm,
       favoritePosts,
+      productFavorites,
       likedPosts,
       historyList,
       updateUser,
@@ -494,6 +532,7 @@ export default {
       formatTime,
       getTypeName,
       goToDetail,
+      goToProduct,
       goToTarget,
       deleteHistory,
       clearHistory,

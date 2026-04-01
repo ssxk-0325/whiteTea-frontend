@@ -71,14 +71,38 @@
             <el-divider />
 
             <div class="order-actions" v-if="order.status === 0 || order.status === 2">
-              <el-button v-if="order.status === 0" type="primary" @click="payOrder">去付款</el-button>
+              <el-button v-if="order.status === 0" type="primary" @click="openPayDialog">去付款</el-button>
               <el-button v-if="order.status === 0" @click="cancelOrder">取消订单</el-button>
               <el-button v-if="order.status === 2" type="success" @click="confirmReceive">确认收货</el-button>
             </div>
+
+            <template v-if="order.status === 3">
+              <el-divider />
+              <h3>订单评价</h3>
+              <div v-if="orderReview" class="review-display">
+                <el-rate :model-value="orderReview.rating" disabled show-score />
+                <p class="review-meta">{{ orderReview.userNickname || '我' }} · {{ formatTime(orderReview.createTime) }}</p>
+                <p>{{ orderReview.content || '未填写文字' }}</p>
+              </div>
+              <div v-else class="review-form">
+                <el-form label-width="80px">
+                  <el-form-item label="评分">
+                    <el-rate v-model="reviewRating" show-score />
+                  </el-form-item>
+                  <el-form-item label="评价内容">
+                    <el-input v-model="reviewContent" type="textarea" :rows="3" maxlength="500" show-word-limit placeholder="分享您的购物体验" />
+                  </el-form-item>
+                  <el-form-item>
+                    <el-button type="primary" :loading="reviewSubmitting" @click="submitReview">提交评价</el-button>
+                  </el-form-item>
+                </el-form>
+              </div>
+            </template>
           </div>
         </el-card>
       </el-main>
     </el-container>
+    <SandboxPayDialog v-model="payDialogVisible" :loading="payLoading" @confirm="onSandboxPay" />
   </div>
 </template>
 
@@ -88,12 +112,14 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import api from '@/api'
 import Header from '@/components/Header.vue'
+import SandboxPayDialog from '@/components/SandboxPayDialog.vue'
 import { DEFAULT_PRODUCT_IMAGE } from '@/constants/assets'
 
 export default {
   name: 'OrderDetail',
   components: {
-    Header
+    Header,
+    SandboxPayDialog
   },
   setup() {
     const route = useRoute()
@@ -101,6 +127,12 @@ export default {
     const loading = ref(false)
     const order = ref(null)
     const orderItems = ref([])
+    const orderReview = ref(null)
+    const reviewRating = ref(5)
+    const reviewContent = ref('')
+    const reviewSubmitting = ref(false)
+    const payDialogVisible = ref(false)
+    const payLoading = ref(false)
 
     const loadOrderDetail = async () => {
       loading.value = true
@@ -108,6 +140,7 @@ export default {
         const res = await api.order.getById(route.params.id)
         order.value = res.data.order
         orderItems.value = res.data.items
+        orderReview.value = res.data.review || null
       } catch (error) {
         ElMessage.error('加载订单详情失败')
         router.push('/orders')
@@ -157,20 +190,41 @@ export default {
       return new Date(time).toLocaleString('zh-CN')
     }
 
-    const payOrder = async () => {
+    const openPayDialog = () => {
+      payDialogVisible.value = true
+    }
+
+    const onSandboxPay = async (payType) => {
+      payLoading.value = true
       try {
-        await ElMessageBox.confirm('确认支付该订单吗？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        })
-        await api.order.pay(order.value.id, 1)
-        ElMessage.success('支付成功')
+        await api.order.pay(order.value.id, payType)
+        ElMessage.success('沙箱支付成功')
+        payDialogVisible.value = false
         loadOrderDetail()
       } catch (error) {
-        if (error !== 'cancel') {
-          ElMessage.error(error.message || '支付失败')
-        }
+        ElMessage.error(error.message || '支付失败')
+      } finally {
+        payLoading.value = false
+      }
+    }
+
+    const submitReview = async () => {
+      if (!reviewRating.value) {
+        ElMessage.warning('请选择评分')
+        return
+      }
+      reviewSubmitting.value = true
+      try {
+        await api.order.submitReview(order.value.id, {
+          rating: reviewRating.value,
+          content: reviewContent.value
+        })
+        ElMessage.success('评价成功')
+        loadOrderDetail()
+      } catch (error) {
+        ElMessage.error(error.message || '评价失败')
+      } finally {
+        reviewSubmitting.value = false
       }
     }
 
@@ -217,11 +271,19 @@ export default {
       DEFAULT_PRODUCT_IMAGE,
       order,
       orderItems,
+      orderReview,
+      reviewRating,
+      reviewContent,
+      reviewSubmitting,
+      payDialogVisible,
+      payLoading,
       getStatusText,
       getStatusType,
       getPayTypeText,
       formatTime,
-      payOrder,
+      openPayDialog,
+      onSandboxPay,
+      submitReview,
       confirmReceive,
       cancelOrder
     }
@@ -270,6 +332,17 @@ export default {
 
 .order-actions .el-button {
   margin-left: 10px;
+}
+
+.review-display,
+.review-form {
+  margin-top: 12px;
+}
+
+.review-meta {
+  color: #909399;
+  font-size: 13px;
+  margin: 8px 0;
 }
 </style>
 

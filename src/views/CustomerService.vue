@@ -11,6 +11,10 @@
             </div>
           </template>
 
+          <el-alert v-if="productConsultHint" type="success" :closable="false" show-icon style="margin-bottom: 16px;">
+            {{ productConsultHint }}
+          </el-alert>
+
           <!-- Tag区域 -->
           <div class="tag-area" v-if="tags.length > 0">
             <div class="tag-title">热门问题：</div>
@@ -82,7 +86,8 @@
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Star } from '@element-plus/icons-vue'
 import api from '@/api'
@@ -94,6 +99,15 @@ export default {
     Header
   },
   setup() {
+    const route = useRoute()
+    const productConsultHint = computed(() => {
+      const pid = route.query.productId
+      if (!pid) return ''
+      const name = route.query.productName
+      const label = name ? String(name) : `商品 #${pid}`
+      return `您正在咨询：${label}。可与商家确认价格、库存、发货与售后。`
+    })
+
     const sessionId = ref(null)
     const messages = ref([])
     const inputMessage = ref('')
@@ -276,6 +290,7 @@ export default {
     })
 
     return {
+      productConsultHint,
       sessionId,
       messages,
       inputMessage,

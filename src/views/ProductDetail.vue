@@ -17,7 +17,19 @@
             </el-col>
             <el-col :span="12">
               <div class="product-header">
-                <h1 class="product-title">{{ product.name }}</h1>
+                <div class="title-row">
+                  <h1 class="product-title">{{ product.name }}</h1>
+                  <el-button
+                    v-if="isLoggedIn"
+                    text
+                    type="warning"
+                    class="fav-btn"
+                    @click="toggleFavorite"
+                  >
+                    <el-icon :size="20"><StarFilled v-if="favorited" /><Star v-else /></el-icon>
+                    {{ favorited ? '已收藏' : '收藏' }}
+                  </el-button>
+                </div>
                 <div class="price-section">
                   <span class="current-price">¥{{ product.price }}</span>
                   <span class="original-price" v-if="product.originalPrice">¥{{ product.originalPrice }}</span>
@@ -33,7 +45,11 @@
                 </div>
                 <div class="info-item">
                   <span class="info-label">库存</span>
-                  <span class="info-value">{{ product.stock }}</span>
+                  <span class="info-value">
+                    {{ product.stock }}
+                    <el-tag v-if="product.stock > 0 && product.stock < 10" type="warning" size="small" style="margin-left: 8px;">库存紧张</el-tag>
+                    <el-tag v-else-if="product.stock === 0" type="danger" size="small" style="margin-left: 8px;">缺货</el-tag>
+                  </span>
                 </div>
                 <div class="info-item">
                   <span class="info-label">销量</span>
@@ -68,6 +84,7 @@
                   size="large" 
                   @click="addToCart"
                   class="gradient-button"
+                  :disabled="!product.stock"
                 >
                   加入购物车
                 </el-button>
@@ -75,13 +92,36 @@
                   type="danger" 
                   size="large"
                   class="danger-button"
+                  @click="buyNow"
+                  :disabled="!product.stock"
                 >
                   立即购买
+                </el-button>
+              </div>
+              <div class="secondary-actions">
+                <el-button size="large" plain @click="contactMerchant">
+                  <el-icon style="margin-right: 4px;"><ChatLineRound /></el-icon>
+                  下单前联系商家
                 </el-button>
               </div>
               
               <el-divider class="modern-divider" />
               
+              <div class="reviews-card">
+                <h3 class="description-title">买家评价</h3>
+                <el-empty v-if="reviews.length === 0" description="暂无评价，完成订单后可评价" />
+                <div v-else class="review-list">
+                  <div v-for="r in reviews" :key="r.id" class="review-item">
+                    <div class="review-head">
+                      <el-rate :model-value="r.rating" disabled show-score text-color="#ff9900" />
+                      <span class="review-name">{{ r.userNickname || '匿名用户' }}</span>
+                      <span class="review-time">{{ formatReviewTime(r.createTime) }}</span>
+                    </div>
+                    <p class="review-text">{{ r.content || '用户未填写文字评价' }}</p>
+                  </div>
+                </div>
+              </div>
+
               <div class="description-card">
                 <h3 class="description-title">产品描述</h3>
                 <div class="description-content" v-html="product.description"></div>
@@ -95,10 +135,11 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { ElMessage } from 'element-plus'
+import { Star, StarFilled, ChatLineRound } from '@element-plus/icons-vue'
 import api from '@/api'
 import Header from '@/components/Header.vue'
 import { DEFAULT_PRODUCT_IMAGE } from '@/constants/assets'
@@ -106,7 +147,10 @@ import { DEFAULT_PRODUCT_IMAGE } from '@/constants/assets'
 export default {
   name: 'ProductDetail',
   components: {
-    Header
+    Header,
+    Star,
+    StarFilled,
+    ChatLineRound
   },
   setup() {
     const route = useRoute()
@@ -116,6 +160,98 @@ export default {
     const product = ref({})
     const categoryName = ref('')
     const quantity = ref(1)
+    const favorited = ref(false)
+    const reviews = ref([])
+
+    const isLoggedIn = computed(() => !!store.state.user.token)
+
+    const loadFavoriteStatus = async () => {
+      if (!store.state.user.token || !product.value.id) return
+      try {
+        const res = await api.product.favorite.check(product.value.id)
+        favorited.value = !!res.data?.favorited
+      } catch (e) {
+        /* 忽略 */
+      }
+    }
+
+    const loadReviews = async () => {
+      if (!route.params.id) return
+      try {
+        const res = await api.product.getReviews(route.params.id, 8)
+        reviews.value = res.data || []
+      } catch (e) {
+        reviews.value = []
+      }
+    }
+
+    const toggleFavorite = async () => {
+      if (!store.state.user.token) {
+        ElMessage.warning('请先登录')
+        router.push('/login')
+        return
+      }
+      try {
+        if (favorited.value) {
+          await api.product.favorite.remove(product.value.id)
+          favorited.value = false
+          ElMessage.success('已取消收藏')
+        } else {
+          await api.product.favorite.add(product.value.id)
+          favorited.value = true
+          ElMessage.success('收藏成功')
+        }
+      } catch (e) {
+        ElMessage.error(e.message || '操作失败')
+      }
+    }
+
+    const contactMerchant = () => {
+      if (!store.state.user.token) {
+        ElMessage.warning('请先登录')
+        router.push('/login')
+        return
+      }
+      router.push({
+        path: '/customer-service',
+        query: {
+          productId: String(product.value.id),
+          productName: product.value.name || ''
+        }
+      })
+    }
+
+    const buyNow = async () => {
+      if (!store.state.user.token) {
+        ElMessage.warning('请先登录')
+        router.push('/login')
+        return
+      }
+      if (!product.value.stock) {
+        ElMessage.warning('暂时缺货')
+        return
+      }
+      try {
+        await store.dispatch('cart/addToCart', {
+          productId: product.value.id,
+          quantity: quantity.value
+        })
+        await store.dispatch('cart/getCartList')
+        const row = store.state.cart.cartList.find((c) => c.productId === product.value.id)
+        if (row) {
+          router.push({ path: '/checkout', query: { cartIds: String(row.id) } })
+        } else {
+          ElMessage.error('购物车数据异常，请重试')
+        }
+      } catch (e) {
+        ElMessage.error(e.message || '操作失败')
+      }
+    }
+
+    const formatReviewTime = (t) => {
+      if (!t) return ''
+      return new Date(t).toLocaleString('zh-CN')
+    }
 
     const loadProduct = async () => {
       loading.value = true
@@ -139,6 +275,8 @@ export default {
             image: product.value.image || DEFAULT_PRODUCT_IMAGE
           }).catch(err => console.error('记录历史失败', err))
         }
+        await loadFavoriteStatus()
+        await loadReviews()
       } catch (error) {
         ElMessage.error('加载产品详情失败')
       } finally {
@@ -150,6 +288,10 @@ export default {
       if (!store.state.user.token) {
         ElMessage.warning('请先登录')
         router.push('/login')
+        return
+      }
+      if (!product.value.stock) {
+        ElMessage.warning('暂时缺货')
         return
       }
       try {
@@ -173,7 +315,14 @@ export default {
       product,
       categoryName,
       quantity,
-      addToCart
+      addToCart,
+      buyNow,
+      contactMerchant,
+      favorited,
+      toggleFavorite,
+      isLoggedIn,
+      reviews,
+      formatReviewTime
     }
   }
 }
@@ -219,6 +368,18 @@ export default {
 
 .product-header {
   margin-bottom: 24px;
+}
+
+.title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.fav-btn {
+  flex-shrink: 0;
 }
 
 .product-title {
@@ -355,6 +516,60 @@ export default {
 .danger-button:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
+}
+
+.secondary-actions {
+  margin-bottom: 24px;
+}
+
+.secondary-actions .el-button {
+  width: 100%;
+  max-width: 100%;
+}
+
+.reviews-card {
+  margin-top: 32px;
+  padding: 32px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  margin-bottom: 24px;
+}
+
+.review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.review-item {
+  padding: 16px;
+  background: var(--bg-primary);
+  border-radius: var(--radius-base);
+  border: 1px solid var(--border-lighter);
+}
+
+.review-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.review-name {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.review-time {
+  font-size: var(--font-size-sm);
+  color: var(--text-placeholder);
+}
+
+.review-text {
+  margin: 0;
+  line-height: 1.6;
+  color: var(--text-regular);
 }
 
 .description-card {

@@ -144,6 +144,23 @@ const api = {
     },
     delete: (id) => {
       return service.delete(`/product/${id}`)
+    },
+    getReviews: (productId, size = 10) => {
+      return service.get('/product/reviews', { params: { productId, size } })
+    },
+    favorite: {
+      add: (productId) => {
+        return service.post(`/product/favorite/${productId}`)
+      },
+      remove: (productId) => {
+        return service.delete(`/product/favorite/${productId}`)
+      },
+      check: (productId) => {
+        return service.get('/product/favorite/check', { params: { productId } })
+      },
+      list: (params) => {
+        return service.get('/product/favorite/list', { params })
+      }
     }
   },
   // 分类相关
@@ -202,6 +219,12 @@ const api = {
     },
     cancel: (id) => {
       return service.post(`/order/${id}/cancel`)
+    },
+    submitReview: (id, data) => {
+      return service.post(`/order/${id}/review`, data)
+    },
+    getReview: (id) => {
+      return service.get(`/order/${id}/review`)
     },
     // 管理后台接口
     admin: {

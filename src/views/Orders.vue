@@ -13,6 +13,7 @@
           <el-tab-pane label="待发货" name="1"></el-tab-pane>
           <el-tab-pane label="待收货" name="2"></el-tab-pane>
           <el-tab-pane label="已完成" name="3"></el-tab-pane>
+          <el-tab-pane label="已取消" name="4"></el-tab-pane>
         </el-tabs>
           <el-empty v-if="!loading && orders.length === 0" description="暂无订单"></el-empty>
           <div v-loading="loading" v-else class="orders-list">
@@ -45,9 +46,10 @@
               <div class="order-actions">
                 <div class="total-amount">总计：¥{{ Number(order.payAmount).toFixed(2) }}</div>
                 <div class="actions">
-                  <el-button v-if="order.status === 0" type="primary" @click="payOrder(order.id)">去付款</el-button>
+                  <el-button v-if="order.status === 0" type="primary" @click="openPayDialog(order.id)">去付款</el-button>
                   <el-button v-if="order.status === 0" @click="cancelOrder(order.id)">取消订单</el-button>
                   <el-button v-if="order.status === 2" type="success" @click="confirmReceive(order.id)">确认收货</el-button>
+                  <el-button v-if="order.status === 3 && !order.hasReview" @click="viewOrderDetail(order.id)">评价</el-button>
                 </div>
               </div>
             </div>
@@ -56,6 +58,7 @@
         </el-card>
       </el-main>
     </el-container>
+    <SandboxPayDialog v-model="payDialogVisible" :loading="payLoading" @confirm="onSandboxPay" />
   </div>
 </template>
 
@@ -65,18 +68,23 @@ import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import api from '@/api'
 import Header from '@/components/Header.vue'
+import SandboxPayDialog from '@/components/SandboxPayDialog.vue'
 import { DEFAULT_PRODUCT_IMAGE } from '@/constants/assets'
 
 export default {
   name: 'Orders',
   components: {
-    Header
+    Header,
+    SandboxPayDialog
   },
   setup() {
     const router = useRouter()
     const activeTab = ref('all')
     const orders = ref([])
     const loading = ref(false)
+    const payDialogVisible = ref(false)
+    const payLoading = ref(false)
+    const pendingPayOrderId = ref(null)
 
     const loadOrders = async () => {
       loading.value = true
@@ -117,22 +125,25 @@ export default {
       return typeMap[status] || 'info'
     }
 
-    const payOrder = async (id) => {
+    const openPayDialog = (id) => {
+      pendingPayOrderId.value = id
+      payDialogVisible.value = true
+    }
+
+    const onSandboxPay = async (payType) => {
+      const id = pendingPayOrderId.value
+      if (!id) return
+      payLoading.value = true
       try {
-        await ElMessageBox.confirm('确认支付该订单吗？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        })
-        // 这里简化处理，实际应该跳转到支付页面或调用支付接口
-        // 暂时使用模拟支付（payType: 1-微信，2-支付宝，3-银行卡）
-        await api.order.pay(id, 1)
-        ElMessage.success('支付成功')
+        await api.order.pay(id, payType)
+        ElMessage.success('沙箱支付成功')
+        payDialogVisible.value = false
+        pendingPayOrderId.value = null
         loadOrders()
       } catch (error) {
-        if (error !== 'cancel') {
-          ElMessage.error(error.message || '支付失败')
-        }
+        ElMessage.error(error.message || '支付失败')
+      } finally {
+        payLoading.value = false
       }
     }
 
@@ -186,7 +197,10 @@ export default {
       loadOrders,
       getStatusText,
       getStatusType,
-      payOrder,
+      payDialogVisible,
+      payLoading,
+      openPayDialog,
+      onSandboxPay,
       confirmReceive,
       cancelOrder,
       viewOrderDetail
