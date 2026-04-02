@@ -1,33 +1,40 @@
 <template>
   <div class="header">
     <div class="header-content">
-      <div class="logo" @click="$router.push('/')">
-        <h1>福鼎白茶服务平台</h1>
+      <div class="header-left">
+        <div class="logo" @click="$router.push('/')">
+          <img class="logo-img" src="/images/logo.png" alt="福鼎白茶服务平台" />
+          <h1 class="sr-only">福鼎白茶服务平台</h1>
+        </div>
       </div>
-      <el-menu
-        mode="horizontal"
-        :default-active="activeIndex"
-        @select="handleSelect"
-        class="header-menu"
-        :router="false"
-        :ellipsis="false"
-      >
-        <el-menu-item index="home" @click="handleMenuClick('/')">首页</el-menu-item>
-        <el-menu-item index="products" @click="handleMenuClick('/products')">产品</el-menu-item>
-        <el-menu-item index="culture" @click="handleMenuClick('/culture')">白茶文化</el-menu-item>
-        <el-sub-menu index="services">
-          <template #title>多样化服务</template>
-          <el-menu-item index="offline-service" @click="handleMenuClick('/activity')">
-            线下体验服务
-          </el-menu-item>
-          <el-menu-item index="industry-service" @click="handleMenuClick('/services/industry')">
-            产业服务
-          </el-menu-item>
-        </el-sub-menu>
-        <el-menu-item index="rewards" @click="handleMenuClick('/rewards')">积分商城</el-menu-item>
-        <el-menu-item index="community" @click="handleMenuClick('/community')">福鼎白茶社区</el-menu-item>
-        <el-menu-item index="fuding" @click="handleMenuClick('/fuding')">关于福鼎</el-menu-item>
-      </el-menu>
+
+      <div class="header-center">
+        <el-menu
+          mode="horizontal"
+          :default-active="activeIndex"
+          @select="handleSelect"
+          class="header-menu"
+          :router="false"
+          :ellipsis="false"
+        >
+          <el-menu-item index="home" @click="handleMenuClick('/')">首页</el-menu-item>
+          <el-menu-item index="products" @click="handleMenuClick('/products')">产品</el-menu-item>
+          <el-menu-item index="culture" @click="handleMenuClick('/culture')">白茶文化</el-menu-item>
+          <el-sub-menu index="services">
+            <template #title>多样化服务</template>
+            <el-menu-item index="offline-service" @click="handleMenuClick('/activity')">
+              线下体验服务
+            </el-menu-item>
+            <el-menu-item index="industry-service" @click="handleMenuClick('/services/industry')">
+              产业服务
+            </el-menu-item>
+          </el-sub-menu>
+          <el-menu-item index="rewards" @click="handleMenuClick('/rewards')">积分商城</el-menu-item>
+          <el-menu-item index="community" @click="handleMenuClick('/community')">福鼎白茶社区</el-menu-item>
+          <el-menu-item index="fuding" @click="handleMenuClick('/fuding')">关于福鼎</el-menu-item>
+        </el-menu>
+      </div>
+
       <div class="header-right">
         <el-button 
           @click="goToCustomerService" 
@@ -262,9 +269,21 @@ export default {
   margin: 0 auto;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding: 0 32px;
   height: 72px;
+  gap: 16px;
+  min-width: 0;
+}
+
+.header-left {
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+.header-center {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .logo {
@@ -272,6 +291,26 @@ export default {
   display: flex;
   align-items: center;
   transition: var(--transition-base);
+  min-width: 0;
+}
+
+.logo-img {
+  height: 38px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .logo:hover {
@@ -287,12 +326,28 @@ export default {
   background-clip: text;
   margin: 0;
   letter-spacing: -0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .header-menu {
-  flex: 1;
   border-bottom: none;
-  margin: 0 40px;
+  margin: 0;
+  min-width: 0;
+  width: 100%;
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.header-menu::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 .header-menu :deep(.el-menu-item) {
@@ -301,6 +356,24 @@ export default {
   transition: var(--transition-base);
   border-radius: var(--radius-base);
   margin: 0 4px;
+  flex: 0 0 auto;
+}
+
+.header-menu :deep(.el-sub-menu) {
+  flex: 0 0 auto;
+}
+
+.header-menu :deep(.el-sub-menu__title) {
+  border-radius: var(--radius-base);
+  margin: 0 4px;
+  font-weight: 500;
+  font-size: 15px;
+  transition: var(--transition-base);
+}
+
+.header-menu :deep(.el-sub-menu__title:hover) {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  color: var(--primary-color);
 }
 
 .header-menu :deep(.el-menu-item:hover) {
@@ -318,6 +391,8 @@ export default {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-shrink: 0;
+  min-width: 0;
 }
 
 .header-right :deep(.el-button) {
@@ -356,6 +431,8 @@ export default {
   border-radius: var(--radius-lg);
   transition: var(--transition-base);
   position: relative;
+  max-width: 220px;
+  min-width: 0;
 }
 
 .user-info::before {
@@ -380,6 +457,10 @@ export default {
   font-weight: 500;
   position: relative;
   z-index: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .user-info :deep(.el-avatar) {
@@ -399,10 +480,11 @@ export default {
   .header-content {
     padding: 0 16px;
     height: 64px;
+    gap: 10px;
   }
   
-  .logo h1 {
-    font-size: 20px;
+  .logo-img {
+    height: 32px;
   }
   
   .header-menu {
@@ -411,6 +493,25 @@ export default {
   
   .header-right :deep(.el-button span) {
     display: none;
+  }
+}
+
+@media (max-width: 1024px) {
+  .header-content {
+    padding: 0 20px;
+    gap: 12px;
+  }
+
+  .header-menu {
+    margin: 0;
+  }
+
+  .logo-img {
+    height: 34px;
+  }
+
+  .user-info {
+    max-width: 160px;
   }
 }
 </style>
