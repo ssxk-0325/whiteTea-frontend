@@ -366,6 +366,9 @@ const api = {
     getMyIndustryJoin: (activityId) => {
       return service.get(`/activity/${activityId}/my-join`)
     },
+    getMyIndustryJoins: (params) => {
+      return service.get('/activity/industry/my-joins', { params })
+    },
     // 管理员接口
     admin: {
       getList: (params) => {

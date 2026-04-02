@@ -158,6 +158,69 @@
           </el-row>
         </el-tab-pane>
 
+        <el-tab-pane label="产业报名" name="industryJoins">
+          <el-card shadow="never" class="history-timeline">
+            <div class="history-header" style="justify-content: space-between;">
+              <div style="display:flex; gap: 10px; align-items:center; flex-wrap: wrap;">
+                <el-select v-model="industryJoinFilterStatus" @change="loadIndustryJoins" style="width: 160px" clearable>
+                  <el-option label="全部状态" :value="null" />
+                  <el-option label="待审核" :value="0" />
+                  <el-option label="通过" :value="1" />
+                  <el-option label="驳回" :value="2" />
+                </el-select>
+                <el-select v-model="industryJoinFilterType" @change="loadIndustryJoins" style="width: 160px" clearable>
+                  <el-option label="全部类型" :value="null" />
+                  <el-option label="采摘招募" :value="5" />
+                  <el-option label="批发与培训" :value="6" />
+                </el-select>
+              </div>
+              <el-button type="text" @click="loadIndustryJoins" class="clear-btn">
+                <el-icon style="vertical-align: middle; margin-right: 4px;"><Refresh /></el-icon>
+                刷新
+              </el-button>
+            </div>
+
+            <div v-loading="industryJoins.loading" class="history-items">
+              <div
+                v-for="item in industryJoins.list"
+                :key="item.id"
+                class="history-item"
+                @click="goToIndustryActivity(item.activityId)"
+              >
+                <div class="history-time" style="width: 80px;">
+                  <el-icon style="vertical-align: middle; margin-right: 4px;"><Clock /></el-icon>
+                  {{ formatDate(item.createTime) }}
+                </div>
+                <div class="history-content">
+                  <div class="history-info">
+                    <h4 class="history-title">{{ item.activityName || '（信息已下架）' }}</h4>
+                    <div style="display:flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                      <el-tag size="small" :type="item.activityType === 5 ? 'primary' : 'warning'">
+                        {{ item.activityType === 5 ? '采摘招募' : '批发与培训' }}
+                      </el-tag>
+                      <el-tag size="small" :type="getJoinTag(item.status)">{{ getJoinText(item.status) }}</el-tag>
+                      <span v-if="item.adminRemark" style="font-size: 12px; color:#666;">审核备注：{{ item.adminRemark }}</span>
+                    </div>
+                  </div>
+                  <el-button type="text" class="delete-history-btn" @click.stop="goToIndustryActivity(item.activityId)">
+                    <el-icon><ArrowRight /></el-icon>
+                  </el-button>
+                </div>
+              </div>
+            </div>
+            <el-empty v-if="!industryJoins.loading && industryJoins.list.length === 0" description="暂无产业报名记录" />
+
+            <el-pagination
+              v-model:current-page="industryJoins.currentPage"
+              v-model:page-size="industryJoins.pageSize"
+              :total="industryJoins.total"
+              layout="total, prev, pager, next"
+              @current-change="loadIndustryJoins"
+              style="margin-top: 20px; text-align: center;"
+            />
+          </el-card>
+        </el-tab-pane>
+
         <el-tab-pane label="社区收藏" name="favorites">
           <div v-if="favoritePosts.list.length > 0" class="content-grid">
             <el-card v-for="post in favoritePosts.list" :key="post.id" class="content-card" shadow="hover" @click="goToDetail(post.id)">
@@ -279,7 +342,9 @@ const {
   Check,
   Document,
   Message,
-  Camera
+  Camera,
+  Refresh,
+  ArrowRight
 } = ElementPlusIconsVue
 
 export default {
@@ -302,7 +367,9 @@ export default {
     Check,
     Document,
     Message,
-    Camera
+    Camera,
+    Refresh,
+    ArrowRight
   },
   setup() {
     const store = useStore()
@@ -345,6 +412,16 @@ export default {
       list: [],
       total: 0
     })
+
+    const industryJoins = reactive({
+      list: [],
+      total: 0,
+      loading: false,
+      currentPage: 1,
+      pageSize: 10
+    })
+    const industryJoinFilterStatus = ref(null)
+    const industryJoinFilterType = ref(null)
 
     const calculateCompleteness = vueComputed(() => {
       let count = 0
@@ -405,6 +482,25 @@ export default {
       }
     }
 
+    const loadIndustryJoins = async () => {
+      industryJoins.loading = true
+      try {
+        const params = {
+          page: industryJoins.currentPage - 1,
+          size: industryJoins.pageSize
+        }
+        if (industryJoinFilterStatus.value !== null) params.status = industryJoinFilterStatus.value
+        if (industryJoinFilterType.value !== null) params.type = industryJoinFilterType.value
+        const res = await api.activity.getMyIndustryJoins(params)
+        industryJoins.list = res.data.records || []
+        industryJoins.total = res.data.total || 0
+      } catch (e) {
+        ElMessage.error(e.message || '加载产业报名失败')
+      } finally {
+        industryJoins.loading = false
+      }
+    }
+
     const updateUser = async () => {
       try {
         await api.user.updateUser(userForm.value)
@@ -420,6 +516,7 @@ export default {
       if (tab.props.name === 'productFavs') loadProductFavorites()
       if (tab.props.name === 'likes') loadLikes()
       if (tab.props.name === 'history') loadHistory()
+      if (tab.props.name === 'industryJoins') loadIndustryJoins()
     }
 
     const getFirstImage = (imagesStr) => {
@@ -469,6 +566,19 @@ export default {
       }
     }
 
+    const getJoinText = (status) => {
+      const map = { 0: '待审核', 1: '已通过', 2: '已驳回' }
+      return map[status] || '未知'
+    }
+    const getJoinTag = (status) => {
+      const map = { 0: 'warning', 1: 'success', 2: 'danger' }
+      return map[status] || 'info'
+    }
+    const goToIndustryActivity = (activityId) => {
+      if (!activityId) return
+      router.push({ path: `/activity/${activityId}`, query: { from: 'industry' } })
+    }
+
     const deleteHistory = async (id) => {
       try {
         await api.browseHistory.delete(id)
@@ -514,6 +624,7 @@ export default {
       loadProductFavorites()
       loadLikes()
       loadHistory()
+      loadIndustryJoins()
     })
 
     return {
@@ -525,6 +636,9 @@ export default {
       productFavorites,
       likedPosts,
       historyList,
+      industryJoins,
+      industryJoinFilterStatus,
+      industryJoinFilterType,
       updateUser,
       handleTabClick,
       getFirstImage,
@@ -536,6 +650,10 @@ export default {
       goToTarget,
       deleteHistory,
       clearHistory,
+      loadIndustryJoins,
+      getJoinText,
+      getJoinTag,
+      goToIndustryActivity,
       calculateCompleteness,
       colors,
       handleAvatarSuccess
