@@ -26,6 +26,7 @@
         </el-sub-menu>
         <el-menu-item index="rewards" @click="handleMenuClick('/rewards')">积分商城</el-menu-item>
         <el-menu-item index="community" @click="handleMenuClick('/community')">福鼎白茶社区</el-menu-item>
+        <el-menu-item index="fuding" @click="handleMenuClick('/fuding')">关于福鼎</el-menu-item>
       </el-menu>
       <div class="header-right">
         <el-button 
@@ -112,6 +113,7 @@ export default {
       if (path.startsWith('/activity')) return 'offline-service'
       if (path.startsWith('/services/industry')) return 'industry-service'
       if (path.startsWith('/community')) return 'community'
+      if (path.startsWith('/fuding')) return 'fuding'
       return ''
     })
 
@@ -139,6 +141,9 @@ export default {
           break
         case 'community':
           targetRoute = '/community'
+          break
+        case 'fuding':
+          targetRoute = '/fuding'
           break
         default:
           console.warn('未知的菜单项:', key)

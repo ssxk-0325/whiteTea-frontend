@@ -147,6 +147,12 @@ const routes = [
     meta: { title: '帖子详情' }
   },
   {
+    path: '/fuding',
+    name: 'Fuding',
+    component: () => import('../views/FudingAbout.vue'),
+    meta: { title: '关于福鼎' }
+  },
+  {
     path: '/stores',
     name: 'Stores',
     component: () => import('../views/Stores.vue'),
