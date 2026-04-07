@@ -61,13 +61,13 @@
         <el-form-item label="父分类">
           <el-select v-model="categoryForm.parentId" placeholder="请选择父分类" style="width: 100%">
             <el-option label="顶级分类" :value="0" />
-            <el-option
-              v-for="category in categories"
-              :key="category.id"
-              :label="category.name"
-              :value="category.id"
-              v-if="!editingCategory || category.id !== editingCategory.id"
-            />
+            <template v-for="category in categories" :key="category.id">
+              <el-option
+                v-if="!editingCategory || category.id !== editingCategory.id"
+                :label="category.name"
+                :value="category.id"
+              />
+            </template>
           </el-select>
         </el-form-item>
         <el-form-item label="分类图片">
