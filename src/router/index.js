@@ -218,6 +218,12 @@ const routes = [
         meta: { title: '问答管理' }
       },
       {
+        path: 'rewards',
+        name: 'AdminRewards',
+        component: () => import('../views/admin/Rewards.vue'),
+        meta: { title: '积分商城管理' }
+      },
+      {
         path: 'users',
         name: 'AdminUsers',
         component: () => import('../views/admin/Users.vue'),

@@ -50,6 +50,10 @@
             <el-icon><QuestionFilled /></el-icon>
             <span>问答管理</span>
           </el-menu-item>
+          <el-menu-item index="/admin/rewards">
+            <el-icon><Present /></el-icon>
+            <span>积分商城</span>
+          </el-menu-item>
           <el-menu-item index="/admin/users">
             <el-icon><User /></el-icon>
             <span>用户管理</span>
@@ -66,7 +70,7 @@
 <script>
 import { computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-  import { DataBoard, Menu, Goods, Document, User, House, VideoPlay, Calendar, QuestionFilled, Bell } from '@element-plus/icons-vue'
+  import { DataBoard, Menu, Goods, Document, User, House, VideoPlay, Calendar, QuestionFilled, Bell, Present } from '@element-plus/icons-vue'
 
 export default {
   name: 'Admin',
@@ -80,7 +84,8 @@ export default {
     VideoPlay,
     Calendar,
     Bell,
-    QuestionFilled
+    QuestionFilled,
+    Present
   },
   setup() {
     const route = useRoute()
