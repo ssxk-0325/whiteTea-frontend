@@ -108,7 +108,7 @@
         </el-card>
       </el-main>
     </el-container>
-    <SandboxPayDialog v-model="payDialogVisible" :loading="payLoading" @confirm="onSandboxPay" />
+    <SandboxPayDialog v-model="payDialogVisible" :order-id="order?.id" @success="loadOrderDetail" />
   </div>
 </template>
 
@@ -138,7 +138,6 @@ export default {
     const reviewContent = ref('')
     const reviewSubmitting = ref(false)
     const payDialogVisible = ref(false)
-    const payLoading = ref(false)
 
     const loadOrderDetail = async () => {
       loading.value = true
@@ -198,20 +197,6 @@ export default {
 
     const openPayDialog = () => {
       payDialogVisible.value = true
-    }
-
-    const onSandboxPay = async (payType) => {
-      payLoading.value = true
-      try {
-        await api.order.pay(order.value.id, payType)
-        ElMessage.success('沙箱支付成功')
-        payDialogVisible.value = false
-        loadOrderDetail()
-      } catch (error) {
-        ElMessage.error(error.message || '支付失败')
-      } finally {
-        payLoading.value = false
-      }
     }
 
     const submitReview = async () => {
@@ -282,13 +267,11 @@ export default {
       reviewContent,
       reviewSubmitting,
       payDialogVisible,
-      payLoading,
       getStatusText,
       getStatusType,
       getPayTypeText,
       formatTime,
       openPayDialog,
-      onSandboxPay,
       submitReview,
       confirmReceive,
       cancelOrder

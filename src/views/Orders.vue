@@ -60,7 +60,7 @@
         </el-card>
       </el-main>
     </el-container>
-    <SandboxPayDialog v-model="payDialogVisible" :loading="payLoading" @confirm="onSandboxPay" />
+    <SandboxPayDialog v-model="payDialogVisible" :order-id="pendingPayOrderId" @success="loadOrders" />
   </div>
 </template>
 
@@ -85,7 +85,6 @@ export default {
     const orders = ref([])
     const loading = ref(false)
     const payDialogVisible = ref(false)
-    const payLoading = ref(false)
     const pendingPayOrderId = ref(null)
 
     const loadOrders = async () => {
@@ -130,23 +129,6 @@ export default {
     const openPayDialog = (id) => {
       pendingPayOrderId.value = id
       payDialogVisible.value = true
-    }
-
-    const onSandboxPay = async (payType) => {
-      const id = pendingPayOrderId.value
-      if (!id) return
-      payLoading.value = true
-      try {
-        await api.order.pay(id, payType)
-        ElMessage.success('沙箱支付成功')
-        payDialogVisible.value = false
-        pendingPayOrderId.value = null
-        loadOrders()
-      } catch (error) {
-        ElMessage.error(error.message || '支付失败')
-      } finally {
-        payLoading.value = false
-      }
     }
 
     const confirmReceive = async (id) => {
@@ -196,13 +178,12 @@ export default {
       DEFAULT_PRODUCT_IMAGE,
       orders,
       loading,
+      pendingPayOrderId,
       loadOrders,
       getStatusText,
       getStatusType,
       payDialogVisible,
-      payLoading,
       openPayDialog,
-      onSandboxPay,
       confirmReceive,
       cancelOrder,
       viewOrderDetail

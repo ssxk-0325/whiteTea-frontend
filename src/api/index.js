@@ -215,6 +215,10 @@ const api = {
     pay: (id, payType) => {
       return service.post(`/order/${id}/pay`, { payType })
     },
+    /** 支付宝电脑网站支付：返回 formHtml 供前端提交跳转 */
+    alipayPagePay: (id) => {
+      return service.post(`/order/${id}/alipay/pay`)
+    },
     confirmReceive: (id) => {
       return service.post(`/order/${id}/confirm`)
     },
