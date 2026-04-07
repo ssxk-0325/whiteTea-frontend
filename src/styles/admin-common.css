@@ -1,0 +1,64 @@
+/**
+ * 后台列表类页面统一布局（与「产业服务报名审核」一致）
+ * 仪表盘 Dashboard 不使用 .admin-page
+ */
+.admin-page {
+  padding: 20px;
+  background-color: #fff;
+  min-height: calc(100vh - 60px);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.admin-page > h2 {
+  margin: 0 0 16px;
+  color: #303133;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.admin-page .toolbar {
+  margin: 12px 0 18px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-page .toolbar .toolbar-search {
+  width: 280px;
+  max-width: 100%;
+}
+
+.admin-page .el-pagination {
+  margin-top: 20px;
+  justify-content: center;
+  font-size: 14px;
+}
+
+/* 表格：略增大字号与行距，避免宽屏下列文、多行挤成一团 */
+.admin-page .el-table {
+  font-size: 15px;
+}
+
+.admin-page .el-table th.el-table__cell,
+.admin-page .el-table td.el-table__cell {
+  padding: 14px 14px;
+}
+
+.admin-page .el-table .cell {
+  line-height: 1.55;
+}
+
+.admin-page .el-table .el-tag {
+  font-size: 13px;
+  padding: 5px 11px;
+  line-height: 1.4;
+}
+
+.admin-page .el-table .el-button--small {
+  font-size: 14px;
+  padding: 7px 15px;
+  border-radius: 4px;
+}

@@ -1,11 +1,11 @@
 <template>
-  <div class="admin-activities">
+  <div class="admin-page">
     <h2>活动管理</h2>
     <div class="toolbar">
-      <el-button type="primary" size="default" @click="showAddDialog = true" style="display: inline-block;">添加活动</el-button>
-      <el-button type="success" size="default" @click="showVerifyDialog = true" style="display: inline-block;">核销券</el-button>
-      <el-button size="default" @click="loadActivities" style="display: inline-block;">刷新</el-button>
-      <el-select v-model="filterType" @change="loadActivities" style="width: 150px; margin-left: 10px;" clearable>
+      <el-button type="primary" size="default" @click="showAddDialog = true">添加活动</el-button>
+      <el-button type="success" size="default" @click="showVerifyDialog = true">核销券</el-button>
+      <el-button size="default" @click="loadActivities">刷新</el-button>
+      <el-select v-model="filterType" @change="loadActivities" style="width: 150px" clearable>
         <el-option label="全部类型" :value="null"></el-option>
         <el-option label="茶艺课" :value="1"></el-option>
         <el-option label="茶园参观" :value="2"></el-option>
@@ -30,7 +30,7 @@
           <span v-else>无图片</span>
         </template>
       </el-table-column>
-      <el-table-column prop="name" label="活动名称" width="200"></el-table-column>
+      <el-table-column prop="name" label="活动名称" min-width="200"></el-table-column>
       <el-table-column label="类型" width="100">
         <template #default="scope">
           <el-tag :type="getTypeTag(scope.row.type)">{{ getTypeText(scope.row.type) }}</el-tag>
@@ -546,40 +546,4 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.admin-activities {
-  padding: 20px !important;
-  background-color: #fff !important;
-  min-height: calc(100vh - 60px);
-  width: 100%;
-  box-sizing: border-box;
-  position: relative;
-  z-index: 1;
-}
-
-.toolbar {
-  margin-bottom: 20px;
-  display: flex !important;
-  flex-direction: row !important;
-  gap: 10px;
-  align-items: center;
-  width: 100%;
-}
-
-.toolbar .el-button {
-  min-width: 100px;
-  display: inline-block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-h2 {
-  margin-bottom: 20px;
-  color: #303133;
-  font-size: 20px;
-  font-weight: 500;
-  line-height: 1.5;
-}
-</style>
 

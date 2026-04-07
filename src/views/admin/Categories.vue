@@ -1,9 +1,9 @@
 <template>
-  <div class="admin-categories">
+  <div class="admin-page">
     <h2>分类管理</h2>
     <div class="toolbar">
-      <el-button type="primary" size="default" @click="showAddDialog = true" style="display: inline-block;">添加分类</el-button>
-      <el-button size="default" @click="loadCategories" style="display: inline-block;">刷新</el-button>
+      <el-button type="primary" size="default" @click="showAddDialog = true">添加分类</el-button>
+      <el-button size="default" @click="loadCategories">刷新</el-button>
     </div>
     
     <!-- 分类列表 -->
@@ -18,7 +18,7 @@
           />
         </template>
       </el-table-column>
-      <el-table-column prop="name" label="分类名称" width="200"></el-table-column>
+      <el-table-column prop="name" label="分类名称" min-width="180"></el-table-column>
       <el-table-column prop="parentId" label="父分类ID" width="120">
         <template #default="scope">
           {{ scope.row.parentId === 0 ? '顶级分类' : scope.row.parentId }}
@@ -255,40 +255,4 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.admin-categories {
-  padding: 20px !important;
-  background-color: #fff !important;
-  min-height: calc(100vh - 60px);
-  width: 100%;
-  box-sizing: border-box;
-  position: relative;
-  z-index: 1;
-}
-
-.toolbar {
-  margin-bottom: 20px;
-  display: flex !important;
-  flex-direction: row !important;
-  gap: 10px;
-  align-items: center;
-  width: 100%;
-}
-
-.toolbar .el-button {
-  min-width: 100px;
-  display: inline-block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-h2 {
-  margin-bottom: 20px;
-  color: #303133;
-  font-size: 20px;
-  font-weight: 500;
-  line-height: 1.5;
-}
-</style>
 

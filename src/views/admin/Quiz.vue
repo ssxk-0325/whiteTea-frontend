@@ -1,16 +1,16 @@
 <template>
-  <div class="admin-quiz">
+  <div class="admin-page">
     <h2>问答管理</h2>
     <div class="toolbar">
-      <el-button type="primary" size="default" @click="showAddDialog = true" style="display: inline-block;">添加问题</el-button>
-      <el-button size="default" @click="loadQuestions" style="display: inline-block;">刷新</el-button>
-      <el-select v-model="filterCategory" @change="loadQuestions" style="width: 150px; margin-left: 10px;" clearable>
+      <el-button type="primary" size="default" @click="showAddDialog = true">添加问题</el-button>
+      <el-button size="default" @click="loadQuestions">刷新</el-button>
+      <el-select v-model="filterCategory" @change="loadQuestions" style="width: 150px" clearable>
         <el-option label="全部分类" :value="null"></el-option>
         <el-option label="互动" :value="1"></el-option>
         <el-option label="文化" :value="2"></el-option>
         <el-option label="活动" :value="3"></el-option>
       </el-select>
-      <el-select v-model="filterDifficulty" @change="loadQuestions" style="width: 150px; margin-left: 10px;" clearable>
+      <el-select v-model="filterDifficulty" @change="loadQuestions" style="width: 150px" clearable>
         <el-option label="全部难度" :value="null"></el-option>
         <el-option label="简单" :value="1"></el-option>
         <el-option label="中等" :value="2"></el-option>
@@ -21,7 +21,7 @@
     <!-- 问题列表 -->
     <el-table :data="questions" style="width: 100%" v-loading="loading">
       <el-table-column prop="id" label="ID" width="80"></el-table-column>
-      <el-table-column prop="question" label="问题" width="300">
+      <el-table-column prop="question" label="问题" min-width="260">
         <template #default="scope">
           <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
             {{ scope.row.question }}
@@ -442,40 +442,4 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.admin-quiz {
-  padding: 20px !important;
-  background-color: #fff !important;
-  min-height: calc(100vh - 60px);
-  width: 100%;
-  box-sizing: border-box;
-  position: relative;
-  z-index: 1;
-}
-
-.toolbar {
-  margin-bottom: 20px;
-  display: flex !important;
-  flex-direction: row !important;
-  gap: 10px;
-  align-items: center;
-  width: 100%;
-}
-
-.toolbar .el-button {
-  min-width: 100px;
-  display: inline-block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-h2 {
-  margin-bottom: 20px;
-  color: #303133;
-  font-size: 20px;
-  font-weight: 500;
-  line-height: 1.5;
-}
-</style>
 

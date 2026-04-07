@@ -1,33 +1,33 @@
 <template>
-  <div class="admin-orders">
+  <div class="admin-page">
     <h2>订单管理</h2>
     <div class="toolbar">
-      <el-button size="default" @click="loadOrders" style="display: inline-block;">刷新</el-button>
+      <el-button size="default" @click="loadOrders">刷新</el-button>
     </div>
     <el-table :data="orders" style="width: 100%" v-loading="loading">
-      <el-table-column prop="orderNo" label="订单号" width="180"></el-table-column>
-      <el-table-column prop="userId" label="用户ID" width="100"></el-table-column>
-      <el-table-column label="配送方式" width="100">
+      <el-table-column prop="orderNo" label="订单号" min-width="200" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="userId" label="用户ID" width="88"></el-table-column>
+      <el-table-column label="配送方式" min-width="110">
         <template #default="scope">
           <el-tag :type="scope.row.deliveryType === 2 ? 'warning' : 'primary'" size="small">
             {{ scope.row.deliveryType === 2 ? '线下自提' : '线上配送' }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="totalAmount" label="订单金额" width="120">
+      <el-table-column prop="totalAmount" label="订单金额" min-width="120">
         <template #default="scope">
           ¥{{ Number(scope.row.totalAmount).toFixed(2) }}
         </template>
       </el-table-column>
-      <el-table-column prop="status" label="状态" width="120">
+      <el-table-column prop="status" label="状态" min-width="110">
         <template #default="scope">
           <el-tag :type="getStatusType(scope.row.status)">
             {{ getStatusText(scope.row.status) }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="createTime" label="创建时间" width="180"></el-table-column>
-      <el-table-column label="操作" width="200">
+      <el-table-column prop="createTime" label="创建时间" min-width="170"></el-table-column>
+      <el-table-column label="操作" width="200" fixed="right">
         <template #default="scope">
           <el-button size="small" @click="viewOrder(scope.row)">查看</el-button>
           <el-button size="small" type="success" v-if="scope.row.status === 1" @click="shipOrder(scope.row.id)">发货</el-button>
@@ -238,135 +238,6 @@ export default {
 </script>
 
 <style scoped>
-.admin-orders {
-  padding: 32px !important;
-  background: transparent !important;
-  min-height: calc(100vh - 72px);
-  width: 100%;
-  box-sizing: border-box;
-  position: relative;
-  z-index: 1;
-}
-
-h2 {
-  margin-bottom: 32px;
-  font-size: var(--font-size-2xl);
-  font-weight: 700;
-  background: var(--primary-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  line-height: 1.5;
-}
-
-.toolbar {
-  margin-bottom: 24px;
-  display: flex !important;
-  flex-direction: row !important;
-  gap: 12px;
-  align-items: center;
-  width: 100%;
-}
-
-.toolbar .el-button {
-  min-width: 100px;
-  display: inline-block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  border-radius: var(--radius-base);
-  font-weight: 500;
-  transition: var(--transition-base);
-}
-
-.toolbar .el-button--primary {
-  background: var(--primary-gradient);
-  border: none;
-  box-shadow: var(--shadow-sm);
-}
-
-.toolbar .el-button:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.modern-table {
-  border-radius: var(--radius-lg);
-  overflow: visible;
-  box-shadow: var(--shadow-base);
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-}
-
-.modern-table :deep(.el-table__inner-wrapper) {
-  overflow: visible;
-}
-
-.modern-table :deep(.el-table__header-wrapper) {
-  overflow: visible;
-}
-
-.modern-table :deep(.el-table__header) {
-  background: var(--primary-gradient);
-  display: table-header-group;
-}
-
-.modern-table :deep(.el-table__header th) {
-  background: transparent !important;
-  color: white !important;
-  font-weight: 600;
-  border-bottom: none;
-  padding: 16px 12px;
-  text-align: center;
-}
-
-.modern-table :deep(.el-table__header th .cell) {
-  color: white !important;
-  font-weight: 600;
-}
-
-.modern-table :deep(.el-table__header th.is-leaf) {
-  color: white !important;
-}
-
-.modern-table :deep(.el-table__header th .cell *) {
-  color: white !important;
-}
-
-.modern-table :deep(.el-table__body tr) {
-  transition: var(--transition-base);
-}
-
-.modern-table :deep(.el-table__body tr:hover) {
-  background: rgba(102, 126, 234, 0.05);
-}
-
-.modern-table :deep(.el-table__row) {
-  border-bottom: 1px solid var(--border-lighter);
-}
-
-.modern-table :deep(.el-tag) {
-  border-radius: var(--radius-full);
-  font-weight: 500;
-  padding: 4px 12px;
-}
-
-.modern-table :deep(.el-button) {
-  border-radius: var(--radius-base);
-  font-weight: 500;
-  transition: var(--transition-base);
-}
-
-.modern-table :deep(.el-button--success) {
-  background: linear-gradient(135deg, #67C23A 0%, #85ce61 100%);
-  border: none;
-  box-shadow: var(--shadow-sm);
-}
-
-.modern-table :deep(.el-button:hover) {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
 .order-header {
   display: flex;
   justify-content: space-between;

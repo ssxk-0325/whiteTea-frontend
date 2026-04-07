@@ -1,5 +1,5 @@
 <template>
-  <div class="admin-industry-joins">
+  <div class="admin-page">
     <h2>产业服务报名审核</h2>
 
     <div class="toolbar">
@@ -198,22 +198,4 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.admin-industry-joins {
-  padding: 20px !important;
-  background-color: #fff !important;
-  min-height: calc(100vh - 60px);
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.toolbar {
-  margin: 12px 0 18px;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-</style>
 

@@ -1,11 +1,11 @@
 <template>
-  <div class="admin-users">
+  <div class="admin-page">
     <h2>用户管理</h2>
     <div class="toolbar">
       <el-input
         v-model="keyword"
+        class="toolbar-search"
         placeholder="搜索用户名、昵称、手机号或邮箱"
-        style="width: 300px; margin-right: 12px;"
         clearable
         @clear="loadUsers"
         @keyup.enter="loadUsers"
@@ -14,14 +14,14 @@
           <el-icon><Search /></el-icon>
         </template>
       </el-input>
-      <el-button type="primary" @click="loadUsers" style="display: inline-block;">搜索</el-button>
-      <el-button @click="loadUsers" style="display: inline-block;">刷新</el-button>
+      <el-button type="primary" @click="loadUsers">搜索</el-button>
+      <el-button @click="loadUsers">刷新</el-button>
     </div>
     <el-table :data="users" style="width: 100%" v-loading="loading">
-      <el-table-column prop="username" label="用户名" width="150"></el-table-column>
-      <el-table-column prop="nickname" label="昵称" width="150"></el-table-column>
-      <el-table-column prop="phone" label="手机号" width="150"></el-table-column>
-      <el-table-column prop="email" label="邮箱" width="200"></el-table-column>
+      <el-table-column prop="username" label="用户名" min-width="130"></el-table-column>
+      <el-table-column prop="nickname" label="昵称" min-width="120"></el-table-column>
+      <el-table-column prop="phone" label="手机号" min-width="130"></el-table-column>
+      <el-table-column prop="email" label="邮箱" min-width="200"></el-table-column>
       <el-table-column prop="userType" label="用户类型" width="120">
         <template #default="scope">
           <el-tag :type="scope.row.userType === 1 ? 'danger' : 'primary'">
@@ -36,7 +36,7 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="createTime" label="注册时间" width="180"></el-table-column>
+      <el-table-column prop="createTime" label="注册时间" min-width="170"></el-table-column>
       <el-table-column label="操作" width="150">
         <template #default="scope">
           <el-button size="small" @click="editUser(scope.row)">编辑</el-button>
@@ -276,144 +276,4 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.admin-users {
-  padding: 32px !important;
-  background: transparent !important;
-  min-height: calc(100vh - 72px);
-  width: 100%;
-  box-sizing: border-box;
-  position: relative;
-  z-index: 1;
-}
-
-h2 {
-  margin-bottom: 32px;
-  font-size: var(--font-size-2xl);
-  font-weight: 700;
-  background: var(--primary-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  line-height: 1.5;
-}
-
-.toolbar {
-  margin-bottom: 24px;
-  display: flex !important;
-  flex-direction: row !important;
-  gap: 12px;
-  align-items: center;
-  width: 100%;
-}
-
-.toolbar .el-button {
-  min-width: 100px;
-  display: inline-block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  border-radius: var(--radius-base);
-  font-weight: 500;
-  transition: var(--transition-base);
-}
-
-.toolbar .el-button--primary {
-  background: var(--primary-gradient);
-  border: none;
-  box-shadow: var(--shadow-sm);
-}
-
-.toolbar .el-button:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.modern-table {
-  border-radius: var(--radius-lg);
-  overflow: visible;
-  box-shadow: var(--shadow-base);
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-}
-
-.modern-table :deep(.el-table__inner-wrapper) {
-  overflow: visible;
-}
-
-.modern-table :deep(.el-table__header-wrapper) {
-  overflow: visible;
-}
-
-.modern-table :deep(.el-table__header) {
-  background: var(--primary-gradient);
-  display: table-header-group;
-}
-
-.modern-table :deep(.el-table__header th) {
-  background: transparent !important;
-  color: white !important;
-  font-weight: 600;
-  border-bottom: none;
-  padding: 16px 12px;
-  text-align: center;
-}
-
-.modern-table :deep(.el-table__header th .cell) {
-  color: white !important;
-  font-weight: 600;
-}
-
-.modern-table :deep(.el-table__header th.is-leaf) {
-  color: white !important;
-}
-
-.modern-table :deep(.el-table__header th .cell *) {
-  color: white !important;
-}
-
-.modern-table :deep(.el-table__body tr) {
-  transition: var(--transition-base);
-}
-
-.modern-table :deep(.el-table__body tr:hover) {
-  background: rgba(102, 126, 234, 0.05);
-}
-
-.modern-table :deep(.el-table__row) {
-  border-bottom: 1px solid var(--border-lighter);
-}
-
-.modern-table :deep(.el-tag) {
-  border-radius: var(--radius-full);
-  font-weight: 500;
-  padding: 4px 12px;
-}
-
-.modern-table :deep(.el-button) {
-  border-radius: var(--radius-base);
-  font-weight: 500;
-  transition: var(--transition-base);
-}
-
-.modern-table :deep(.el-button:hover) {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-:deep(.el-pagination) {
-  margin-top: 32px;
-  justify-content: center;
-}
-
-:deep(.el-pagination .el-pager li) {
-  border-radius: var(--radius-base);
-  transition: var(--transition-base);
-}
-
-:deep(.el-pagination .el-pager li.is-active) {
-  background: var(--primary-gradient);
-  color: white;
-}
-</style>
 

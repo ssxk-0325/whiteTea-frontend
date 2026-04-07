@@ -1,9 +1,9 @@
 <template>
-  <div class="admin-products">
+  <div class="admin-page">
     <h2>产品管理</h2>
     <div class="toolbar">
-      <el-button type="primary" size="default" @click="showAddDialog = true" style="display: inline-block;">添加产品</el-button>
-      <el-button size="default" @click="loadProducts" style="display: inline-block;">刷新</el-button>
+      <el-button type="primary" size="default" @click="showAddDialog = true">添加产品</el-button>
+      <el-button size="default" @click="loadProducts">刷新</el-button>
     </div>
     
     <!-- 产品列表 -->
@@ -18,23 +18,23 @@
           />
         </template>
       </el-table-column>
-      <el-table-column prop="name" label="产品名称" width="200"></el-table-column>
-      <el-table-column prop="categoryId" label="分类ID" width="100"></el-table-column>
-      <el-table-column prop="price" label="价格" width="120">
+      <el-table-column prop="name" label="产品名称" min-width="200"></el-table-column>
+      <el-table-column prop="categoryId" label="分类ID" min-width="100"></el-table-column>
+      <el-table-column prop="price" label="价格" min-width="110">
         <template #default="scope">
           ¥{{ scope.row.price }}
         </template>
       </el-table-column>
-      <el-table-column prop="stock" label="库存" width="100"></el-table-column>
-      <el-table-column prop="sales" label="销量" width="100"></el-table-column>
-      <el-table-column prop="status" label="状态" width="100">
+      <el-table-column prop="stock" label="库存" min-width="90"></el-table-column>
+      <el-table-column prop="sales" label="销量" min-width="90"></el-table-column>
+      <el-table-column prop="status" label="状态" min-width="100">
         <template #default="scope">
           <el-tag :type="scope.row.status === 1 ? 'success' : 'info'">
             {{ scope.row.status === 1 ? '上架' : '下架' }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="250" fixed="right">
+      <el-table-column label="操作" width="240" fixed="right">
         <template #default="scope">
           <el-button size="small" @click="editProduct(scope.row)">编辑</el-button>
           <el-button 
@@ -329,182 +329,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.admin-products {
-  padding: 32px !important;
-  background: transparent !important;
-  min-height: calc(100vh - 72px);
-  width: 100%;
-  box-sizing: border-box;
-  position: relative;
-  z-index: 1;
-}
-
-h2 {
-  margin-bottom: 32px;
-  font-size: var(--font-size-2xl);
-  font-weight: 700;
-  background: var(--primary-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  line-height: 1.5;
-}
-
-.toolbar {
-  margin-bottom: 24px;
-  display: flex !important;
-  flex-direction: row !important;
-  gap: 12px;
-  align-items: center;
-  width: 100%;
-}
-
-.toolbar .el-button {
-  min-width: 100px;
-  display: inline-block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  border-radius: var(--radius-base);
-  font-weight: 500;
-  transition: var(--transition-base);
-}
-
-.toolbar .el-button--primary {
-  background: var(--primary-gradient);
-  border: none;
-  box-shadow: var(--shadow-sm);
-}
-
-.toolbar .el-button:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.modern-table {
-  border-radius: var(--radius-lg);
-  overflow: visible;
-  box-shadow: var(--shadow-base);
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-}
-
-.modern-table :deep(.el-table__inner-wrapper) {
-  overflow: visible;
-}
-
-.modern-table :deep(.el-table__header-wrapper) {
-  overflow: visible;
-}
-
-.modern-table :deep(.el-table__header) {
-  background: var(--primary-gradient);
-  display: table-header-group;
-}
-
-.modern-table :deep(.el-table__header th) {
-  background: transparent !important;
-  color: white !important;
-  font-weight: 600;
-  border-bottom: none;
-  padding: 16px 12px;
-  text-align: center;
-}
-
-.modern-table :deep(.el-table__header th .cell) {
-  color: white !important;
-  font-weight: 600;
-}
-
-.modern-table :deep(.el-table__header th.is-leaf) {
-  color: white !important;
-}
-
-.modern-table :deep(.el-table__header th .cell *) {
-  color: white !important;
-}
-
-.modern-table :deep(.el-table__body tr:hover) {
-  background: rgba(102, 126, 234, 0.05);
-}
-
-.modern-table :deep(.el-image) {
-  border-radius: var(--radius-base);
-  box-shadow: var(--shadow-sm);
-}
-
-.modern-table :deep(.el-tag) {
-  border-radius: var(--radius-full);
-  font-weight: 500;
-  padding: 4px 12px;
-}
-
-.modern-table :deep(.el-button) {
-  border-radius: var(--radius-base);
-  font-weight: 500;
-  transition: var(--transition-base);
-  margin: 0 4px;
-}
-
-.modern-table :deep(.el-button:hover) {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
-}
-
-:deep(.el-pagination) {
-  margin-top: 32px;
-  justify-content: center;
-}
-
-:deep(.el-pagination .el-pager li) {
-  border-radius: var(--radius-base);
-  transition: var(--transition-base);
-}
-
-:deep(.el-pagination .el-pager li.is-active) {
-  background: var(--primary-gradient);
-  color: white;
-}
-
-:deep(.el-dialog) {
-  border-radius: var(--radius-xl);
-}
-
-:deep(.el-dialog__header) {
-  background: var(--primary-gradient);
-  padding: 24px 32px;
-  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-}
-
-:deep(.el-dialog__title) {
-  color: white;
-  font-weight: 700;
-  font-size: var(--font-size-lg);
-}
-
-:deep(.el-form-item__label) {
-  font-weight: 600;
-  color: var(--text-regular);
-}
-
-:deep(.el-input__wrapper),
-:deep(.el-textarea__inner) {
-  border-radius: var(--radius-base);
-  box-shadow: var(--shadow-sm);
-  border: 2px solid var(--border-light);
-  transition: var(--transition-base);
-}
-
-:deep(.el-input__wrapper:hover),
-:deep(.el-textarea__inner:hover) {
-  border-color: var(--primary-color);
-  box-shadow: var(--shadow-base);
-}
-
-:deep(.el-input__wrapper.is-focus),
-:deep(.el-textarea__inner:focus) {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-</style>
