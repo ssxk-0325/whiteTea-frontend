@@ -6,72 +6,103 @@
       <div class="background-shape shape-3"></div>
     </div>
     <el-card class="login-card">
-      <template #header>
-        <div class="card-header">
-          <div class="logo-section">
+      <div class="login-layout">
+        <div class="login-left">
+          <div class="brand">
             <h1 class="logo-text">福鼎白茶</h1>
             <p class="logo-subtitle">服务平台</p>
           </div>
-          <h2 class="card-title">欢迎回来</h2>
-          <p class="card-subtitle">登录您的账号以继续</p>
-        </div>
-      </template>
-      <el-form :model="loginForm" :rules="rules" ref="loginFormRef" class="login-form">
-        <el-form-item prop="username">
-          <el-input 
-            v-model="loginForm.username" 
-            placeholder="请输入用户名"
-            size="large"
-            class="modern-input"
-          >
-            <template #prefix>
-              <el-icon><User /></el-icon>
-            </template>
-          </el-input>
-        </el-form-item>
-        <el-form-item prop="password">
-          <el-input 
-            v-model="loginForm.password" 
-            type="password" 
-            placeholder="请输入密码" 
-            @keyup.enter="handleLogin"
-            size="large"
-            class="modern-input"
-            show-password
-          >
-            <template #prefix>
-              <el-icon><Lock /></el-icon>
-            </template>
-          </el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button 
-            type="primary" 
-            @click="handleLogin" 
-            :loading="loading" 
-            class="login-button"
-            size="large"
-          >
-            {{ loading ? '登录中...' : '登录' }}
-          </el-button>
-        </el-form-item>
-        <el-form-item>
-          <div class="register-link">
-            <span>还没有账号？</span>
-            <el-link type="primary" @click="$router.push('/register')" class="register-link-text">立即注册</el-link>
+          <div class="slogan">
+            <h2 class="slogan-title">欢迎回来</h2>
+            <p class="slogan-subtitle">登录您的账号以继续</p>
           </div>
-        </el-form-item>
-      </el-form>
+          <div class="feature-list">
+            <div class="feature-item">产业资讯与文化内容一站式浏览</div>
+            <div class="feature-item">优选好茶与社区交流更便捷</div>
+            <div class="feature-item">订单、活动、积分权益统一管理</div>
+          </div>
+        </div>
+        <div class="login-right">
+          <div class="form-header">
+            <div class="form-title">账号登录</div>
+            <div class="form-desc">请输入账号密码与验证码</div>
+          </div>
+          <el-form :model="loginForm" :rules="rules" ref="loginFormRef" class="login-form">
+            <el-form-item prop="username">
+              <el-input 
+                v-model="loginForm.username" 
+                placeholder="请输入用户名"
+                size="large"
+                class="modern-input"
+              >
+                <template #prefix>
+                  <el-icon><User /></el-icon>
+                </template>
+              </el-input>
+            </el-form-item>
+            <el-form-item prop="password">
+              <el-input 
+                v-model="loginForm.password" 
+                type="password" 
+                placeholder="请输入密码" 
+                @keyup.enter="handleLogin"
+                size="large"
+                class="modern-input"
+                show-password
+              >
+                <template #prefix>
+                  <el-icon><Lock /></el-icon>
+                </template>
+              </el-input>
+            </el-form-item>
+
+            <el-form-item prop="captchaCode">
+              <div class="captcha-row">
+                <el-input
+                  v-model="loginForm.captchaCode"
+                  placeholder="请输入验证码"
+                  size="large"
+                  class="modern-input captcha-input"
+                  @keyup.enter="handleLogin"
+                />
+                <div class="captcha-image" @click="refreshCaptcha" :title="'点击刷新验证码'">
+                  <img v-if="captchaImage" :src="captchaImage" alt="验证码" />
+                  <div v-else class="captcha-loading">加载中...</div>
+                </div>
+              </div>
+            </el-form-item>
+
+            <el-form-item>
+              <el-button 
+                type="primary" 
+                @click="handleLogin" 
+                :loading="loading" 
+                class="login-button"
+                size="large"
+              >
+                {{ loading ? '登录中...' : '登录' }}
+              </el-button>
+            </el-form-item>
+            <el-form-item>
+              <div class="register-link">
+                <span>还没有账号？</span>
+                <el-link type="primary" @click="$router.push('/register')" class="register-link-text">立即注册</el-link>
+              </div>
+            </el-form-item>
+          </el-form>
+        </div>
+      </div>
     </el-card>
   </div>
 </template>
 
 <script>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 import { ElMessage } from 'element-plus'
 import { User, Lock } from '@element-plus/icons-vue'
+import api from '@/api'
 
 export default {
   name: 'Login',
@@ -81,10 +112,13 @@ export default {
     const store = useStore()
     const loginFormRef = ref(null)
     const loading = ref(false)
+    const captchaId = ref('')
+    const captchaImage = ref('')
 
     const loginForm = reactive({
       username: '',
-      password: ''
+      password: '',
+      captchaCode: ''
     })
 
     const rules = {
@@ -94,7 +128,22 @@ export default {
       password: [
         { required: true, message: '请输入密码', trigger: 'blur' },
         { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
+      ],
+      captchaCode: [
+        { required: true, message: '请输入验证码', trigger: 'blur' },
+        { min: 4, max: 8, message: '验证码长度不正确', trigger: 'blur' }
       ]
+    }
+
+    const refreshCaptcha = async () => {
+      try {
+        const res = await api.captcha.get()
+        captchaId.value = res.data.captchaId
+        captchaImage.value = res.data.imageBase64
+      } catch (e) {
+        captchaId.value = ''
+        captchaImage.value = ''
+      }
     }
 
     const handleLogin = async () => {
@@ -106,13 +155,17 @@ export default {
           try {
             await store.dispatch('user/login', {
               username: loginForm.username,
-              password: loginForm.password
+              password: loginForm.password,
+              captchaId: captchaId.value,
+              captchaCode: loginForm.captchaCode
             })
             ElMessage.success('登录成功')
             const redirect = route.query.redirect || '/'
             router.push(redirect)
           } catch (error) {
             ElMessage.error(error.message || '登录失败')
+            await refreshCaptcha()
+            loginForm.captchaCode = ''
           } finally {
             loading.value = false
           }
@@ -120,12 +173,18 @@ export default {
       })
     }
 
+    onMounted(() => {
+      refreshCaptcha()
+    })
+
     return {
       loginForm,
       rules,
       loginFormRef,
       loading,
       handleLogin,
+      refreshCaptcha,
+      captchaImage,
       User,
       Lock
     }
@@ -197,7 +256,7 @@ export default {
 
 .login-card {
   width: 100%;
-  max-width: 480px;
+  max-width: 980px;
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-xl);
   background: rgba(255, 255, 255, 0.95);
@@ -205,23 +264,35 @@ export default {
   position: relative;
   z-index: 1;
   border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.login-card :deep(.el-card__header) {
-  padding: 40px 40px 20px;
-  border-bottom: none;
+  overflow: hidden;
 }
 
 .login-card :deep(.el-card__body) {
-  padding: 20px 40px 40px;
+  padding: 0;
 }
 
-.card-header {
-  text-align: center;
+.login-layout {
+  display: flex;
+  min-height: 520px;
 }
 
-.logo-section {
-  margin-bottom: 24px;
+.login-left {
+  flex: 1;
+  padding: 56px 52px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.14), rgba(118, 75, 162, 0.14));
+  border-right: 1px solid rgba(255, 255, 255, 0.35);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 28px;
+}
+
+.login-right {
+  width: 420px;
+  padding: 56px 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .logo-text {
@@ -242,21 +313,51 @@ export default {
   letter-spacing: 4px;
 }
 
-.card-title {
-  font-size: var(--font-size-2xl);
+.slogan-title {
+  font-size: 28px;
   font-weight: 700;
   color: var(--text-primary);
-  margin: 0 0 8px 0;
+  margin: 0 0 10px 0;
 }
 
-.card-subtitle {
+.slogan-subtitle {
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
   margin: 0;
 }
 
+.feature-list {
+  display: grid;
+  gap: 10px;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.feature-item {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+}
+
+.form-header {
+  margin-bottom: 22px;
+}
+
+.form-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.form-desc {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
 .login-form {
-  margin-top: 32px;
+  margin-top: 14px;
 }
 
 .login-form :deep(.el-form-item) {
@@ -312,6 +413,42 @@ export default {
   transform: translateY(0);
 }
 
+.captcha-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.captcha-input {
+  flex: 1;
+}
+
+.captcha-image {
+  width: 120px;
+  height: 44px;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid var(--border-light);
+  background: rgba(255, 255, 255, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.captcha-image img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.captcha-loading {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
 .register-link {
   text-align: center;
   width: 100%;
@@ -331,11 +468,26 @@ export default {
     margin: 20px;
   }
   
-  .login-card :deep(.el-card__header),
   .login-card :deep(.el-card__body) {
     padding: 24px;
   }
   
+  .login-layout {
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .login-left {
+    padding: 28px 24px;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+  }
+
+  .login-right {
+    width: 100%;
+    padding: 28px 24px;
+  }
+
   .logo-text {
     font-size: 28px;
   }

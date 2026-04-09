@@ -23,8 +23,8 @@ const mutations = {
 }
 
 const actions = {
-  async login({ commit }, { username, password }) {
-    const res = await api.user.login(username, password)
+  async login({ commit }, { username, password, captchaId, captchaCode }) {
+    const res = await api.user.login(username, password, captchaId, captchaCode)
     commit('SET_TOKEN', res.data.token)
     commit('SET_USER_INFO', res.data.user)
     return res

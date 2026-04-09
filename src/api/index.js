@@ -94,8 +94,8 @@ function handleTokenExpired() {
 const api = {
   // 用户相关
   user: {
-    login: (username, password) => {
-      return service.post('/user/login', { username, password })
+    login: (username, password, captchaId, captchaCode) => {
+      return service.post('/user/login', { username, password, captchaId, captchaCode })
     },
     register: (username, password, phone) => {
       return service.post('/user/register', { username, password, phone })
@@ -417,6 +417,12 @@ const api = {
           'Content-Type': 'multipart/form-data'
         }
       })
+    }
+  },
+  // 验证码
+  captcha: {
+    get: () => {
+      return service.get('/captcha')
     }
   },
   // 管理后台相关
