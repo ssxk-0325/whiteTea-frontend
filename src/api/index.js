@@ -472,14 +472,36 @@ const api = {
     createSession: () => {
       return service.post('/customer-service/session/create')
     },
+    getSession: (sessionId) => {
+      return service.get(`/customer-service/session/${sessionId}`)
+    },
     getMessages: (sessionId) => {
       return service.get(`/customer-service/session/${sessionId}/messages`)
     },
     sendMessage: (sessionId, content) => {
       return service.post('/customer-service/message/send', { sessionId, content })
     },
+    transferHuman: (sessionId) => {
+      return service.post(`/customer-service/session/${sessionId}/transfer-human`)
+    },
     endSession: (sessionId) => {
       return service.post(`/customer-service/session/${sessionId}/end`)
+    },
+    admin: {
+      listSessions: (status) => {
+        return service.get('/customer-service/admin/sessions', {
+          params: status === undefined || status === '' ? {} : { status }
+        })
+      },
+      getMessages: (sessionId) => {
+        return service.get(`/customer-service/admin/session/${sessionId}/messages`)
+      },
+      reply: (sessionId, content) => {
+        return service.post(`/customer-service/admin/session/${sessionId}/reply`, { content })
+      },
+      close: (sessionId) => {
+        return service.post(`/customer-service/admin/session/${sessionId}/close`)
+      }
     }
   },
   // Tag相关

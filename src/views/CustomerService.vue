@@ -7,7 +7,11 @@
           <template #header>
             <div class="chat-header">
               <h2>智能客服</h2>
-              <el-tag type="success" v-if="sessionId">会话已建立</el-tag>
+              <div class="header-tags" v-if="sessionId">
+                <el-tag v-if="sessionStatus === 0" type="success">AI 对话中</el-tag>
+                <el-tag v-else-if="sessionStatus === 2" type="warning">人工客服</el-tag>
+                <el-tag v-else-if="sessionStatus === 1" type="info">已结束</el-tag>
+              </div>
             </div>
           </template>
 
@@ -26,7 +30,7 @@
                 :type="tag.hitCount > 10 ? 'success' : 'info'"
                 effect="plain"
                 @click="clickTag(tag)"
-                :disabled="clickingTagId === tag.id"
+                :disabled="sessionStatus === 2 || clickingTagId === tag.id"
               >
                 {{ tag.tagName }}
                 <el-icon v-if="tag.hitCount > 10" class="hot-icon"><Star /></el-icon>
@@ -42,12 +46,21 @@
             <div
               v-for="message in messages"
               :key="message.id"
-              :class="['message-item', message.senderType === 0 ? 'user-message' : 'ai-message']"
+              :class="[
+                'message-item',
+                message.senderType === 0 ? 'user-message' : message.senderType === 2 ? 'human-message' : 'ai-message'
+              ]"
             >
               <div class="message-avatar">
                 <el-avatar
                   :icon="message.senderType === 0 ? 'User' : 'ChatDotRound'"
-                  :style="message.senderType === 0 ? { backgroundColor: '#409EFF' } : { backgroundColor: '#67C23A' }"
+                  :style="
+                    message.senderType === 0
+                      ? { backgroundColor: '#409EFF' }
+                      : message.senderType === 2
+                        ? { backgroundColor: '#E6A23C' }
+                        : { backgroundColor: '#67C23A' }
+                  "
                 />
               </div>
               <div class="message-content">
@@ -63,20 +76,29 @@
               v-model="inputMessage"
               type="textarea"
               :rows="3"
-              placeholder="请输入您的问题..."
+              :placeholder="sessionStatus === 2 ? '人工客服接入中，消息将直达工作人员…' : '请输入您的问题…'"
               @keydown.ctrl.enter="sendMessage"
-              :disabled="!sessionId || sending"
+              :disabled="!sessionId || sending || sessionStatus === 1"
             />
             <div class="input-actions">
+              <el-button
+                v-if="sessionId && sessionStatus === 0"
+                type="warning"
+                plain
+                :loading="transferring"
+                @click="transferHuman"
+              >
+                转人工
+              </el-button>
               <el-button
                 type="primary"
                 @click="sendMessage"
                 :loading="sending"
-                :disabled="!inputMessage.trim() || !sessionId"
+                :disabled="!inputMessage.trim() || !sessionId || sessionStatus === 1"
               >
                 发送
               </el-button>
-              <el-button @click="endSession" :disabled="!sessionId">结束会话</el-button>
+              <el-button @click="endSession" :disabled="!sessionId || sessionStatus === 1">结束会话</el-button>
             </div>
           </div>
         </el-card>
@@ -86,7 +108,7 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Star } from '@element-plus/icons-vue'
@@ -109,13 +131,17 @@ export default {
     })
 
     const sessionId = ref(null)
+    /** 0 进行中 1 已结束 2 转人工 */
+    const sessionStatus = ref(0)
     const messages = ref([])
     const inputMessage = ref('')
     const loading = ref(false)
     const sending = ref(false)
+    const transferring = ref(false)
     const messageListRef = ref(null)
     const tags = ref([])
     const clickingTagId = ref(null)
+    let pollTimer = null
 
     // 创建或获取会话
     const createSession = async () => {
@@ -123,8 +149,9 @@ export default {
         loading.value = true
         const res = await api.customerService.createSession()
         sessionId.value = res.data.sessionId
+        sessionStatus.value = res.data.status != null ? res.data.status : 0
         ElMessage.success('会话已建立')
-        
+
         // 加载历史消息
         await loadMessages()
       } catch (error) {
@@ -173,9 +200,14 @@ export default {
 
         // 使用HTTP接口发送消息并获取AI回复
         const res = await api.customerService.sendMessage(sessionId.value, content)
+        if (res.data && res.data.status !== undefined) {
+          sessionStatus.value = res.data.status
+        }
         if (res.data && res.data.message) {
           messages.value.push(res.data.message)
           scrollToBottom()
+        } else {
+          await loadMessages()
         }
       } catch (error) {
         ElMessage.error('发送消息失败：' + (error.message || '未知错误'))
@@ -195,7 +227,12 @@ export default {
         await api.customerService.endSession(sessionId.value)
         ElMessage.success('会话已结束')
         sessionId.value = null
+        sessionStatus.value = 0
         messages.value = []
+        if (pollTimer) {
+          clearInterval(pollTimer)
+          pollTimer = null
+        }
       } catch (error) {
         ElMessage.error('结束会话失败：' + (error.message || '未知错误'))
       }
@@ -239,9 +276,32 @@ export default {
       }
     }
 
+    const transferHuman = async () => {
+      if (!sessionId.value || transferring.value || sessionStatus.value !== 0) return
+      try {
+        transferring.value = true
+        const res = await api.customerService.transferHuman(sessionId.value)
+        if (res.data && res.data.status !== undefined) {
+          sessionStatus.value = res.data.status
+        } else {
+          sessionStatus.value = 2
+        }
+        await loadMessages()
+        ElMessage.success('已提交转人工，请稍候')
+      } catch (error) {
+        ElMessage.error(error.message || '转人工失败')
+      } finally {
+        transferring.value = false
+      }
+    }
+
     // 点击Tag
     const clickTag = async (tag) => {
       if (!sessionId.value || clickingTagId.value === tag.id) {
+        return
+      }
+      if (sessionStatus.value === 2) {
+        ElMessage.info('转人工后请直接输入文字咨询，热门问题已暂停')
         return
       }
 
@@ -284,14 +344,38 @@ export default {
       }
     }
 
+    watch(
+      () => [sessionStatus.value, sessionId.value],
+      () => {
+        if (pollTimer) {
+          clearInterval(pollTimer)
+          pollTimer = null
+        }
+        if (sessionStatus.value === 2 && sessionId.value) {
+          pollTimer = setInterval(() => {
+            loadMessages()
+          }, 3500)
+        }
+      },
+      { immediate: true }
+    )
+
     onMounted(() => {
       createSession()
       loadTags()
     })
 
+    onUnmounted(() => {
+      if (pollTimer) {
+        clearInterval(pollTimer)
+        pollTimer = null
+      }
+    })
+
     return {
       productConsultHint,
       sessionId,
+      sessionStatus,
       messages,
       inputMessage,
       loading,
@@ -301,6 +385,8 @@ export default {
       clickingTagId,
       sendMessage,
       endSession,
+      transferHuman,
+      transferring,
       clickTag,
       formatTime,
       Star
@@ -349,6 +435,13 @@ export default {
   color: white;
 }
 
+.header-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
 .message-list {
   flex: 1;
   overflow-y: auto;
@@ -386,7 +479,8 @@ export default {
   flex-direction: row-reverse;
 }
 
-.ai-message {
+.ai-message,
+.human-message {
   flex-direction: row;
 }
 
@@ -404,7 +498,8 @@ export default {
   align-items: flex-end;
 }
 
-.ai-message .message-content {
+.ai-message .message-content,
+.human-message .message-content {
   align-items: flex-start;
 }
 
@@ -425,6 +520,13 @@ export default {
   background-color: white;
   color: #303133;
   border: 1px solid #e4e7ed;
+  border-bottom-left-radius: 2px;
+}
+
+.human-message .message-text {
+  background-color: #fff7e6;
+  color: #303133;
+  border: 1px solid #f5dab1;
   border-bottom-left-radius: 2px;
 }
 
@@ -527,7 +629,8 @@ export default {
   flex-direction: row-reverse;
 }
 
-.ai-message {
+.ai-message,
+.human-message {
   flex-direction: row;
 }
 
@@ -554,7 +657,8 @@ export default {
   align-items: flex-end;
 }
 
-.ai-message .message-content {
+.ai-message .message-content,
+.human-message .message-content {
   align-items: flex-start;
 }
 
@@ -577,6 +681,13 @@ export default {
   background: white;
   color: var(--text-primary);
   border: 1px solid var(--border-light);
+  border-bottom-left-radius: 4px;
+}
+
+.human-message .message-text {
+  background: #fff7e6;
+  color: var(--text-primary);
+  border: 1px solid #f5dab1;
   border-bottom-left-radius: 4px;
 }
 

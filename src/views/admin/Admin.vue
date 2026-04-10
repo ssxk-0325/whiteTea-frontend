@@ -58,6 +58,10 @@
             <el-icon><User /></el-icon>
             <span>用户管理</span>
           </el-menu-item>
+          <el-menu-item index="/admin/customer-service">
+            <el-icon><Service /></el-icon>
+            <span>客服会话</span>
+          </el-menu-item>
         </el-menu>
       </el-aside>
       <el-main style="padding: 0; background: transparent; overflow: auto; position: relative;">
@@ -70,7 +74,7 @@
 <script>
 import { computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-  import { DataBoard, Menu, Goods, Document, User, House, VideoPlay, Calendar, QuestionFilled, Bell, Present } from '@element-plus/icons-vue'
+  import { DataBoard, Menu, Goods, Document, User, House, VideoPlay, Calendar, QuestionFilled, Bell, Present, Service } from '@element-plus/icons-vue'
 
 export default {
   name: 'Admin',
@@ -85,7 +89,8 @@ export default {
     Calendar,
     Bell,
     QuestionFilled,
-    Present
+    Present,
+    Service
   },
   setup() {
     const route = useRoute()

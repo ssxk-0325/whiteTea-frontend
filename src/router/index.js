@@ -228,6 +228,12 @@ const routes = [
         name: 'AdminUsers',
         component: () => import('../views/admin/Users.vue'),
         meta: { title: '用户管理' }
+      },
+      {
+        path: 'customer-service',
+        name: 'AdminCustomerService',
+        component: () => import('../views/admin/CustomerServiceManage.vue'),
+        meta: { title: '客服会话' }
       }
     ]
   }
