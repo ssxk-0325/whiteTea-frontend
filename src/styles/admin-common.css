@@ -51,6 +51,17 @@
   line-height: 1.55;
 }
 
+/*
+ * 表格单元格默认 overflow:hidden + text-overflow:ellipsis，
+ * 在「类型/分类/状态」等窄列里会把 el-tag 内短文案裁成「文章…」「发布…」。
+ * 对包含标签的单元格关闭省略裁切。
+ */
+.admin-page .el-table td.admin-col-tag-cell > .cell,
+.admin-page .el-table td.el-table__cell > .cell:has(.el-tag) {
+  overflow: visible;
+  text-overflow: clip;
+}
+
 .admin-page .el-table .el-tag {
   font-size: 13px;
   padding: 5px 11px;
@@ -61,4 +72,18 @@
   font-size: 14px;
   padding: 7px 15px;
   border-radius: 4px;
+}
+
+/* 表格操作列：按钮单行排列（避免「编辑 / 下架 / 删除」折行） */
+.admin-page .admin-table-actions {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.admin-page .admin-table-actions .el-button + .el-button {
+  margin-left: 0;
 }

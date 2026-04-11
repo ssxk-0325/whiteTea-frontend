@@ -39,17 +39,19 @@
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="240" fixed="right">
+          <el-table-column label="操作" min-width="280" fixed="right" align="center" header-align="center">
             <template #default="scope">
-              <el-button size="small" @click="editProduct(scope.row)">编辑</el-button>
-              <el-button
-                size="small"
-                :type="scope.row.status === 1 ? 'warning' : 'success'"
-                @click="toggleStatus(scope.row)"
-              >
-                {{ scope.row.status === 1 ? '下架' : '上架' }}
-              </el-button>
-              <el-button size="small" type="danger" @click="deleteProduct(scope.row.id)">删除</el-button>
+              <div class="admin-table-actions">
+                <el-button size="small" @click="editProduct(scope.row)">编辑</el-button>
+                <el-button
+                  size="small"
+                  :type="scope.row.status === 1 ? 'warning' : 'success'"
+                  @click="toggleStatus(scope.row)"
+                >
+                  {{ scope.row.status === 1 ? '下架' : '上架' }}
+                </el-button>
+                <el-button size="small" type="danger" @click="deleteProduct(scope.row.id)">删除</el-button>
+              </div>
             </template>
           </el-table-column>
         </el-table>
@@ -95,17 +97,19 @@
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="250" fixed="right">
+          <el-table-column label="操作" min-width="280" fixed="right" align="center" header-align="center">
             <template #default="scope">
-              <el-button size="small" @click="editCategory(scope.row)">编辑</el-button>
-              <el-button
-                size="small"
-                :type="scope.row.status === 1 ? 'warning' : 'success'"
-                @click="toggleCategoryStatus(scope.row)"
-              >
-                {{ scope.row.status === 1 ? '禁用' : '启用' }}
-              </el-button>
-              <el-button size="small" type="danger" @click="deleteCategory(scope.row.id)">删除</el-button>
+              <div class="admin-table-actions">
+                <el-button size="small" @click="editCategory(scope.row)">编辑</el-button>
+                <el-button
+                  size="small"
+                  :type="scope.row.status === 1 ? 'warning' : 'success'"
+                  @click="toggleCategoryStatus(scope.row)"
+                >
+                  {{ scope.row.status === 1 ? '禁用' : '启用' }}
+                </el-button>
+                <el-button size="small" type="danger" @click="deleteCategory(scope.row.id)">删除</el-button>
+              </div>
             </template>
           </el-table-column>
         </el-table>

@@ -25,38 +25,40 @@
         </template>
       </el-table-column>
       <el-table-column prop="title" label="标题" min-width="200"></el-table-column>
-      <el-table-column label="类型" width="100">
+      <el-table-column label="类型" width="100" class-name="admin-col-tag-cell">
         <template #default="scope">
           <el-tag :type="scope.row.contentType === 1 ? 'success' : 'primary'">
             {{ scope.row.contentType === 1 ? '文章' : '视频' }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="分类" width="120">
+      <el-table-column label="分类" width="120" class-name="admin-col-tag-cell">
         <template #default="scope">
           <el-tag :type="getTypeTag(scope.row.type)">{{ getTypeText(scope.row.type) }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column prop="viewCount" label="浏览量" width="100"></el-table-column>
       <el-table-column prop="likeCount" label="点赞数" width="100"></el-table-column>
-      <el-table-column prop="status" label="状态" width="100">
+      <el-table-column prop="status" label="状态" width="100" class-name="admin-col-tag-cell">
         <template #default="scope">
           <el-tag :type="scope.row.status === 1 ? 'success' : 'info'">
             {{ scope.row.status === 1 ? '发布' : '草稿' }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="250" fixed="right">
+      <el-table-column label="操作" min-width="280" fixed="right" align="center" header-align="center">
         <template #default="scope">
-          <el-button size="small" @click="editContent(scope.row)">编辑</el-button>
-          <el-button 
-            size="small" 
-            :type="scope.row.status === 1 ? 'warning' : 'success'"
-            @click="toggleStatus(scope.row)"
-          >
-            {{ scope.row.status === 1 ? '下架' : '发布' }}
-          </el-button>
-          <el-button size="small" type="danger" @click="deleteContent(scope.row.id)">删除</el-button>
+          <div class="admin-table-actions">
+            <el-button size="small" @click="editContent(scope.row)">编辑</el-button>
+            <el-button
+              size="small"
+              :type="scope.row.status === 1 ? 'warning' : 'success'"
+              @click="toggleStatus(scope.row)"
+            >
+              {{ scope.row.status === 1 ? '下架' : '发布' }}
+            </el-button>
+            <el-button size="small" type="danger" @click="deleteContent(scope.row.id)">删除</el-button>
+          </div>
         </template>
       </el-table-column>
     </el-table>
