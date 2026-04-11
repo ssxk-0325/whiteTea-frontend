@@ -177,9 +177,7 @@ const routes = [
       },
       {
         path: 'categories',
-        name: 'AdminCategories',
-        component: () => import('../views/admin/Categories.vue'),
-        meta: { title: '分类管理' }
+        redirect: () => ({ path: '/admin/products', query: { tab: 'categories' } })
       },
       {
         path: 'products',

@@ -22,10 +22,6 @@
             <el-icon><DataBoard /></el-icon>
             <span>仪表盘</span>
           </el-menu-item>
-          <el-menu-item index="/admin/categories">
-            <el-icon><Menu /></el-icon>
-            <span>分类管理</span>
-          </el-menu-item>
           <el-menu-item index="/admin/products">
             <el-icon><Goods /></el-icon>
             <span>产品管理</span>
@@ -74,13 +70,12 @@
 <script>
 import { computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-  import { DataBoard, Menu, Goods, Document, User, House, VideoPlay, Calendar, QuestionFilled, Bell, Present, Service } from '@element-plus/icons-vue'
+  import { DataBoard, Goods, Document, User, House, VideoPlay, Calendar, QuestionFilled, Bell, Present, Service } from '@element-plus/icons-vue'
 
 export default {
   name: 'Admin',
   components: {
     DataBoard,
-    Menu,
     Goods,
     Document,
     User,
