@@ -129,6 +129,12 @@ const routes = [
     meta: { title: '兑换记录', requiresAuth: true }
   },
   {
+    path: '/rewards/:id',
+    name: 'RewardDetail',
+    component: () => import('../views/RewardDetail.vue'),
+    meta: { title: '奖品详情' }
+  },
+  {
     path: '/customer-service',
     name: 'CustomerService',
     component: () => import('../views/CustomerService.vue'),

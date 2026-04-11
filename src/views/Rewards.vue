@@ -50,11 +50,11 @@
             <el-row :gutter="20">
               <el-col :span="8" v-for="reward in rewards" :key="reward.id">
                 <el-card class="reward-card" shadow="hover">
-                  <div class="reward-image">
+                  <div class="reward-image reward-image-link" @click="goDetail(reward.id)">
                     <el-image :src="reward.image || DEFAULT_PRODUCT_IMAGE" fit="cover" style="width: 100%; height: 200px;" />
                   </div>
                   <div class="reward-content">
-                    <h3 class="reward-name">{{ reward.name }}</h3>
+                    <h3 class="reward-name reward-name-link" @click="goDetail(reward.id)">{{ reward.name }}</h3>
                     <p class="reward-description" v-if="reward.description">
                       {{ reward.description }}
                     </p>
@@ -63,14 +63,17 @@
                         <span class="points-label">需要积分：</span>
                         <span class="points-value">{{ reward.pointsRequired }}</span>
                       </div>
-                      <el-button
-                        type="primary"
-                        :disabled="!userStore.isLoggedIn || (pointsInfo.currentPoints || 0) < reward.pointsRequired || (reward.stock !== null && reward.stock <= 0)"
-                        @click="handleExchange(reward)"
-                        :loading="exchanging[reward.id]"
-                      >
-                        {{ (reward.stock !== null && reward.stock <= 0) ? '已售罄' : '立即兑换' }}
-                      </el-button>
+                      <div class="reward-actions">
+                        <el-button @click.stop="goDetail(reward.id)">详情</el-button>
+                        <el-button
+                          type="primary"
+                          :disabled="!userStore.isLoggedIn || (pointsInfo.currentPoints || 0) < reward.pointsRequired || (reward.stock !== null && reward.stock <= 0)"
+                          @click="handleExchange(reward)"
+                          :loading="exchanging[reward.id]"
+                        >
+                          {{ (reward.stock !== null && reward.stock <= 0) ? '已售罄' : '立即兑换' }}
+                        </el-button>
+                      </div>
                     </div>
                     <div class="reward-stock" v-if="reward.stock !== null">
                       库存：{{ reward.stock }}
@@ -164,6 +167,10 @@ export default {
       }
     }
 
+    const goDetail = (id) => {
+      router.push(`/rewards/${id}`)
+    }
+
     const handleExchange = async (reward) => {
       if (!userStore.value.isLoggedIn) {
         ElMessage.warning('请先登录')
@@ -222,6 +229,7 @@ export default {
       userStore,
       loadRewards,
       loadPointsInfo,
+      goDetail,
       handleExchange
     }
   }
@@ -301,6 +309,19 @@ export default {
   margin-bottom: 15px;
 }
 
+.reward-image-link {
+  cursor: pointer;
+}
+
+.reward-name-link {
+  cursor: pointer;
+  color: #303133;
+}
+
+.reward-name-link:hover {
+  color: #409eff;
+}
+
 .reward-image-placeholder {
   width: 100%;
   height: 200px;
@@ -345,7 +366,16 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-bottom: 10px;
+}
+
+.reward-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
 }
 
 .reward-points {

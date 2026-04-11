@@ -47,6 +47,12 @@
         </template>
       </el-table-column>
       <el-table-column prop="pointsRequired" label="所需积分" width="110" />
+      <el-table-column label="券规则" width="120" show-overflow-tooltip>
+        <template #default="scope">
+          <span v-if="scope.row.type === 2">{{ couponRuleText(scope.row.couponDiscountType) }}</span>
+          <span v-else>—</span>
+        </template>
+      </el-table-column>
       <el-table-column label="库存" width="100">
         <template #default="scope">
           {{ scope.row.stock === null || scope.row.stock === undefined ? '不限' : scope.row.stock }}
@@ -93,6 +99,16 @@
             <el-option label="实物奖品" :value="1" />
             <el-option label="优惠券" :value="2" />
             <el-option label="虚拟奖品" :value="3" />
+          </el-select>
+        </el-form-item>
+        <el-form-item v-if="form.type === 2" label="抵扣规则" prop="couponDiscountType">
+          <el-select v-model="form.couponDiscountType" placeholder="下单抵扣金额（与结算页一致）" style="width: 100%">
+            <el-option label="减 20 元（不超过商品总额）" :value="1" />
+            <el-option label="减 30 元" :value="2" />
+            <el-option label="减 50 元" :value="3" />
+            <el-option label="减 80 元" :value="4" />
+            <el-option label="减 5%（按商品总额）" :value="5" />
+            <el-option label="减 12%（按商品总额）" :value="6" />
           </el-select>
         </el-form-item>
         <el-form-item label="所需积分" prop="pointsRequired">
@@ -165,6 +181,7 @@ export default {
       pointsRequired: 100,
       stock: 0,
       type: 1,
+      couponDiscountType: 1,
       status: 1,
       sortOrder: 0
     })
@@ -181,6 +198,16 @@ export default {
 
     const typeText = (t) =>
       ({ 1: '实物', 2: '优惠券', 3: '虚拟' }[t] || '未知')
+
+    const couponRuleText = (rule) =>
+      ({
+        1: '减20元',
+        2: '减30元',
+        3: '减50元',
+        4: '减80元',
+        5: '减5%',
+        6: '减12%'
+      }[rule] || '减20元')
 
     const typeTag = (t) =>
       ({ 1: 'primary', 2: 'warning', 3: 'success' }[t] || 'info')
@@ -240,6 +267,7 @@ export default {
         pointsRequired: row.pointsRequired,
         stock: su ? 0 : row.stock,
         type: row.type ?? 1,
+        couponDiscountType: row.couponDiscountType != null ? row.couponDiscountType : 1,
         status: row.status ?? 1,
         sortOrder: row.sortOrder ?? 0
       }
@@ -263,6 +291,9 @@ export default {
         type: form.value.type,
         status: form.value.status,
         sortOrder: form.value.sortOrder
+      }
+      if (form.value.type === 2) {
+        payload.couponDiscountType = form.value.couponDiscountType ?? 1
       }
       if (editingId.value) payload.id = editingId.value
       return payload
@@ -335,6 +366,7 @@ export default {
       stockUnlimited,
       DEFAULT_PRODUCT_IMAGE,
       typeText,
+      couponRuleText,
       typeTag,
       loadList,
       handleFilterChange,

@@ -570,6 +570,10 @@ const api = {
     getMyPoints: () => {
       return service.get('/reward/my-points')
     },
+    /** 结算页：可选的积分商城优惠券（兑换记录 id 作为 couponId 提交） */
+    getCheckoutCoupons: () => {
+      return service.get('/reward/checkout-coupons')
+    },
     // 管理员接口
     admin: {
       getList: (params) => {

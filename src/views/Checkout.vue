@@ -122,11 +122,16 @@
                   </el-radio-group>
                 </el-form-item>
                 <el-form-item label="优惠券">
-                  <el-select v-model="selectedCouponId" clearable placeholder="可选未使用优惠券（不选则不使用）" style="width: 100%">
+                  <el-select
+                    v-model="selectedCouponId"
+                    placeholder="可选积分商城兑换的优惠券（活动体验券请在门店核销）"
+                    style="width: 100%"
+                  >
+                    <el-option :value="null" label="不使用优惠券" />
                     <el-option
                       v-for="coupon in availableCoupons"
                       :key="coupon.id"
-                      :label="`${coupon.couponName}（${coupon.couponCode}）`"
+                      :label="formatCheckoutCouponLabel(coupon)"
                       :value="coupon.id"
                     />
                   </el-select>
@@ -352,11 +357,17 @@ export default {
 
     const loadCoupons = async () => {
       try {
-        const res = await api.activity.getMyCoupons({ status: 0 })
+        const res = await api.reward.getCheckoutCoupons()
         availableCoupons.value = res.data || []
       } catch (error) {
         availableCoupons.value = []
       }
+    }
+
+    const formatCheckoutCouponLabel = (coupon) => {
+      const name = coupon.couponName || '优惠券'
+      const code = coupon.couponCode ? `（${coupon.couponCode}）` : ''
+      return `${name}${code}`
     }
 
     const canSubmit = computed(() => {
@@ -542,6 +553,7 @@ export default {
       rewardPointsPreview,
       formatPrice,
       formatSubtotal,
+      formatCheckoutCouponLabel,
       saveAddress,
       submitOrder
     }
