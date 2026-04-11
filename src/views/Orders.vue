@@ -49,6 +49,7 @@
                 <div class="discount-tip" v-if="Number(order.discountAmount || 0) > 0">已优惠 ¥{{ Number(order.discountAmount || 0).toFixed(2) }}</div>
                 <div class="actions">
                   <el-button v-if="order.status === 0" type="primary" @click="openPayDialog(order.id)">去付款</el-button>
+                  <el-button v-if="order.status === 0" :loading="syncPayOrderId === order.id" @click="syncAlipayPayStatus(order.id)">同步支付状态</el-button>
                   <el-button v-if="order.status === 0" @click="cancelOrder(order.id)">取消订单</el-button>
                   <el-button v-if="order.status === 2" type="success" @click="confirmReceive(order.id)">确认收货</el-button>
                   <el-button v-if="order.status === 3 && !order.hasReview" @click="viewOrderDetail(order.id)">评价</el-button>
@@ -86,6 +87,7 @@ export default {
     const loading = ref(false)
     const payDialogVisible = ref(false)
     const pendingPayOrderId = ref(null)
+    const syncPayOrderId = ref(null)
 
     const loadOrders = async () => {
       loading.value = true
@@ -129,6 +131,19 @@ export default {
     const openPayDialog = (id) => {
       pendingPayOrderId.value = id
       payDialogVisible.value = true
+    }
+
+    const syncAlipayPayStatus = async (id) => {
+      syncPayOrderId.value = id
+      try {
+        const res = await api.order.alipaySyncPayStatus(id)
+        ElMessage.success(res.message || '已同步支付状态')
+        await loadOrders()
+      } catch (error) {
+        ElMessage.error(error.message || '同步失败')
+      } finally {
+        syncPayOrderId.value = null
+      }
     }
 
     const confirmReceive = async (id) => {
@@ -183,7 +198,9 @@ export default {
       getStatusText,
       getStatusType,
       payDialogVisible,
+      syncPayOrderId,
       openPayDialog,
+      syncAlipayPayStatus,
       confirmReceive,
       cancelOrder,
       viewOrderDetail

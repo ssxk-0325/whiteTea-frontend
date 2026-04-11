@@ -105,6 +105,7 @@
 
             <div class="order-actions" v-if="order.status === 0 || order.status === 2">
               <el-button v-if="order.status === 0" type="primary" @click="openPayDialog">去付款</el-button>
+              <el-button v-if="order.status === 0" :loading="syncPayLoading" @click="syncAlipayPayStatus">同步支付状态</el-button>
               <el-button v-if="order.status === 0" @click="cancelOrder">取消订单</el-button>
               <el-button v-if="order.status === 2" type="success" @click="confirmReceive">确认收货</el-button>
             </div>
@@ -165,6 +166,7 @@ export default {
     const reviewContent = ref('')
     const reviewSubmitting = ref(false)
     const payDialogVisible = ref(false)
+    const syncPayLoading = ref(false)
     const deliveryTrack = ref(null)
     let trackPollTimer = null
 
@@ -278,6 +280,20 @@ export default {
       payDialogVisible.value = true
     }
 
+    const syncAlipayPayStatus = async () => {
+      if (!order.value?.id) return
+      syncPayLoading.value = true
+      try {
+        const res = await api.order.alipaySyncPayStatus(order.value.id)
+        ElMessage.success(res.message || '已同步支付状态')
+        await loadOrderDetail()
+      } catch (error) {
+        ElMessage.error(error.message || '同步失败')
+      } finally {
+        syncPayLoading.value = false
+      }
+    }
+
     const submitReview = async () => {
       if (!reviewRating.value) {
         ElMessage.warning('请选择评分')
@@ -350,6 +366,8 @@ export default {
       reviewContent,
       reviewSubmitting,
       payDialogVisible,
+      syncPayLoading,
+      syncAlipayPayStatus,
       deliveryTrack,
       currentTrackStep,
       formatDistance,

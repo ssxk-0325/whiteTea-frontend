@@ -219,6 +219,10 @@ const api = {
     alipayPagePay: (id) => {
       return service.post(`/order/${id}/alipay/pay`)
     },
+    /** 查询支付宝交易状态并补单（notify 未送达时） */
+    alipaySyncPayStatus: (id) => {
+      return service.post(`/order/${id}/alipay/sync`)
+    },
     confirmReceive: (id) => {
       return service.post(`/order/${id}/confirm`)
     },
