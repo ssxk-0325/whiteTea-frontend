@@ -54,6 +54,33 @@
               <p><strong>{{ order.deliveryType === 2 ? '自提门店/地址' : '收货地址' }}：</strong>{{ order.receiverAddress }}</p>
             </div>
 
+            <template v-if="deliveryTrack && order.deliveryType === 1">
+              <el-divider />
+              <h3>配送模拟轨迹</h3>
+              <p class="track-hint">以下为同城演示轨迹：始发点与途中位置在福鼎市域内随机生成，直线距离仅供参考，非真实 GPS。</p>
+              <div class="track-summary">
+                <el-tag type="info" size="small">{{ deliveryTrack.cityLabel }}</el-tag>
+                <span class="track-dist" v-if="currentTrackStep">
+                  当前：{{ currentTrackStep.title }} · 距收货地直线距离约 <strong>{{ formatDistance(currentTrackStep.distanceKm) }}</strong> km
+                </span>
+              </div>
+              <el-timeline class="track-timeline">
+                <el-timeline-item
+                  v-for="step in deliveryTrack.steps"
+                  :key="step.index"
+                  :type="step.index < deliveryTrack.currentStepIndex ? 'success' : (step.index === deliveryTrack.currentStepIndex ? 'primary' : 'info')"
+                  :hollow="step.index > deliveryTrack.currentStepIndex"
+                  :timestamp="stepTitleHint(step)"
+                >
+                  <p class="track-step-title">{{ step.title }}</p>
+                  <p class="track-step-meta">距收货地约 {{ formatDistance(step.distanceKm) }} km</p>
+                </el-timeline-item>
+              </el-timeline>
+              <p v-if="deliveryTrack.nextStepAt && deliveryTrack.currentStepIndex < 5" class="track-next">
+                预计下一节点更新：{{ formatTime(deliveryTrack.nextStepAt) }}（每 {{ trackStepMinutes }} 分钟推进一档）
+              </p>
+            </template>
+
             <el-divider />
 
             <h3>订单信息</h3>
@@ -113,7 +140,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import api from '@/api'
@@ -138,6 +165,50 @@ export default {
     const reviewContent = ref('')
     const reviewSubmitting = ref(false)
     const payDialogVisible = ref(false)
+    const deliveryTrack = ref(null)
+    let trackPollTimer = null
+
+    const currentTrackStep = computed(() => {
+      const t = deliveryTrack.value
+      if (!t || !t.steps || t.steps.length === 0) return null
+      const i = Math.min(t.currentStepIndex, t.steps.length - 1)
+      return t.steps[i]
+    })
+
+    const trackStepMinutes = computed(() => {
+      const ms = deliveryTrack.value?.stepDurationMs || 0
+      return Math.max(1, Math.round(ms / 60000))
+    })
+
+    const formatDistance = (v) => {
+      if (v === undefined || v === null) return '-'
+      return Number(v).toFixed(2)
+    }
+
+    const stepTitleHint = (step) => {
+      const t = deliveryTrack.value
+      if (!t) return ''
+      if (step.index < t.currentStepIndex) return '已更新'
+      if (step.index === t.currentStepIndex) return '当前'
+      return '待更新'
+    }
+
+    const loadDeliveryTrack = async () => {
+      if (!order.value || order.value.deliveryType !== 1 || !order.value.shipTime) {
+        deliveryTrack.value = null
+        return
+      }
+      if (order.value.status < 2) {
+        deliveryTrack.value = null
+        return
+      }
+      try {
+        const res = await api.order.getDeliveryTrack(route.params.id)
+        deliveryTrack.value = res.data || null
+      } catch {
+        deliveryTrack.value = null
+      }
+    }
 
     const loadOrderDetail = async () => {
       loading.value = true
@@ -146,6 +217,14 @@ export default {
         order.value = res.data.order
         orderItems.value = res.data.items
         orderReview.value = res.data.review || null
+        await loadDeliveryTrack()
+        if (trackPollTimer) {
+          clearInterval(trackPollTimer)
+          trackPollTimer = null
+        }
+        if (order.value && order.value.status === 2 && order.value.deliveryType === 1 && order.value.shipTime) {
+          trackPollTimer = setInterval(loadDeliveryTrack, 45000)
+        }
       } catch (error) {
         ElMessage.error('加载订单详情失败')
         router.push('/orders')
@@ -257,6 +336,10 @@ export default {
       loadOrderDetail()
     })
 
+    onBeforeUnmount(() => {
+      if (trackPollTimer) clearInterval(trackPollTimer)
+    })
+
     return {
       loading,
       DEFAULT_PRODUCT_IMAGE,
@@ -267,6 +350,11 @@ export default {
       reviewContent,
       reviewSubmitting,
       payDialogVisible,
+      deliveryTrack,
+      currentTrackStep,
+      formatDistance,
+      stepTitleHint,
+      trackStepMinutes,
       getStatusText,
       getStatusType,
       getPayTypeText,
@@ -332,6 +420,49 @@ export default {
   color: #909399;
   font-size: 13px;
   margin: 8px 0;
+}
+
+.track-hint {
+  color: #909399;
+  font-size: 13px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.track-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.track-dist {
+  font-size: 14px;
+  color: #606266;
+}
+
+.track-timeline {
+  margin-top: 8px;
+  padding-left: 4px;
+}
+
+.track-step-title {
+  margin: 0 0 4px 0;
+  font-weight: 500;
+  color: #303133;
+}
+
+.track-step-meta {
+  margin: 0;
+  font-size: 13px;
+  color: #909399;
+}
+
+.track-next {
+  margin-top: 12px;
+  font-size: 13px;
+  color: #909399;
 }
 </style>
 

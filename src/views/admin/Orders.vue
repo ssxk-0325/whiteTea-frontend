@@ -105,6 +105,29 @@
           <p v-if="orderDetail.order.completeTime"><strong>完成时间：</strong>{{ formatTime(orderDetail.order.completeTime) }}</p>
           <p v-if="orderDetail.order.remark"><strong>备注：</strong>{{ orderDetail.order.remark }}</p>
         </div>
+
+        <template v-if="deliveryTrack && orderDetail.order.deliveryType === 1">
+          <el-divider />
+          <h3>配送模拟轨迹</h3>
+          <p class="admin-track-hint">同城演示：途中位置为随机生成，直线距离非真实 GPS。</p>
+          <div class="admin-track-summary">
+            <el-tag type="info" size="small">{{ deliveryTrack.cityLabel }}</el-tag>
+            <span v-if="adminCurrentTrackStep" class="admin-track-dist">
+              当前：{{ adminCurrentTrackStep.title }} · 距收货地约 <strong>{{ formatDist(adminCurrentTrackStep.distanceKm) }}</strong> km
+            </span>
+          </div>
+          <el-timeline class="admin-track-timeline">
+            <el-timeline-item
+              v-for="step in deliveryTrack.steps"
+              :key="step.index"
+              :type="step.index < deliveryTrack.currentStepIndex ? 'success' : (step.index === deliveryTrack.currentStepIndex ? 'primary' : 'info')"
+              :hollow="step.index > deliveryTrack.currentStepIndex"
+            >
+              <p class="admin-track-step-title">{{ step.title }}</p>
+              <p class="admin-track-step-meta">距收货地约 {{ formatDist(step.distanceKm) }} km</p>
+            </el-timeline-item>
+          </el-timeline>
+        </template>
       </div>
       <template #footer>
         <span class="dialog-footer">
@@ -116,7 +139,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import api from '@/api'
 import { DEFAULT_PRODUCT_IMAGE } from '@/constants/assets'
@@ -129,6 +152,19 @@ export default {
     const dialogVisible = ref(false)
     const detailLoading = ref(false)
     const orderDetail = ref(null)
+    const deliveryTrack = ref(null)
+
+    const adminCurrentTrackStep = computed(() => {
+      const t = deliveryTrack.value
+      if (!t || !t.steps || !t.steps.length) return null
+      const i = Math.min(t.currentStepIndex, t.steps.length - 1)
+      return t.steps[i]
+    })
+
+    const formatDist = (v) => {
+      if (v === undefined || v === null) return '-'
+      return Number(v).toFixed(2)
+    }
 
     const getStatusText = (status) => {
       const statusMap = {
@@ -186,9 +222,18 @@ export default {
     const viewOrder = async (order) => {
       dialogVisible.value = true
       detailLoading.value = true
+      deliveryTrack.value = null
       try {
         const res = await api.order.admin.getById(order.id)
         orderDetail.value = res.data
+        if (orderDetail.value?.order?.deliveryType === 1 && orderDetail.value.order.shipTime && orderDetail.value.order.status >= 2) {
+          try {
+            const tr = await api.order.admin.getDeliveryTrack(order.id)
+            deliveryTrack.value = tr.data || null
+          } catch {
+            deliveryTrack.value = null
+          }
+        }
       } catch (error) {
         ElMessage.error('加载订单详情失败')
         dialogVisible.value = false
@@ -225,6 +270,9 @@ export default {
       dialogVisible,
       detailLoading,
       orderDetail,
+      deliveryTrack,
+      adminCurrentTrackStep,
+      formatDist,
       getStatusText,
       getStatusType,
       getPayTypeText,
@@ -285,6 +333,40 @@ h3 {
 
 :deep(.el-dialog__footer) {
   padding: 10px 20px 20px;
+}
+
+.admin-track-hint {
+  color: #909399;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+.admin-track-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.admin-track-dist {
+  font-size: 14px;
+  color: #606266;
+}
+
+.admin-track-timeline {
+  margin-top: 8px;
+}
+
+.admin-track-step-title {
+  margin: 0 0 4px 0;
+  font-weight: 500;
+}
+
+.admin-track-step-meta {
+  margin: 0;
+  font-size: 13px;
+  color: #909399;
 }
 </style>
 

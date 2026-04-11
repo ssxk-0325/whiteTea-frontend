@@ -151,6 +151,11 @@ const addStoreMarkers = () => {
     markers.push(marker)
     infoWindows.push(infoWindow)
   })
+
+  // 门店分散在较大范围时，自动缩放视野以包含全部标记
+  if (markers.length > 0) {
+    map.setFitView(markers, false, [80, 80, 80, 80], 16)
+  }
 }
 
 // 创建信息窗口内容

@@ -231,6 +231,10 @@ const api = {
     getReview: (id) => {
       return service.get(`/order/${id}/review`)
     },
+    /** 同城配送模拟轨迹（发货后） */
+    getDeliveryTrack: (id) => {
+      return service.get(`/order/${id}/delivery-track`)
+    },
     // 管理后台接口
     admin: {
       getList: (status) => {
@@ -242,6 +246,9 @@ const api = {
       },
       ship: (id) => {
         return service.post(`/order/admin/${id}/ship`)
+      },
+      getDeliveryTrack: (id) => {
+        return service.get(`/order/admin/${id}/delivery-track`)
       }
     }
   },
