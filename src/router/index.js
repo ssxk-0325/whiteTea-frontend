@@ -205,7 +205,7 @@ const routes = [
         path: 'activities',
         name: 'AdminActivities',
         component: () => import('../views/admin/Activities.vue'),
-        meta: { title: '活动管理' }
+        meta: { title: '线下体验管理' }
       },
       {
         path: 'industry-applications',

@@ -1,6 +1,6 @@
 <template>
   <div class="admin-page">
-    <h2>活动管理</h2>
+    <h2>线下体验管理</h2>
     <div class="toolbar">
       <el-button type="primary" size="default" @click="showAddDialog = true">添加活动</el-button>
       <el-button type="success" size="default" @click="showVerifyDialog = true">核销券</el-button>

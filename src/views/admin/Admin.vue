@@ -36,7 +36,7 @@
           </el-menu-item>
         <el-menu-item index="/admin/activities">
           <el-icon><Calendar /></el-icon>
-          <span>活动管理</span>
+          <span>线下体验管理</span>
         </el-menu-item>
         <el-menu-item index="/admin/industry-applications">
           <el-icon><Bell /></el-icon>
