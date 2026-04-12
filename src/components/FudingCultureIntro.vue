@@ -1,7 +1,6 @@
 <template>
-  <div class="fuding-page">
-    <Header />
-    <!-- 全屏背景：图片占满页面，文字区滚动叠加在上层 -->
+  <div id="fuding-culture-intro" class="fuding-culture-intro">
+    <!-- 全屏背景：图片占满区域，文字区滚动叠加在上层 -->
     <div class="fuding-bg" aria-hidden="true">
       <img
         v-for="(src, idx) in backgroundImages"
@@ -18,7 +17,7 @@
     <el-container class="fuding-content-wrap">
       <el-main class="fuding-main">
         <article class="article">
-          <header class="hero-content" aria-label="关于福鼎标题区">
+          <header class="hero-content" aria-label="福鼎白茶文化 · 地域与人文">
             <div class="hero-kicker">边界明珠 · 中国茶文化之乡</div>
             <h1 class="hero-title">山海之间的茶韵千年</h1>
             <p class="hero-subtitle">
@@ -74,16 +73,10 @@
 
 <script>
 import { onBeforeUnmount, ref, onMounted } from 'vue'
-import Header from '@/components/Header.vue'
 
 export default {
-  name: 'FudingAbout',
-  components: {
-    Header
-  },
+  name: 'FudingCultureIntro',
   setup() {
-    // 背景图：使用渐变叠加 + 不移动位置的淡入淡出轮换
-    // 如果你有“福鼎背景图”，把这里的路径替换成你的图片即可（仍保持淡入淡出效果）。
     const backgroundImages = ref([
       '/images/太姥山云雾茶园.jpg',
       '/images/潋城城堡晨雾.jpg',
@@ -97,7 +90,6 @@ export default {
     let timer = null
 
     const onBgImageError = (event) => {
-      // 如果你还没把对应的5张图放到 public/images，至少不会出现“背景空白”
       event.target.src = bgFallback
     }
 
@@ -125,7 +117,7 @@ export default {
 </script>
 
 <style scoped>
-.fuding-page {
+.fuding-culture-intro {
   min-height: 100vh;
   position: relative;
   overflow: hidden;
@@ -257,35 +249,6 @@ export default {
   letter-spacing: -0.2px;
 }
 
-.info-row {
-  margin-top: 10px;
-  margin-bottom: 10px;
-}
-
-.info-card {
-  border-radius: var(--radius-lg);
-  padding: 22px;
-  background: rgba(255, 255, 255, 0.86);
-}
-
-.info-title {
-  margin: 0 0 10px;
-  font-size: 18px;
-  font-weight: 750;
-  color: var(--text-primary);
-}
-
-.info-text {
-  margin: 0;
-  color: var(--text-regular);
-  line-height: 1.8;
-  font-size: 14px;
-}
-
-.divider-wrap {
-  margin: 34px 0 16px;
-}
-
 .closing {
   margin-top: 36px;
   padding: 26px;
@@ -320,10 +283,5 @@ export default {
   .section-title {
     font-size: 24px;
   }
-
-  .info-card {
-    padding: 16px;
-  }
 }
 </style>
-

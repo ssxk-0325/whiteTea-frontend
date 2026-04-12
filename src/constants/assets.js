@@ -14,10 +14,10 @@ export const DEFAULT_CATEGORY_IMAGE = '/default-category.svg'
 /** tb_culture_content.cover_image、tb_experience_activity.image 等通用封面占位 */
 export const DEFAULT_COVER_IMAGE = '/default-cover.svg'
 
-/** 白茶文化 — 无封面时的默认图：文章（contentType=1） */
+/** 福鼎白茶文化 — 无封面时的默认图：文章（contentType=1） */
 export const DEFAULT_CULTURE_ARTICLE_COVER = '/default-culture-article.svg'
 
-/** 白茶文化 — 无封面时的默认图：视频（contentType=2） */
+/** 福鼎白茶文化 — 无封面时的默认图：视频（contentType=2） */
 export const DEFAULT_CULTURE_VIDEO_COVER = '/default-culture-video.svg'
 
 /** 首页轮播（无对应库表，仅前端展示） */

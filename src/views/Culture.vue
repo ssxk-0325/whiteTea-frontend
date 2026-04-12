@@ -1,13 +1,14 @@
 <template>
   <div class="culture-page">
     <Header />
-    <el-container>
+    <FudingCultureIntro />
+    <el-container class="culture-list-wrap">
       <el-main class="culture-main">
         <section class="top-panel">
           <div class="top-panel-header">
             <div>
-              <h2 class="page-title">白茶文化科普中心</h2>
-              <p class="page-subtitle">探索白茶知识、制作工艺与品鉴技巧</p>
+              <h2 class="page-title">福鼎白茶文化</h2>
+              <p class="page-subtitle">下方为文章与视频科普，探索白茶知识、制作工艺与品鉴技巧</p>
             </div>
             <el-button type="primary" class="quiz-btn" @click="goToQuiz">
               <el-icon><QuestionFilled /></el-icon>
@@ -105,12 +106,14 @@ import { useRouter } from 'vue-router'
 import { Document, VideoPlay, View, Star, QuestionFilled } from '@element-plus/icons-vue'
 import api from '@/api'
 import Header from '@/components/Header.vue'
+import FudingCultureIntro from '@/components/FudingCultureIntro.vue'
 import { resolveCultureCoverSrc } from '@/utils/cultureCover'
 
 export default {
   name: 'Culture',
   components: {
     Header,
+    FudingCultureIntro,
     Document,
     VideoPlay,
     View,
@@ -232,6 +235,12 @@ export default {
 <style scoped>
 .culture-page {
   min-height: 100vh;
+}
+
+.culture-list-wrap {
+  position: relative;
+  z-index: 2;
+  background: #f3f6fb;
 }
 
 .culture-main {

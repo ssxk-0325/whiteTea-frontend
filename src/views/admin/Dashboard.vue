@@ -1,6 +1,6 @@
 <template>
   <div class="dashboard">
-    <h2>仪表盘</h2>
+    <h2>数据统计</h2>
     <el-row :gutter="20" v-loading="loading">
       <el-col :span="6">
         <el-card class="stat-card stat-card-user" shadow="hover">

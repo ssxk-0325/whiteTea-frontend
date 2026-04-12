@@ -17,7 +17,7 @@
             <p class="slogan-subtitle">登录您的账号以继续</p>
           </div>
           <div class="feature-list">
-            <div class="feature-item">产业资讯与文化内容一站式浏览</div>
+            <div class="feature-item">产业资讯与福鼎白茶文化一站式浏览</div>
             <div class="feature-item">优选好茶与社区交流更便捷</div>
             <div class="feature-item">订单、活动、积分权益统一管理</div>
           </div>

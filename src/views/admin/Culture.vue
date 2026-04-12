@@ -1,6 +1,6 @@
 <template>
   <div class="admin-page">
-    <h2>文化内容管理</h2>
+    <h2>福鼎白茶文化管理</h2>
     <div class="toolbar">
       <el-button type="primary" size="default" @click="handleAddArticle">添加文章</el-button>
       <el-button type="primary" size="default" @click="handleAddVideo">添加视频</el-button>

@@ -4,7 +4,7 @@
     <el-container>
       <el-main style="max-width: 1200px; margin: 0 auto;">
         <h2>趣味问答</h2>
-        <p class="subtitle">测试你对白茶文化的了解，增强互动体验</p>
+        <p class="subtitle">测试你对福鼎白茶文化的了解，增强互动体验</p>
 
         <!-- 筛选栏 -->
         <div class="filter-bar">

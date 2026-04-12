@@ -20,7 +20,7 @@
         >
           <el-menu-item index="/admin/dashboard">
             <el-icon><DataBoard /></el-icon>
-            <span>仪表盘</span>
+            <span>数据统计</span>
           </el-menu-item>
           <el-menu-item index="/admin/products">
             <el-icon><Goods /></el-icon>
@@ -32,7 +32,7 @@
           </el-menu-item>
           <el-menu-item index="/admin/culture">
             <el-icon><VideoPlay /></el-icon>
-            <span>文化内容</span>
+            <span>福鼎白茶文化</span>
           </el-menu-item>
         <el-menu-item index="/admin/activities">
           <el-icon><Calendar /></el-icon>

@@ -1,6 +1,6 @@
 /**
  * 后台列表类页面统一布局（与「产业服务报名审核」一致）
- * 仪表盘 Dashboard 不使用 .admin-page
+ * 数据统计页 Dashboard 不使用 .admin-page
  */
 .admin-page {
   padding: 20px;

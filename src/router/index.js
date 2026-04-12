@@ -66,7 +66,7 @@ const routes = [
     path: '/culture',
     name: 'Culture',
     component: () => import('../views/Culture.vue'),
-    meta: { title: '白茶文化' }
+    meta: { title: '福鼎白茶文化' }
   },
   {
     path: '/services/industry',
@@ -154,9 +154,7 @@ const routes = [
   },
   {
     path: '/fuding',
-    name: 'Fuding',
-    component: () => import('../views/FudingAbout.vue'),
-    meta: { title: '关于福鼎' }
+    redirect: '/culture'
   },
   {
     path: '/stores',
@@ -179,7 +177,7 @@ const routes = [
         path: 'dashboard',
         name: 'AdminDashboard',
         component: () => import('../views/admin/Dashboard.vue'),
-        meta: { title: '仪表盘' }
+        meta: { title: '数据统计' }
       },
       {
         path: 'categories',
@@ -201,7 +199,7 @@ const routes = [
         path: 'culture',
         name: 'AdminCulture',
         component: () => import('../views/admin/Culture.vue'),
-        meta: { title: '文化内容管理' }
+        meta: { title: '福鼎白茶文化管理' }
       },
       {
         path: 'activities',

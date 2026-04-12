@@ -542,7 +542,7 @@ export default {
     }
 
     const getTypeName = (type) => {
-      const types = { 1: '社区帖子', 2: '茶叶产品', 3: '白茶文化' }
+      const types = { 1: '社区帖子', 2: '茶叶产品', 3: '福鼎白茶文化' }
       return types[type] || '其他'
     }
 

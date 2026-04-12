@@ -324,7 +324,7 @@ const api = {
       return service.delete(`/community/comment/${id}`)
     }
   },
-  // 文化内容相关
+  // 福鼎白茶文化（文章/视频）
   culture: {
     getList: (params) => {
       return service.get('/culture/list', { params })

@@ -5,7 +5,7 @@ import {
 import { resolveUploadUrl } from '@/utils/uploadUrl'
 
 /**
- * 白茶文化封面：有图则解析上传路径，否则按内容类型返回默认占位图。
+ * 福鼎白茶文化封面：有图则解析上传路径，否则按内容类型返回默认占位图。
  * @param {{ coverImage?: string, contentType?: number }} row
  */
 export function resolveCultureCoverSrc(row) {
