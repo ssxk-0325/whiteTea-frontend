@@ -34,6 +34,10 @@
             <el-icon><VideoPlay /></el-icon>
             <span>福鼎白茶文化</span>
           </el-menu-item>
+          <el-menu-item index="/admin/community">
+            <el-icon><ChatDotRound /></el-icon>
+            <span>社区管理</span>
+          </el-menu-item>
         <el-menu-item index="/admin/activities">
           <el-icon><Calendar /></el-icon>
           <span>线下体验管理</span>
@@ -70,7 +74,7 @@
 <script>
 import { computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-  import { DataBoard, Goods, Document, User, House, VideoPlay, Calendar, QuestionFilled, Bell, Present, Service } from '@element-plus/icons-vue'
+  import { DataBoard, Goods, Document, User, House, VideoPlay, Calendar, QuestionFilled, Bell, Present, Service, ChatDotRound } from '@element-plus/icons-vue'
 
 export default {
   name: 'Admin',
@@ -85,7 +89,8 @@ export default {
     Bell,
     QuestionFilled,
     Present,
-    Service
+    Service,
+    ChatDotRound
   },
   setup() {
     const route = useRoute()

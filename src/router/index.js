@@ -202,6 +202,12 @@ const routes = [
         meta: { title: '福鼎白茶文化管理' }
       },
       {
+        path: 'community',
+        name: 'AdminCommunity',
+        component: () => import('../views/admin/Community.vue'),
+        meta: { title: '社区管理' }
+      },
+      {
         path: 'activities',
         name: 'AdminActivities',
         component: () => import('../views/admin/Activities.vue'),

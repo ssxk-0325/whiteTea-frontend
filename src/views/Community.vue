@@ -50,7 +50,18 @@
                     <div class="post-time">{{ formatTime(post.createTime) }}</div>
                   </div>
                 </div>
-                <el-tag :type="getTypeTag(post.type)">{{ getTypeText(post.type) }}</el-tag>
+                <div class="post-header-actions" @click.stop>
+                  <el-tag :type="getTypeTag(post.type)">{{ getTypeText(post.type) }}</el-tag>
+                  <el-button
+                    v-if="canManagePost(post)"
+                    type="danger"
+                    link
+                    size="small"
+                    @click="deletePostItem(post)"
+                  >
+                    删除
+                  </el-button>
+                </div>
               </div>
               <h3 class="post-title">{{ post.title }}</h3>
               <div class="post-content" v-html="truncateContent(post.content)"></div>
@@ -137,7 +148,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, View, ChatDotRound, Star } from '@element-plus/icons-vue'
 import api from '@/api'
 import Header from '@/components/Header.vue'
@@ -172,6 +183,32 @@ export default {
     const selectedUserId = ref(null)
 
     const isLoggedIn = computed(() => store.getters['user/isLoggedIn'])
+    const currentUserId = computed(() => store.state.user.userInfo?.id)
+    const isAdmin = computed(() => store.getters['user/userType'] === 1)
+
+    const canManagePost = (post) => {
+      if (!isLoggedIn.value) return false
+      if (isAdmin.value) return true
+      const uid = post.user?.id
+      return uid != null && uid === currentUserId.value
+    }
+
+    const deletePostItem = async (post) => {
+      try {
+        await ElMessageBox.confirm(`确定删除帖子「${post.title}」吗？`, '提示', {
+          confirmButtonText: '删除',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
+        await api.community.deletePost(post.id)
+        ElMessage.success('已删除')
+        loadPosts()
+      } catch (error) {
+        if (error !== 'cancel') {
+          ElMessage.error(error.message || '删除失败')
+        }
+      }
+    }
 
     const postForm = ref({
       type: 1,
@@ -327,6 +364,8 @@ export default {
       postFormRef,
       imageList,
       isLoggedIn,
+      canManagePost,
+      deletePostItem,
       showUserInfoDialog,
       selectedUserId,
       loadPosts,
@@ -381,6 +420,12 @@ export default {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 15px;
+}
+
+.post-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .post-user {

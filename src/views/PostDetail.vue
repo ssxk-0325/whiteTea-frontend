@@ -64,6 +64,14 @@
                 <el-icon><component :is="userActions.favorited ? 'StarFilled' : 'Star'" /></el-icon>
                 {{ userActions.favorited ? '已收藏' : '收藏' }}
               </el-button>
+              <el-button
+                v-if="canDeletePost"
+                type="danger"
+                plain
+                @click="deletePost"
+              >
+                删除帖子
+              </el-button>
               <div class="post-stats">
                 <span><el-icon><View /></el-icon> {{ post.viewCount }}</span>
                 <span><el-icon><ChatDotRound /></el-icon> {{ post.commentCount }}</span>
@@ -111,7 +119,7 @@
                     <div class="comment-time">{{ formatTime(comment.createTime) }}</div>
                   </div>
                   <el-button
-                    v-if="isLoggedIn && comment.user?.id === currentUserId"
+                    v-if="isLoggedIn && (comment.user?.id === currentUserId || isAdmin)"
                     type="text"
                     size="small"
                     @click="deleteComment(comment.id)"
@@ -135,7 +143,7 @@
                       <span class="reply-text">{{ reply.content }}</span>
                     </div>
                     <el-button
-                      v-if="isLoggedIn && reply.user?.id === currentUserId"
+                      v-if="isLoggedIn && (reply.user?.id === currentUserId || isAdmin)"
                       type="text"
                       size="small"
                       @click="deleteComment(reply.id)"
@@ -222,6 +230,13 @@ export default {
 
     const isLoggedIn = computed(() => store.getters['user/isLoggedIn'])
     const currentUserId = computed(() => store.state.user.userInfo?.id)
+    const isAdmin = computed(() => store.getters['user/userType'] === 1)
+    const canDeletePost = computed(() => {
+      if (!post.value || !isLoggedIn.value) return false
+      if (isAdmin.value) return true
+      const authorId = post.value.user?.id
+      return authorId != null && authorId === currentUserId.value
+    })
 
     const loadPostDetail = async () => {
       loading.value = true
@@ -252,11 +267,21 @@ export default {
       }
     }
 
+    const syncCommentCountFromList = () => {
+      if (!post.value) return
+      let n = 0
+      for (const c of comments.value) {
+        n += 1 + (c.replies?.length || 0)
+      }
+      post.value.commentCount = n
+    }
+
     const loadComments = async () => {
       commentsLoading.value = true
       try {
         const res = await api.community.getCommentList(route.params.id)
         comments.value = res.data
+        syncCommentCountFromList()
       } catch (error) {
         ElMessage.error('加载评论失败')
       } finally {
@@ -342,7 +367,6 @@ export default {
         ElMessage.success('评论成功')
         commentContent.value = ''
         loadComments()
-        post.value.commentCount++
       } catch (error) {
         ElMessage.error(error.message || '评论失败')
       }
@@ -373,7 +397,6 @@ export default {
         ElMessage.success('回复成功')
         cancelReply()
         loadComments()
-        post.value.commentCount++
       } catch (error) {
         ElMessage.error(error.message || '回复失败')
       }
@@ -388,8 +411,7 @@ export default {
         })
         await api.community.deleteComment(commentId)
         ElMessage.success('删除成功')
-        loadComments()
-        post.value.commentCount--
+        await loadComments()
       } catch (error) {
         if (error !== 'cancel') {
           ElMessage.error(error.message || '删除失败')
@@ -446,6 +468,23 @@ export default {
       showUserInfoDialog.value = true
     }
 
+    const deletePost = async () => {
+      try {
+        await ElMessageBox.confirm('确定要删除该帖子吗？删除后不可恢复。', '提示', {
+          confirmButtonText: '删除',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
+        await api.community.deletePost(route.params.id)
+        ElMessage.success('已删除')
+        router.push('/community')
+      } catch (error) {
+        if (error !== 'cancel') {
+          ElMessage.error(error.message || '删除失败')
+        }
+      }
+    }
+
     onMounted(() => {
       loadPostDetail()
       loadComments()
@@ -463,6 +502,8 @@ export default {
       userActions,
       isLoggedIn,
       currentUserId,
+      isAdmin,
+      canDeletePost,
       showUserInfoDialog,
       selectedUserId,
       viewUserInfo,
@@ -474,6 +515,7 @@ export default {
       cancelReply,
       submitReply,
       deleteComment,
+      deletePost,
       parseImages,
       formatTime,
       getTypeText,
