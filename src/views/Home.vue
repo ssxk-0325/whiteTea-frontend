@@ -49,9 +49,9 @@
           </el-row>
         </div>
 
-        <!-- 猜你喜欢（登录后展示） -->
+        <!-- 个性化推荐（登录后展示） -->
         <div class="products-section" v-if="recommendProducts.length">
-          <h2>猜你喜欢</h2>
+          <h2>个性化推荐</h2>
           <el-row :gutter="20">
             <el-col :span="6" v-for="product in recommendProducts" :key="product.id">
               <el-card class="product-card" @click="goToProductDetail(product.id)">
@@ -139,7 +139,7 @@ export default {
         const res = await api.product.getRecommendProducts(4)
         recommendProducts.value = res.data || []
       } catch (error) {
-        console.error('加载猜你喜欢失败:', error)
+        console.error('加载个性化推荐失败:', error)
         recommendProducts.value = []
       }
     }
