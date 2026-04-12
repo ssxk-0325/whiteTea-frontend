@@ -3,7 +3,7 @@
     <Header />
     <el-container>
       <el-main style="max-width: 1200px; margin: 0 auto;">
-        <h2>我的券包</h2>
+        <h2>个人券包</h2>
 
         <!-- 筛选栏 -->
         <div class="filter-bar">

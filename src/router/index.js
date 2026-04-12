@@ -54,7 +54,7 @@ const routes = [
     path: '/orders',
     name: 'Orders',
     component: () => import('../views/Orders.vue'),
-    meta: { title: '我的订单', requiresAuth: true }
+    meta: { title: '个人订单', requiresAuth: true }
   },
   {
     path: '/order/:id',
@@ -90,7 +90,7 @@ const routes = [
     path: '/activity/coupons',
     name: 'MyCoupons',
     component: () => import('../views/MyCoupons.vue'),
-    meta: { title: '我的券包', requiresAuth: true }
+    meta: { title: '个人券包', requiresAuth: true }
   },
   {
     path: '/culture/article/:id',

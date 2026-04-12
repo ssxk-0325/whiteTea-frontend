@@ -4,7 +4,7 @@
     <el-container>
       <el-main style="max-width: 1400px; margin: 0 auto; padding: 40px 32px;">
         <div class="page-header">
-          <h2 class="page-title">我的订单</h2>
+          <h2 class="page-title">个人订单</h2>
         </div>
         <el-card class="orders-card">
           <el-tabs v-model="activeTab" @tab-change="loadOrders" class="modern-tabs">
