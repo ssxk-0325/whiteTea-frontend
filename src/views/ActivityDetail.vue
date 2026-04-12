@@ -41,7 +41,7 @@
                     style="width: 200px;"
                     @click="openJoinDialog"
                   >
-                    我要加入
+                    申请加入
                   </el-button>
                   <el-tag v-else :type="getJoinTag(myIndustryJoin.status)" size="large">
                     {{ getJoinText(myIndustryJoin.status) }}
