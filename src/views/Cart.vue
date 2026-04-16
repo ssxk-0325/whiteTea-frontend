@@ -35,6 +35,7 @@
               <el-input-number
                 v-model="scope.row.quantity"
                 :min="1"
+                :max="scope.row.product?.stock != null ? scope.row.product.stock : undefined"
                 @change="updateQuantity(scope.row)"
                 class="quantity-input"
               />

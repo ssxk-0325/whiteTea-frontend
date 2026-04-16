@@ -15,7 +15,7 @@
         <div class="search-bar">
           <el-input
             v-model="keyword"
-            placeholder="搜索产品"
+            placeholder="搜索产品（名称）"
             @keyup.enter="handleSearch"
             style="width: 300px; margin-right: 10px;"
           >
@@ -23,6 +23,28 @@
               <el-button @click="handleSearch">搜索</el-button>
             </template>
           </el-input>
+          <span class="price-filter-label">价格区间</span>
+          <el-input-number
+            v-model="minPrice"
+            :min="0"
+            :precision="2"
+            :step="10"
+            placeholder="最低"
+            controls-position="right"
+            class="price-input"
+          />
+          <span class="price-sep">—</span>
+          <el-input-number
+            v-model="maxPrice"
+            :min="0"
+            :precision="2"
+            :step="10"
+            placeholder="最高"
+            controls-position="right"
+            class="price-input"
+          />
+          <el-button type="primary" plain @click="handleSearch">应用筛选</el-button>
+          <el-button @click="clearPriceRange">清除价格</el-button>
         </div>
         <el-row :gutter="20">
           <el-col :span="6" v-for="product in products" :key="product.id">
@@ -71,6 +93,8 @@ export default {
     const categories = ref([])
     const products = ref([])
     const keyword = ref('')
+    const minPrice = ref(null)
+    const maxPrice = ref(null)
     const currentPage = ref(1)
     const pageSize = ref(12)
     const total = ref(0)
@@ -97,6 +121,12 @@ export default {
         if (keyword.value) {
           params.keyword = keyword.value
         }
+        if (minPrice.value != null && minPrice.value !== '') {
+          params.minPrice = minPrice.value
+        }
+        if (maxPrice.value != null && maxPrice.value !== '') {
+          params.maxPrice = maxPrice.value
+        }
         const res = await api.product.getList(params)
         products.value = res.data.content
         total.value = res.data.totalElements
@@ -112,6 +142,13 @@ export default {
     }
 
     const handleSearch = () => {
+      currentPage.value = 1
+      loadProducts()
+    }
+
+    const clearPriceRange = () => {
+      minPrice.value = null
+      maxPrice.value = null
       currentPage.value = 1
       loadProducts()
     }
@@ -156,6 +193,9 @@ export default {
       DEFAULT_PRODUCT_IMAGE,
       products,
       keyword,
+      minPrice,
+      maxPrice,
+      clearPriceRange,
       currentPage,
       pageSize,
       total,
@@ -226,8 +266,23 @@ export default {
 .search-bar {
   margin-bottom: 32px;
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   align-items: center;
+}
+
+.price-filter-label {
+  font-size: var(--font-size-sm);
+  color: var(--text-regular);
+  margin-left: 8px;
+}
+
+.price-sep {
+  color: var(--text-placeholder);
+}
+
+.price-input {
+  width: 140px;
 }
 
 .search-bar :deep(.el-input) {
