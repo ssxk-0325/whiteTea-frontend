@@ -1,7 +1,7 @@
 <template>
   <div class="admin-page">
     <h2>线下体验管理</h2>
-    <div class="toolbar">
+    <div class="toolbar toolbar-wrap">
       <el-button type="primary" size="default" @click="showAddDialog = true">添加活动</el-button>
       <el-button type="success" size="default" @click="showVerifyDialog = true">核销券</el-button>
       <el-button size="default" @click="loadActivities">刷新</el-button>
@@ -14,6 +14,21 @@
         <el-option label="采摘招募" :value="5"></el-option>
         <el-option label="批发与培训" :value="6"></el-option>
       </el-select>
+      <el-select v-model="filterActivityStatus" @change="loadActivities" style="width: 150px" clearable placeholder="活动进度">
+        <el-option label="全部进度" :value="null"></el-option>
+        <el-option label="未开始" :value="0"></el-option>
+        <el-option label="进行中" :value="1"></el-option>
+        <el-option label="已结束" :value="2"></el-option>
+        <el-option label="已取消" :value="3"></el-option>
+      </el-select>
+      <el-input
+        v-model="activitySearchKeyword"
+        placeholder="活动名称或描述关键词"
+        clearable
+        style="width: 260px"
+        @keyup.enter="loadActivities"
+      />
+      <el-button type="primary" @click="loadActivities">搜索</el-button>
     </div>
     
     <!-- 活动列表 -->
@@ -239,6 +254,8 @@ export default {
     const pageSize = ref(10)
     const total = ref(0)
     const filterType = ref(null)
+    const filterActivityStatus = ref(null)
+    const activitySearchKeyword = ref('')
     const activityFormRef = ref(null)
     const showVerifyDialog = ref(false)
     const verifying = ref(false)
@@ -322,6 +339,12 @@ export default {
         }
         if (filterType.value !== null) {
           params.type = filterType.value
+        }
+        if (filterActivityStatus.value !== null) {
+          params.activityStatus = filterActivityStatus.value
+        }
+        if (activitySearchKeyword.value?.trim()) {
+          params.keyword = activitySearchKeyword.value.trim()
         }
         const res = await api.activity.admin.getList(params)
         activities.value = res.data.records || []
@@ -515,6 +538,8 @@ export default {
       pageSize,
       total,
       filterType,
+      filterActivityStatus,
+      activitySearchKeyword,
       activityForm,
       activityFormRef,
       rules,
@@ -547,3 +572,12 @@ export default {
 }
 </script>
 
+<style scoped>
+.toolbar-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+</style>

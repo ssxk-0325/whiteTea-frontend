@@ -16,9 +16,16 @@
         <el-option label="批发与培训" :value="6" />
       </el-select>
       <el-input
+        v-model="filterActivityId"
+        placeholder="活动ID（精确）"
+        clearable
+        style="width: 160px"
+        @keyup.enter="loadList"
+      />
+      <el-input
         v-model="keyword"
-        placeholder="搜索姓名/手机号/备注"
-        style="width: 260px"
+        placeholder="姓名/手机/备注"
+        style="width: 220px"
         clearable
         @keyup.enter="loadList"
       >
@@ -99,6 +106,7 @@ export default {
     const total = ref(0)
     const filterStatus = ref(null)
     const filterType = ref(null)
+    const filterActivityId = ref('')
     const keyword = ref('')
 
     const showReviewDialog = ref(false)
@@ -118,6 +126,10 @@ export default {
         if (filterStatus.value !== null) params.status = filterStatus.value
         if (filterType.value !== null) params.type = filterType.value
         if (keyword.value) params.keyword = keyword.value
+        const aid = String(filterActivityId.value || '').trim()
+        if (aid !== '' && /^\d+$/.test(aid)) {
+          params.activityId = Number(aid)
+        }
 
         const res = await api.activity.admin.getIndustryJoins(params)
         rows.value = res.data.records || []
@@ -181,6 +193,7 @@ export default {
       total,
       filterStatus,
       filterType,
+      filterActivityId,
       keyword,
       loadList,
       getStatusText,

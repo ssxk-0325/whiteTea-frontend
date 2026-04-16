@@ -1,7 +1,7 @@
 <template>
   <div class="admin-page">
     <h2>福鼎白茶文化管理</h2>
-    <div class="toolbar">
+    <div class="toolbar toolbar-wrap">
       <el-button type="primary" size="default" @click="handleAddArticle">添加文章</el-button>
       <el-button type="primary" size="default" @click="handleAddVideo">添加视频</el-button>
       <el-button size="default" @click="loadContents">刷新</el-button>
@@ -10,6 +10,26 @@
         <el-option label="文章" :value="1"></el-option>
         <el-option label="视频" :value="2"></el-option>
       </el-select>
+      <el-select v-model="filterCultureSubtype" @change="loadContents" style="width: 150px" clearable placeholder="知识分类">
+        <el-option label="全部分类" :value="null"></el-option>
+        <el-option label="白茶知识" :value="1"></el-option>
+        <el-option label="制作工艺" :value="2"></el-option>
+        <el-option label="品鉴技巧" :value="3"></el-option>
+        <el-option label="历史文化" :value="4"></el-option>
+      </el-select>
+      <el-select v-model="filterCultureStatus" @change="loadContents" style="width: 130px" clearable placeholder="发布状态">
+        <el-option label="全部状态" :value="null"></el-option>
+        <el-option label="已发布" :value="1"></el-option>
+        <el-option label="草稿" :value="0"></el-option>
+      </el-select>
+      <el-input
+        v-model="cultureKeyword"
+        placeholder="标题或正文关键词"
+        clearable
+        style="width: 240px"
+        @keyup.enter="loadContents"
+      />
+      <el-button type="primary" @click="loadContents">搜索</el-button>
     </div>
     
     <!-- 内容列表 -->
@@ -179,6 +199,9 @@ export default {
     const pageSize = ref(10)
     const total = ref(0)
     const filterContentType = ref(null)
+    const filterCultureSubtype = ref(null)
+    const filterCultureStatus = ref(null)
+    const cultureKeyword = ref('')
     const contentFormRef = ref(null)
 
     const contentForm = ref({
@@ -285,6 +308,15 @@ export default {
         }
         if (filterContentType.value !== null) {
           params.contentType = filterContentType.value
+        }
+        if (filterCultureSubtype.value != null) {
+          params.type = filterCultureSubtype.value
+        }
+        if (filterCultureStatus.value != null) {
+          params.status = filterCultureStatus.value
+        }
+        if (cultureKeyword.value?.trim()) {
+          params.keyword = cultureKeyword.value.trim()
         }
         const res = await api.culture.admin.getList(params)
         contents.value = res.data.records || []
@@ -443,6 +475,9 @@ export default {
       pageSize,
       total,
       filterContentType,
+      filterCultureSubtype,
+      filterCultureStatus,
+      cultureKeyword,
       contentForm,
       contentFormRef,
       rules,
@@ -470,3 +505,12 @@ export default {
 }
 </script>
 
+<style scoped>
+.toolbar-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+</style>

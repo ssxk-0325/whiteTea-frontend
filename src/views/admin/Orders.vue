@@ -1,7 +1,33 @@
 <template>
   <div class="admin-page">
     <h2>订单管理</h2>
-    <div class="toolbar">
+    <div class="toolbar toolbar-wrap">
+      <el-select v-model="filterOrderStatus" clearable placeholder="订单状态" style="width: 150px" @change="loadOrders">
+        <el-option label="全部状态" :value="null" />
+        <el-option label="待付款" :value="0" />
+        <el-option label="待发货" :value="1" />
+        <el-option label="待收货" :value="2" />
+        <el-option label="已完成" :value="3" />
+        <el-option label="已取消" :value="4" />
+        <el-option label="退款中" :value="5" />
+        <el-option label="已退款" :value="6" />
+      </el-select>
+      <el-input
+        v-model="orderSearchKeyword"
+        placeholder="订单号 / 收货人 / 手机号"
+        clearable
+        style="width: 280px"
+        @keyup.enter="loadOrders"
+      />
+      <el-input
+        v-model="filterUserId"
+        placeholder="用户ID（精确）"
+        clearable
+        style="width: 160px"
+        @keyup.enter="loadOrders"
+      />
+      <el-button type="primary" @click="loadOrders">搜索</el-button>
+      <el-button size="default" @click="resetOrderFilters">重置</el-button>
       <el-button size="default" @click="loadOrders">刷新</el-button>
     </div>
     <el-table :data="orders" style="width: 100%" v-loading="loading">
@@ -148,6 +174,9 @@ export default {
   name: 'AdminOrders',
   setup() {
     const orders = ref([])
+    const filterOrderStatus = ref(null)
+    const orderSearchKeyword = ref('')
+    const filterUserId = ref('')
     const loading = ref(false)
     const dialogVisible = ref(false)
     const detailLoading = ref(false)
@@ -210,13 +239,31 @@ export default {
     const loadOrders = async () => {
       loading.value = true
       try {
-        const res = await api.order.admin.getList()
+        const params = {}
+        if (filterOrderStatus.value !== null && filterOrderStatus.value !== undefined) {
+          params.status = filterOrderStatus.value
+        }
+        if (orderSearchKeyword.value?.trim()) {
+          params.keyword = orderSearchKeyword.value.trim()
+        }
+        if (filterUserId.value != null && String(filterUserId.value).trim() !== '') {
+          const uid = Number(String(filterUserId.value).trim())
+          if (!Number.isNaN(uid)) params.userId = uid
+        }
+        const res = await api.order.admin.getList(params)
         orders.value = res.data || []
       } catch (error) {
         ElMessage.error('加载订单列表失败')
       } finally {
         loading.value = false
       }
+    }
+
+    const resetOrderFilters = () => {
+      filterOrderStatus.value = null
+      orderSearchKeyword.value = ''
+      filterUserId.value = ''
+      loadOrders()
     }
 
     const viewOrder = async (order) => {
@@ -265,6 +312,10 @@ export default {
 
     return {
       orders,
+      filterOrderStatus,
+      orderSearchKeyword,
+      filterUserId,
+      resetOrderFilters,
       DEFAULT_PRODUCT_IMAGE,
       loading,
       dialogVisible,
@@ -367,6 +418,14 @@ h3 {
   margin: 0;
   font-size: 13px;
   color: #909399;
+}
+
+.toolbar-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
 }
 </style>
 

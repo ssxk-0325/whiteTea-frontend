@@ -1,13 +1,21 @@
 <template>
   <div class="admin-page cs-manage">
     <h2>客服会话</h2>
-    <div class="toolbar">
+    <div class="toolbar cs-toolbar">
       <el-select v-model="filterStatus" placeholder="会话状态" clearable style="width: 160px" @change="loadSessions">
         <el-option label="进行中 / 转人工" :value="''" />
         <el-option label="进行中" :value="0" />
         <el-option label="转人工" :value="2" />
         <el-option label="已结束" :value="1" />
       </el-select>
+      <el-input
+        v-model="sessionKeyword"
+        placeholder="会话号 / 用户名 / 昵称 / 用户ID"
+        clearable
+        style="width: 280px"
+        @keyup.enter="loadSessions"
+      />
+      <el-button type="primary" @click="loadSessions">搜索</el-button>
       <el-button @click="loadSessions">刷新列表</el-button>
     </div>
 
@@ -99,6 +107,7 @@ export default {
   name: 'CustomerServiceManage',
   setup() {
     const filterStatus = ref('')
+    const sessionKeyword = ref('')
     const sessions = ref([])
     const loading = ref(false)
     const current = ref(null)
@@ -134,7 +143,7 @@ export default {
       try {
         const statusParam =
           filterStatus.value === '' || filterStatus.value == null ? undefined : filterStatus.value
-        const res = await api.customerService.admin.listSessions(statusParam)
+        const res = await api.customerService.admin.listSessions(statusParam, sessionKeyword.value)
         const raw = res.data || []
         sessions.value = raw.map((item, i) => ({
           ...item,
@@ -234,6 +243,7 @@ export default {
 
     return {
       filterStatus,
+      sessionKeyword,
       sessions,
       loading,
       current,
@@ -257,6 +267,7 @@ export default {
 <style scoped>
 .cs-manage .toolbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 12px;
   margin-bottom: 16px;

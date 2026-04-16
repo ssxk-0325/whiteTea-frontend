@@ -2,12 +2,19 @@
   <div class="admin-page">
     <h2>福鼎白茶社区管理</h2>
     <p class="admin-hint">在此审核与管理社区帖子，可删除违规内容。用户侧社区中管理员也可直接删除帖子和评论。</p>
-    <div class="toolbar">
+    <div class="toolbar toolbar-wrap">
       <el-input
         v-model="keyword"
-        placeholder="搜索标题或正文"
-        style="width: 260px"
+        placeholder="标题或正文关键词"
+        style="width: 240px"
         clearable
+        @keyup.enter="loadPosts"
+      />
+      <el-input
+        v-model="postIdSearch"
+        placeholder="帖子ID（精确）"
+        clearable
+        style="width: 160px"
         @keyup.enter="loadPosts"
       />
       <el-select v-model="filterType" @change="loadPosts" style="width: 140px" clearable placeholder="帖子类型">
@@ -78,6 +85,7 @@ export default {
     const pageSize = ref(10)
     const total = ref(0)
     const keyword = ref('')
+    const postIdSearch = ref('')
     const filterType = ref(null)
 
     const loadPosts = async () => {
@@ -89,6 +97,10 @@ export default {
         }
         if (filterType.value != null) params.type = filterType.value
         if (keyword.value?.trim()) params.keyword = keyword.value.trim()
+        const pid = String(postIdSearch.value || '').trim()
+        if (pid !== '' && /^\d+$/.test(pid)) {
+          params.postId = Number(pid)
+        }
         const res = await api.community.getPostList(params)
         posts.value = res.data.records || []
         total.value = res.data.total || 0
@@ -101,6 +113,7 @@ export default {
 
     const resetFilters = () => {
       keyword.value = ''
+      postIdSearch.value = ''
       filterType.value = null
       currentPage.value = 1
       loadPosts()
@@ -152,6 +165,7 @@ export default {
       pageSize,
       total,
       keyword,
+      postIdSearch,
       filterType,
       loadPosts,
       resetFilters,
@@ -178,5 +192,8 @@ export default {
   gap: 12px;
   align-items: center;
   margin-bottom: 16px;
+}
+.toolbar-wrap {
+  align-items: center;
 }
 </style>

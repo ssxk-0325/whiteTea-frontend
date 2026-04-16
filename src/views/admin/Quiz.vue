@@ -1,7 +1,7 @@
 <template>
   <div class="admin-page">
     <h2>问答管理</h2>
-    <div class="toolbar">
+    <div class="toolbar toolbar-wrap">
       <el-button type="primary" size="default" @click="showAddDialog = true">添加问题</el-button>
       <el-button size="default" @click="loadQuestions">刷新</el-button>
       <el-select v-model="filterCategory" @change="loadQuestions" style="width: 150px" clearable>
@@ -16,6 +16,19 @@
         <el-option label="中等" :value="2"></el-option>
         <el-option label="困难" :value="3"></el-option>
       </el-select>
+      <el-select v-model="filterQuizStatus" @change="loadQuestions" style="width: 130px" clearable placeholder="题目状态">
+        <el-option label="全部状态" :value="null"></el-option>
+        <el-option label="已发布" :value="1"></el-option>
+        <el-option label="草稿" :value="0"></el-option>
+      </el-select>
+      <el-input
+        v-model="questionKeyword"
+        placeholder="题干或解析关键词"
+        clearable
+        style="width: 240px"
+        @keyup.enter="loadQuestions"
+      />
+      <el-button type="primary" @click="loadQuestions">搜索</el-button>
     </div>
     
     <!-- 问题列表 -->
@@ -180,6 +193,8 @@ export default {
     const total = ref(0)
     const filterCategory = ref(null)
     const filterDifficulty = ref(null)
+    const filterQuizStatus = ref(null)
+    const questionKeyword = ref('')
     const questionFormRef = ref(null)
 
     const questionForm = ref({
@@ -256,6 +271,12 @@ export default {
         }
         if (filterDifficulty.value !== null) {
           params.difficulty = filterDifficulty.value
+        }
+        if (filterQuizStatus.value !== null) {
+          params.status = filterQuizStatus.value
+        }
+        if (questionKeyword.value?.trim()) {
+          params.keyword = questionKeyword.value.trim()
         }
         const res = await api.quiz.admin.getList(params)
         questions.value = res.data.records || []
@@ -422,6 +443,8 @@ export default {
       total,
       filterCategory,
       filterDifficulty,
+      filterQuizStatus,
+      questionKeyword,
       questionForm,
       questionFormRef,
       rules,
@@ -443,3 +466,12 @@ export default {
 }
 </script>
 
+<style scoped>
+.toolbar-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+</style>

@@ -3,9 +3,32 @@
     <h2>产品管理</h2>
     <el-tabs v-model="activeTab" class="product-admin-tabs" @tab-change="onTabChange">
       <el-tab-pane label="产品列表" name="products">
-        <div class="toolbar">
+        <div class="toolbar toolbar-flex-wrap">
           <el-button type="primary" size="default" @click="openAddProduct">添加产品</el-button>
           <el-button size="default" @click="loadProducts">刷新</el-button>
+          <el-input
+            v-model="productKeyword"
+            placeholder="按名称搜索"
+            clearable
+            class="toolbar-search"
+            style="width: 200px"
+            @keyup.enter="searchProducts"
+          />
+          <el-select v-model="filterCategoryId" placeholder="分类" clearable style="width: 160px" @change="searchProducts">
+            <el-option label="全部分类" :value="null" />
+            <el-option v-for="c in adminCategories" :key="c.id" :label="c.name" :value="c.id" />
+          </el-select>
+          <el-select v-model="filterProductStatus" placeholder="上架状态" clearable style="width: 120px" @change="searchProducts">
+            <el-option label="全部" :value="null" />
+            <el-option label="上架" :value="1" />
+            <el-option label="下架" :value="0" />
+          </el-select>
+          <span class="toolbar-muted">价格</span>
+          <el-input-number v-model="filterMinPrice" :min="0" :precision="2" controls-position="right" placeholder="最低" style="width: 130px" />
+          <span class="toolbar-muted">—</span>
+          <el-input-number v-model="filterMaxPrice" :min="0" :precision="2" controls-position="right" placeholder="最高" style="width: 130px" />
+          <el-button type="primary" plain @click="searchProducts">搜索</el-button>
+          <el-button @click="resetProductFilters">重置条件</el-button>
         </div>
 
         <el-table :data="products" style="width: 100%" v-loading="loading">
@@ -67,12 +90,18 @@
       </el-tab-pane>
 
       <el-tab-pane label="分类管理" name="categories">
-        <div class="toolbar">
+        <div class="toolbar toolbar-flex-wrap">
           <el-button type="primary" size="default" @click="showCategoryDialog = true">添加分类</el-button>
           <el-button size="default" @click="loadAdminCategories">刷新</el-button>
+          <el-input
+            v-model="categoryNameQuery"
+            placeholder="本地筛选分类名称（不上传服务器）"
+            clearable
+            style="width: 280px"
+          />
         </div>
 
-        <el-table :data="adminCategories" style="width: 100%" v-loading="categoryLoading">
+        <el-table :data="filteredCategories" style="width: 100%" v-loading="categoryLoading">
           <el-table-column prop="id" label="ID" width="80"></el-table-column>
           <el-table-column label="分类图片" width="100">
             <template #default="scope">
@@ -265,6 +294,13 @@ export default {
     const editingCategory = ref(null)
     const categoryFormRef = ref(null)
 
+    const productKeyword = ref('')
+    const filterCategoryId = ref(null)
+    const filterProductStatus = ref(null)
+    const filterMinPrice = ref(null)
+    const filterMaxPrice = ref(null)
+    const categoryNameQuery = ref('')
+
     const productForm = ref({
       name: '',
       categoryId: null,
@@ -312,6 +348,12 @@ export default {
       adminCategories.value.filter((c) => c.status === 1)
     )
 
+    const filteredCategories = computed(() => {
+      const q = (categoryNameQuery.value || '').trim().toLowerCase()
+      if (!q) return adminCategories.value
+      return adminCategories.value.filter((c) => (c.name || '').toLowerCase().includes(q))
+    })
+
     const syncTabFromRoute = () => {
       activeTab.value = route.query.tab === 'categories' ? 'categories' : 'products'
     }
@@ -341,10 +383,16 @@ export default {
     const loadProducts = async () => {
       loading.value = true
       try {
-        const res = await api.product.getList({
+        const params = {
           page: currentPage.value - 1,
           size: pageSize.value
-        })
+        }
+        if (productKeyword.value?.trim()) params.keyword = productKeyword.value.trim()
+        if (filterCategoryId.value != null) params.categoryId = filterCategoryId.value
+        if (filterProductStatus.value != null) params.status = filterProductStatus.value
+        if (filterMinPrice.value != null && filterMinPrice.value !== '') params.minPrice = filterMinPrice.value
+        if (filterMaxPrice.value != null && filterMaxPrice.value !== '') params.maxPrice = filterMaxPrice.value
+        const res = await api.product.adminList(params)
         products.value = res.data.content || []
         total.value = res.data.totalElements || 0
       } catch (error) {
@@ -352,6 +400,21 @@ export default {
       } finally {
         loading.value = false
       }
+    }
+
+    const searchProducts = () => {
+      currentPage.value = 1
+      loadProducts()
+    }
+
+    const resetProductFilters = () => {
+      productKeyword.value = ''
+      filterCategoryId.value = null
+      filterProductStatus.value = null
+      filterMinPrice.value = null
+      filterMaxPrice.value = null
+      currentPage.value = 1
+      loadProducts()
     }
 
     const openAddProduct = () => {
@@ -575,6 +638,15 @@ export default {
       DEFAULT_CATEGORY_IMAGE,
       categoryNameById,
       enabledCategoryOptions,
+      filteredCategories,
+      productKeyword,
+      filterCategoryId,
+      filterProductStatus,
+      filterMinPrice,
+      filterMaxPrice,
+      categoryNameQuery,
+      searchProducts,
+      resetProductFilters,
       loadProducts,
       loadAdminCategories,
       openAddProduct,
@@ -600,5 +672,18 @@ export default {
 
 .product-admin-tabs :deep(.el-tabs__content) {
   padding-top: 12px;
+}
+
+.toolbar-flex-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.toolbar-muted {
+  color: var(--el-text-color-secondary);
+  font-size: 13px;
 }
 </style>

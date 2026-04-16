@@ -149,6 +149,10 @@ const api = {
     getReviews: (productId, size = 10) => {
       return service.get('/product/reviews', { params: { productId, size } })
     },
+    /** 管理后台：分页列表（含下架商品） */
+    adminList: (params) => {
+      return service.get('/product/admin/list', { params })
+    },
     favorite: {
       add: (productId) => {
         return service.post(`/product/favorite/${productId}`)
@@ -241,9 +245,9 @@ const api = {
     },
     // 管理后台接口
     admin: {
-      getList: (status) => {
-        const params = status !== undefined ? { status } : {}
-        return service.get('/order/admin/list', { params })
+      getList: (params) => {
+        const p = params && typeof params === 'object' ? params : {}
+        return service.get('/order/admin/list', { params: p })
       },
       getById: (id) => {
         return service.get(`/order/admin/${id}`)
@@ -499,10 +503,11 @@ const api = {
       return service.post(`/customer-service/session/${sessionId}/end`)
     },
     admin: {
-      listSessions: (status) => {
-        return service.get('/customer-service/admin/sessions', {
-          params: status === undefined || status === '' ? {} : { status }
-        })
+      listSessions: (status, keyword) => {
+        const params = {}
+        if (status !== undefined && status !== '') params.status = status
+        if (keyword != null && String(keyword).trim() !== '') params.keyword = String(keyword).trim()
+        return service.get('/customer-service/admin/sessions', { params })
       },
       getMessages: (sessionId) => {
         return service.get(`/customer-service/admin/session/${sessionId}/messages`)
