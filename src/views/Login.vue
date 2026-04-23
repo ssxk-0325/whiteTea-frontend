@@ -28,49 +28,54 @@
             <div class="form-desc">请输入账号密码与验证码</div>
           </div>
           <el-form :model="loginForm" :rules="rules" ref="loginFormRef" class="login-form">
-            <el-form-item prop="username">
-              <el-input 
-                v-model="loginForm.username" 
-                placeholder="请输入用户名"
-                size="large"
-                class="modern-input"
-              >
-                <template #prefix>
-                  <el-icon><User /></el-icon>
-                </template>
-              </el-input>
-            </el-form-item>
-            <el-form-item prop="password">
-              <el-input 
-                v-model="loginForm.password" 
-                type="password" 
-                placeholder="请输入密码" 
-                @keyup.enter="handleLogin"
-                size="large"
-                class="modern-input"
-                show-password
-              >
-                <template #prefix>
-                  <el-icon><Lock /></el-icon>
-                </template>
-              </el-input>
-            </el-form-item>
-
-            <el-form-item prop="captchaCode">
-              <div class="captcha-row">
+            <div class="form-field">
+              <div class="field-title"><span class="field-required">*</span>账号</div>
+              <el-form-item prop="username">
                 <el-input
-                  v-model="loginForm.captchaCode"
-                  placeholder="请输入验证码"
+                  v-model="loginForm.username"
+                  placeholder="请输入账号"
                   size="large"
-                  class="modern-input captcha-input"
-                  @keyup.enter="handleLogin"
+                  class="flat-input"
                 />
-                <div class="captcha-image" @click="refreshCaptcha" :title="'点击刷新验证码'">
-                  <img v-if="captchaImage" :src="captchaImage" alt="验证码" />
-                  <div v-else class="captcha-loading">加载中...</div>
-                </div>
+              </el-form-item>
+            </div>
+
+            <div class="form-field">
+              <div class="field-title field-title-row">
+                <span><span class="field-required">*</span>密码</span>
+                <el-link type="primary" class="forgot-link" @click="openForgotDialog">忘记密码?</el-link>
               </div>
-            </el-form-item>
+              <el-form-item prop="password">
+                <el-input
+                  v-model="loginForm.password"
+                  type="password"
+                  placeholder="请输入密码"
+                  @keyup.enter="handleLogin"
+                  size="large"
+                  class="flat-input"
+                  show-password
+                />
+              </el-form-item>
+            </div>
+
+            <div class="form-field">
+              <div class="field-title"><span class="field-required">*</span>验证码</div>
+              <el-form-item prop="captchaCode">
+                <div class="captcha-row">
+                  <el-input
+                    v-model="loginForm.captchaCode"
+                    placeholder="请输入验证码"
+                    size="large"
+                    class="flat-input captcha-input"
+                    @keyup.enter="handleLogin"
+                  />
+                  <div class="captcha-image" @click="refreshCaptcha" :title="'点击刷新验证码'">
+                    <img v-if="captchaImage" :src="captchaImage" alt="验证码" />
+                    <div v-else class="captcha-loading">加载中...</div>
+                  </div>
+                </div>
+              </el-form-item>
+            </div>
 
             <el-form-item>
               <el-button 
@@ -82,11 +87,6 @@
               >
                 {{ loading ? '登录中...' : '登录' }}
               </el-button>
-            </el-form-item>
-            <el-form-item>
-              <div class="forgot-row">
-                <el-link type="primary" @click="openForgotDialog">忘记密码？</el-link>
-              </div>
             </el-form-item>
             <el-form-item>
               <div class="register-link">
@@ -153,7 +153,6 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 import { ElMessage } from 'element-plus'
-import { User, Lock } from '@element-plus/icons-vue'
 import api from '@/api'
 
 export default {
@@ -341,9 +340,7 @@ export default {
       openForgotDialog,
       refreshForgotCaptcha,
       submitForgotPassword,
-      resetForgotForm,
-      User,
-      Lock
+      resetForgotForm
     }
   }
 }
@@ -521,30 +518,43 @@ export default {
   margin-bottom: 24px;
 }
 
-.login-form :deep(.el-form-item__label) {
-  display: none;
+.form-field {
+  margin-bottom: 18px;
 }
 
-.modern-input :deep(.el-input__wrapper) {
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  border: 2px solid var(--border-light);
-  transition: var(--transition-base);
-  padding: 12px 16px;
+.field-title {
+  color: #606266;
+  font-size: 20px;
+  margin: 0 0 10px 2px;
 }
 
-.modern-input :deep(.el-input__wrapper:hover) {
-  border-color: var(--primary-color);
-  box-shadow: var(--shadow-base);
+.field-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.modern-input :deep(.el-input__wrapper.is-focus) {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+.field-required {
+  color: #e14d63;
+  margin-right: 4px;
 }
 
-.modern-input :deep(.el-input__inner) {
-  font-size: var(--font-size-base);
+.flat-input :deep(.el-input__wrapper) {
+  border-radius: 12px;
+  border: 1px solid #ebeef5;
+  box-shadow: none;
+  background: #f7f8fb;
+  min-height: 48px;
+  padding: 0 14px;
+}
+
+.flat-input :deep(.el-input__wrapper.is-focus) {
+  border-color: #b8bfff;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.12);
+}
+
+.flat-input :deep(.el-input__inner) {
+  font-size: 17px;
 }
 
 .login-button {
@@ -583,12 +593,12 @@ export default {
 
 .captcha-image {
   width: 120px;
-  height: 44px;
+  height: 48px;
   border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
-  border: 2px solid var(--border-light);
-  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid #ebeef5;
+  background: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -613,9 +623,8 @@ export default {
   font-size: var(--font-size-sm);
 }
 
-.forgot-row {
-  width: 100%;
-  text-align: right;
+.forgot-link {
+  font-size: 14px;
 }
 
 .register-link-text {

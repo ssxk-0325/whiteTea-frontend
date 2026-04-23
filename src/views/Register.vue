@@ -28,59 +28,55 @@
             <div class="form-desc">请填写用户名、手机号与密码</div>
           </div>
           <el-form :model="registerForm" :rules="rules" ref="registerFormRef" class="register-form">
-            <el-form-item prop="username">
-              <el-input
-                v-model="registerForm.username"
-                placeholder="请输入用户名"
-                size="large"
-                class="modern-input"
-              >
-                <template #prefix>
-                  <el-icon><User /></el-icon>
-                </template>
-              </el-input>
-            </el-form-item>
-            <el-form-item prop="phone">
-              <el-input
-                v-model="registerForm.phone"
-                placeholder="请输入手机号"
-                size="large"
-                class="modern-input"
-              >
-                <template #prefix>
-                  <el-icon><Phone /></el-icon>
-                </template>
-              </el-input>
-            </el-form-item>
-            <el-form-item prop="password">
-              <el-input
-                v-model="registerForm.password"
-                type="password"
-                placeholder="请输入密码"
-                size="large"
-                class="modern-input"
-                show-password
-              >
-                <template #prefix>
-                  <el-icon><Lock /></el-icon>
-                </template>
-              </el-input>
-            </el-form-item>
-            <el-form-item prop="confirmPassword">
-              <el-input
-                v-model="registerForm.confirmPassword"
-                type="password"
-                placeholder="请再次输入密码"
-                @keyup.enter="handleRegister"
-                size="large"
-                class="modern-input"
-                show-password
-              >
-                <template #prefix>
-                  <el-icon><Lock /></el-icon>
-                </template>
-              </el-input>
-            </el-form-item>
+            <div class="form-field">
+              <div class="field-title"><span class="field-required">*</span>账号</div>
+              <el-form-item prop="username">
+                <el-input
+                  v-model="registerForm.username"
+                  placeholder="请输入账号"
+                  size="large"
+                  class="flat-input"
+                />
+              </el-form-item>
+            </div>
+            <div class="form-field">
+              <div class="field-title"><span class="field-required">*</span>手机号</div>
+              <el-form-item prop="phone">
+                <el-input
+                  v-model="registerForm.phone"
+                  placeholder="请输入手机号"
+                  size="large"
+                  class="flat-input"
+                />
+              </el-form-item>
+            </div>
+            <div class="form-field">
+              <div class="field-title"><span class="field-required">*</span>密码</div>
+              <el-form-item prop="password">
+                <el-input
+                  v-model="registerForm.password"
+                  type="password"
+                  placeholder="请输入密码"
+                  size="large"
+                  class="flat-input"
+                  show-password
+                />
+              </el-form-item>
+            </div>
+            <div class="form-field">
+              <div class="field-title"><span class="field-required">*</span>确认密码</div>
+              <el-form-item prop="confirmPassword">
+                <el-input
+                  v-model="registerForm.confirmPassword"
+                  type="password"
+                  placeholder="请再次输入密码"
+                  @keyup.enter="handleRegister"
+                  size="large"
+                  class="flat-input"
+                  show-password
+                />
+              </el-form-item>
+            </div>
             <el-form-item>
               <el-button
                 type="primary"
@@ -110,7 +106,6 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { ElMessage } from 'element-plus'
-import { User, Lock, Phone } from '@element-plus/icons-vue'
 
 export default {
   name: 'Register',
@@ -182,10 +177,7 @@ export default {
       rules,
       registerFormRef,
       loading,
-      handleRegister,
-      User,
-      Lock,
-      Phone
+      handleRegister
     }
   }
 }
@@ -364,30 +356,37 @@ export default {
   margin-bottom: 24px;
 }
 
-.register-form :deep(.el-form-item__label) {
-  display: none;
+.form-field {
+  margin-bottom: 18px;
 }
 
-.modern-input :deep(.el-input__wrapper) {
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  border: 2px solid var(--border-light);
-  transition: var(--transition-base);
-  padding: 12px 16px;
+.field-title {
+  color: #606266;
+  font-size: 20px;
+  margin: 0 0 10px 2px;
 }
 
-.modern-input :deep(.el-input__wrapper:hover) {
-  border-color: var(--primary-color);
-  box-shadow: var(--shadow-base);
+.field-required {
+  color: #e14d63;
+  margin-right: 4px;
 }
 
-.modern-input :deep(.el-input__wrapper.is-focus) {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+.flat-input :deep(.el-input__wrapper) {
+  border-radius: 12px;
+  border: 1px solid #ebeef5;
+  box-shadow: none;
+  background: #f7f8fb;
+  min-height: 48px;
+  padding: 0 14px;
 }
 
-.modern-input :deep(.el-input__inner) {
-  font-size: var(--font-size-base);
+.flat-input :deep(.el-input__wrapper.is-focus) {
+  border-color: #b8bfff;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.12);
+}
+
+.flat-input :deep(.el-input__inner) {
+  font-size: 17px;
 }
 
 .register-button {
