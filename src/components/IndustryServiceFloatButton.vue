@@ -24,11 +24,14 @@ export default {
     const route = useRoute()
 
     const showFloat = computed(
-      () => !route.path.startsWith('/admin') && route.path !== '/services/industry'
+      () =>
+        !route.path.startsWith('/admin') &&
+        route.path !== '/services/pick-recruitment' &&
+        route.path !== '/services/wholesale-training'
     )
 
     const goIndustry = () => {
-      router.push('/services/industry')
+      router.push('/services/pick-recruitment')
     }
 
     return {

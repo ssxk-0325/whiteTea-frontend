@@ -32,6 +32,7 @@
                     <span>剩余券数：{{ activity.totalCoupons - activity.issuedCoupons }}/{{ activity.totalCoupons }}</span>
                   </div>
                 </div>
+                <div v-if="isIndustryService" class="industry-context">{{ industryServiceHint }}</div>
                 <div v-if="isIndustryService" class="industry-join">
                   <el-button v-if="!isLoggedIn" type="primary" @click="$router.push('/login')">登录后加入</el-button>
                   <el-button
@@ -163,6 +164,20 @@ export default {
       const t = activity.value?.type
       return t === 5 || t === 6
     })
+    const industryServicePath = computed(() => {
+      if (route.query.from === 'pick') return '/services/pick-recruitment'
+      if (route.query.from === 'wholesale') return '/services/wholesale-training'
+      return activity.value?.type === 6 ? '/services/wholesale-training' : '/services/pick-recruitment'
+    })
+    const industryServiceHint = computed(() => {
+      if (activity.value?.type === 5) {
+        return '当前为采摘招募服务详情，适用于采茶季短期用工申请。'
+      }
+      if (activity.value?.type === 6) {
+        return '当前为批发培训服务详情，适用于白茶批量对接与技术培训申请。'
+      }
+      return ''
+    })
 
     const joinRules = {
       realName: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
@@ -183,7 +198,9 @@ export default {
       } catch (error) {
         ElMessage.error('加载详情失败')
         if (route.query.from === 'industry') {
-          router.push('/services/industry')
+          router.push('/services/pick-recruitment')
+        } else if (route.query.from === 'pick' || route.query.from === 'wholesale') {
+          router.push(industryServicePath.value)
         } else {
           router.push('/activity')
         }
@@ -318,6 +335,7 @@ export default {
       joinForm,
       joinRules,
       canGrab,
+      industryServiceHint,
       handleGrab,
       formatDateTime,
       getTypeText,
@@ -396,6 +414,16 @@ export default {
 
 .industry-join {
   margin-top: 22px;
+}
+
+.industry-context {
+  margin-top: 14px;
+  font-size: 13px;
+  color: #2d6a4f;
+  background: #eff8f2;
+  border-radius: 6px;
+  padding: 8px 10px;
+  display: inline-block;
 }
 
 .join-hint {

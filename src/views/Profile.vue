@@ -185,7 +185,7 @@
                 v-for="item in industryJoins.list"
                 :key="item.id"
                 class="history-item"
-                @click="goToIndustryActivity(item.activityId)"
+                @click="goToIndustryActivity(item)"
               >
                 <div class="history-time" style="width: 80px;">
                   <el-icon style="vertical-align: middle; margin-right: 4px;"><Clock /></el-icon>
@@ -202,7 +202,7 @@
                       <span v-if="item.adminRemark" style="font-size: 12px; color:#666;">审核备注：{{ item.adminRemark }}</span>
                     </div>
                   </div>
-                  <el-button type="text" class="delete-history-btn" @click.stop="goToIndustryActivity(item.activityId)">
+                  <el-button type="text" class="delete-history-btn" @click.stop="goToIndustryActivity(item)">
                     <el-icon><ArrowRight /></el-icon>
                   </el-button>
                 </div>
@@ -574,9 +574,11 @@ export default {
       const map = { 0: 'warning', 1: 'success', 2: 'danger' }
       return map[status] || 'info'
     }
-    const goToIndustryActivity = (activityId) => {
+    const goToIndustryActivity = (item) => {
+      const activityId = item?.activityId
       if (!activityId) return
-      router.push({ path: `/activity/${activityId}`, query: { from: 'industry' } })
+      const from = item?.activityType === 6 ? 'wholesale' : 'pick'
+      router.push({ path: `/activity/${activityId}`, query: { from } })
     }
 
     const deleteHistory = async (id) => {

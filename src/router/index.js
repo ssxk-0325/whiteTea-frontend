@@ -70,9 +70,19 @@ const routes = [
   },
   {
     path: '/services/industry',
-    name: 'IndustryServices',
-    component: () => import('../views/IndustryServices.vue'),
-    meta: { title: '产业服务' }
+    redirect: '/services/pick-recruitment'
+  },
+  {
+    path: '/services/pick-recruitment',
+    name: 'PickRecruitmentService',
+    component: () => import('../views/PickRecruitmentService.vue'),
+    meta: { title: '采摘招募服务' }
+  },
+  {
+    path: '/services/wholesale-training',
+    name: 'WholesaleTrainingService',
+    component: () => import('../views/WholesaleTrainingService.vue'),
+    meta: { title: '批发培训服务' }
   },
   {
     path: '/activity',

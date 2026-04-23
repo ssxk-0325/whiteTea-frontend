@@ -25,8 +25,11 @@
             <el-menu-item index="offline-service" @click="handleMenuClick('/activity')">
               线下体验服务
             </el-menu-item>
-            <el-menu-item index="industry-service" @click="handleMenuClick('/services/industry')">
-              产业服务
+            <el-menu-item index="pick-recruitment-service" @click="handleMenuClick('/services/pick-recruitment')">
+              采摘招募服务
+            </el-menu-item>
+            <el-menu-item index="wholesale-training-service" @click="handleMenuClick('/services/wholesale-training')">
+              批发培训服务
             </el-menu-item>
           </el-sub-menu>
           <el-menu-item index="rewards" @click="handleMenuClick('/rewards')">积分商城</el-menu-item>
@@ -117,7 +120,9 @@ export default {
       if (path.startsWith('/products')) return 'products'
       if (path.startsWith('/culture')) return 'culture'
       if (path.startsWith('/activity')) return 'offline-service'
-      if (path.startsWith('/services/industry')) return 'industry-service'
+      if (path.startsWith('/services/pick-recruitment')) return 'pick-recruitment-service'
+      if (path.startsWith('/services/wholesale-training')) return 'wholesale-training-service'
+      if (path.startsWith('/services/industry')) return 'pick-recruitment-service'
       if (path.startsWith('/community')) return 'community'
       return ''
     })
@@ -138,8 +143,11 @@ export default {
         case 'offline-service':
           targetRoute = '/activity'
           break
-        case 'industry-service':
-          targetRoute = '/services/industry'
+        case 'pick-recruitment-service':
+          targetRoute = '/services/pick-recruitment'
+          break
+        case 'wholesale-training-service':
+          targetRoute = '/services/wholesale-training'
           break
         case 'activity':
           targetRoute = '/activity'

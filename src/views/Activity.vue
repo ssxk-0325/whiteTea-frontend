@@ -4,7 +4,12 @@
     <el-container>
       <el-main style="max-width: 1200px; margin: 0 auto;">
         <h2>精彩活动</h2>
-        <p class="page-subtitle">茶艺课、茶园参观、品鉴会与制茶体验等线下体验类活动。福鼎茶厂采茶地用工、白茶收购与种植培训请见 <router-link to="/services/industry" class="inline-link">产业服务</router-link>。</p>
+        <p class="page-subtitle">
+          茶艺课、茶园参观、品鉴会与制茶体验等线下体验类活动。产业向信息请分别查看
+          <router-link to="/services/pick-recruitment" class="inline-link">采摘招募服务</router-link>
+          与
+          <router-link to="/services/wholesale-training" class="inline-link">批发培训服务</router-link>。
+        </p>
 
         <!-- 筛选栏 -->
         <div class="filter-bar">
@@ -172,8 +177,7 @@ export default {
       const t = route.query.type
       if (t === '5' || t === '6' || t === 5 || t === 6) {
         router.replace({
-          path: '/services/industry',
-          query: { tab: String(t) === '5' || t === 5 ? 'pick' : 'wholesale' }
+          path: String(t) === '5' || t === 5 ? '/services/pick-recruitment' : '/services/wholesale-training'
         })
         return true
       }
