@@ -44,7 +44,7 @@
         </el-menu-item>
         <el-menu-item index="/admin/industry-applications">
           <el-icon><Bell /></el-icon>
-          <span>产业报名审核</span>
+          <span>茶务报名审核</span>
         </el-menu-item>
           <el-menu-item index="/admin/quiz">
             <el-icon><QuestionFilled /></el-icon>

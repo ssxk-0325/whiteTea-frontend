@@ -227,7 +227,7 @@ const routes = [
         path: 'industry-applications',
         name: 'IndustryApplications',
         component: () => import('../views/admin/IndustryApplications.vue'),
-        meta: { title: '产业服务报名审核' }
+        meta: { title: '茶务报名审核' }
       },
       {
         path: 'quiz',

@@ -1,6 +1,6 @@
 <template>
   <div class="admin-page">
-    <h2>产业服务报名审核</h2>
+    <h2>茶务报名审核</h2>
 
     <div class="toolbar">
       <el-button size="default" @click="loadList">刷新</el-button>
