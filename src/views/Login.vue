@@ -84,6 +84,11 @@
               </el-button>
             </el-form-item>
             <el-form-item>
+              <div class="forgot-row">
+                <el-link type="primary" @click="openForgotDialog">忘记密码？</el-link>
+              </div>
+            </el-form-item>
+            <el-form-item>
               <div class="register-link">
                 <span>还没有账号？</span>
                 <el-link type="primary" @click="$router.push('/register')" class="register-link-text">立即注册</el-link>
@@ -93,6 +98,53 @@
         </div>
       </div>
     </el-card>
+
+    <el-dialog
+      v-model="forgotDialogVisible"
+      title="找回密码"
+      width="460px"
+      :close-on-click-modal="false"
+      @closed="resetForgotForm"
+    >
+      <el-form :model="forgotForm" :rules="forgotRules" ref="forgotFormRef" label-position="top">
+        <el-form-item label="用户名" prop="username">
+          <el-input v-model="forgotForm.username" placeholder="请输入用户名" />
+        </el-form-item>
+        <el-form-item label="手机号" prop="phone">
+          <el-input v-model="forgotForm.phone" placeholder="请输入注册手机号" />
+        </el-form-item>
+        <el-form-item label="新密码" prop="newPassword">
+          <el-input v-model="forgotForm.newPassword" type="password" show-password placeholder="请输入新密码" />
+        </el-form-item>
+        <el-form-item label="确认新密码" prop="confirmPassword">
+          <el-input
+            v-model="forgotForm.confirmPassword"
+            type="password"
+            show-password
+            placeholder="请再次输入新密码"
+            @keyup.enter="submitForgotPassword"
+          />
+        </el-form-item>
+        <el-form-item label="验证码" prop="captchaCode">
+          <div class="captcha-row">
+            <el-input
+              v-model="forgotForm.captchaCode"
+              placeholder="请输入验证码"
+              class="captcha-input"
+              @keyup.enter="submitForgotPassword"
+            />
+            <div class="captcha-image" @click="refreshForgotCaptcha" :title="'点击刷新验证码'">
+              <img v-if="forgotCaptchaImage" :src="forgotCaptchaImage" alt="验证码" />
+              <div v-else class="captcha-loading">加载中...</div>
+            </div>
+          </div>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="forgotDialogVisible = false">取消</el-button>
+        <el-button type="primary" :loading="forgotLoading" @click="submitForgotPassword">重置密码</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -111,9 +163,14 @@ export default {
     const route = useRoute()
     const store = useStore()
     const loginFormRef = ref(null)
+    const forgotFormRef = ref(null)
     const loading = ref(false)
+    const forgotLoading = ref(false)
+    const forgotDialogVisible = ref(false)
     const captchaId = ref('')
     const captchaImage = ref('')
+    const forgotCaptchaId = ref('')
+    const forgotCaptchaImage = ref('')
 
     const loginForm = reactive({
       username: '',
@@ -128,6 +185,42 @@ export default {
       password: [
         { required: true, message: '请输入密码', trigger: 'blur' },
         { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
+      ],
+      captchaCode: [
+        { required: true, message: '请输入验证码', trigger: 'blur' },
+        { min: 4, max: 8, message: '验证码长度不正确', trigger: 'blur' }
+      ]
+    }
+
+    const forgotForm = reactive({
+      username: '',
+      phone: '',
+      newPassword: '',
+      confirmPassword: '',
+      captchaCode: ''
+    })
+
+    const validateForgotConfirm = (rule, value, callback) => {
+      if (value !== forgotForm.newPassword) {
+        callback(new Error('两次输入的新密码不一致'))
+        return
+      }
+      callback()
+    }
+
+    const forgotRules = {
+      username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+      phone: [
+        { required: true, message: '请输入手机号', trigger: 'blur' },
+        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
+      ],
+      newPassword: [
+        { required: true, message: '请输入新密码', trigger: 'blur' },
+        { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
+      ],
+      confirmPassword: [
+        { required: true, message: '请再次输入新密码', trigger: 'blur' },
+        { validator: validateForgotConfirm, trigger: 'blur' }
       ],
       captchaCode: [
         { required: true, message: '请输入验证码', trigger: 'blur' },
@@ -173,6 +266,60 @@ export default {
       })
     }
 
+    const refreshForgotCaptcha = async () => {
+      try {
+        const res = await api.captcha.get()
+        forgotCaptchaId.value = res.data.captchaId
+        forgotCaptchaImage.value = res.data.imageBase64
+      } catch (e) {
+        forgotCaptchaId.value = ''
+        forgotCaptchaImage.value = ''
+      }
+    }
+
+    const openForgotDialog = async () => {
+      forgotDialogVisible.value = true
+      await refreshForgotCaptcha()
+    }
+
+    const resetForgotForm = () => {
+      forgotForm.username = ''
+      forgotForm.phone = ''
+      forgotForm.newPassword = ''
+      forgotForm.confirmPassword = ''
+      forgotForm.captchaCode = ''
+      forgotCaptchaId.value = ''
+      forgotCaptchaImage.value = ''
+      forgotFormRef.value?.clearValidate()
+    }
+
+    const submitForgotPassword = async () => {
+      if (!forgotFormRef.value || forgotLoading.value) return
+      await forgotFormRef.value.validate(async (valid) => {
+        if (!valid) return
+        forgotLoading.value = true
+        try {
+          await api.user.forgotPassword(
+            forgotForm.username,
+            forgotForm.phone,
+            forgotForm.newPassword,
+            forgotCaptchaId.value,
+            forgotForm.captchaCode
+          )
+          ElMessage.success('密码已重置，请使用新密码登录')
+          forgotDialogVisible.value = false
+          await refreshCaptcha()
+          loginForm.captchaCode = ''
+        } catch (error) {
+          ElMessage.error(error.message || '重置失败')
+          await refreshForgotCaptcha()
+          forgotForm.captchaCode = ''
+        } finally {
+          forgotLoading.value = false
+        }
+      })
+    }
+
     onMounted(() => {
       refreshCaptcha()
     })
@@ -180,11 +327,21 @@ export default {
     return {
       loginForm,
       rules,
+      forgotForm,
+      forgotRules,
       loginFormRef,
+      forgotFormRef,
       loading,
+      forgotLoading,
+      forgotDialogVisible,
       handleLogin,
       refreshCaptcha,
       captchaImage,
+      forgotCaptchaImage,
+      openForgotDialog,
+      refreshForgotCaptcha,
+      submitForgotPassword,
+      resetForgotForm,
       User,
       Lock
     }
@@ -454,6 +611,11 @@ export default {
   width: 100%;
   color: var(--text-secondary);
   font-size: var(--font-size-sm);
+}
+
+.forgot-row {
+  width: 100%;
+  text-align: right;
 }
 
 .register-link-text {

@@ -112,6 +112,9 @@ const api = {
     changePassword: (oldPassword, newPassword) => {
       return service.post('/user/change-password', { oldPassword, newPassword })
     },
+    forgotPassword: (username, phone, newPassword, captchaId, captchaCode) => {
+      return service.post('/user/forgot-password', { username, phone, newPassword, captchaId, captchaCode })
+    },
     // 管理员接口
     admin: {
       getList: (params) => {
