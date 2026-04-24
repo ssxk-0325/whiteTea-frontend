@@ -1,8 +1,8 @@
 <template>
   <div class="home">
-    <el-container>
+    <el-container class="home-container">
       <!-- 头部导航 -->
-      <el-header>
+      <el-header class="home-header">
         <Header />
       </el-header>
       
@@ -204,6 +204,18 @@ export default {
 .home {
   min-height: 100vh;
   background: transparent;
+}
+
+.home-container {
+  overflow: visible;
+}
+
+.home-header {
+  height: auto;
+  padding: 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 /* 轮播图容器 - 现代化设计 */
