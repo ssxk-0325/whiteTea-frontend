@@ -6,7 +6,7 @@
         <header class="page-header">
           <h1>产业服务</h1>
           <p class="lead">
-            本页聚焦福鼎本地产业对接：一侧汇总茶厂、采茶地发布的采茶用工招募；另一侧对接白茶收购与白茶种植技术培训。与「精彩活动」中的茶艺课、品鉴会等体验类内容区分，便于按需查找。
+            本页聚焦福鼎本地产业对接：一侧汇总茶厂、采茶地发布的采茶用工招募；另一侧对接白茶收购与白茶种植技术培训。与「线下体验」中的茶艺课、品鉴会等体验类内容区分，便于按需查找。
           </p>
         </header>
 
@@ -104,7 +104,7 @@
 
         <div class="footer-hint">
           <span>体验类活动（茶艺课、品鉴会等）请前往</span>
-          <router-link to="/activity" class="link">精彩活动</router-link>
+          <router-link to="/activity" class="link">线下体验</router-link>
         </div>
       </el-main>
     </el-container>

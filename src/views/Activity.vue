@@ -3,7 +3,7 @@
     <Header />
     <el-container>
       <el-main style="max-width: 1200px; margin: 0 auto;">
-        <h2>精彩活动</h2>
+        <h2>线下体验</h2>
         <p class="page-subtitle">
           茶艺课、茶园参观、品鉴会与制茶体验等线下体验类活动。产业向信息请分别查看
           <router-link to="/services/pick-recruitment" class="inline-link">采摘招募服务</router-link>

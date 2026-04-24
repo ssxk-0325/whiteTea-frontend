@@ -88,7 +88,7 @@ const routes = [
     path: '/activity',
     name: 'Activity',
     component: () => import('../views/Activity.vue'),
-    meta: { title: '活动' }
+    meta: { title: '线下体验' }
   },
   {
     path: '/activity/:id',
@@ -100,7 +100,7 @@ const routes = [
     path: '/activity/coupons',
     name: 'MyCoupons',
     component: () => import('../views/MyCoupons.vue'),
-    meta: { title: '个人券包', requiresAuth: true }
+    meta: { title: '个人门票', requiresAuth: true }
   },
   {
     path: '/culture/article/:id',
