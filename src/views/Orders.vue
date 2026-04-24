@@ -19,7 +19,7 @@
           <div v-loading="loading" v-else class="orders-list">
             <el-card v-for="order in orders" :key="order.id" class="order-card">
             <div class="order-header">
-              <div>
+              <div class="order-meta">
                 <span>订单号：{{ order.orderNo }}</span>
                 <el-tag :type="order.deliveryType === 2 ? 'warning' : 'info'" size="small" style="margin-left: 8px;">{{ order.deliveryType === 2 ? '线下自提' : '线上配送' }}</el-tag>
                 <el-tag :type="order.orderMode === 1 ? 'success' : 'info'" size="small" style="margin-left: 8px;">{{ order.orderMode === 1 ? '拼团单' : '普通单' }}</el-tag>
@@ -42,7 +42,7 @@
               <div class="order-info">
                 <div>{{ order.deliveryType === 2 ? '取货人' : '收货人' }}：{{ order.receiverName }}</div>
                 <div>联系电话：{{ order.receiverPhone }}</div>
-                <div>{{ order.deliveryType === 2 ? '自提门店/地址' : '收货地址' }}：{{ order.receiverAddress }}</div>
+                <div class="order-address">{{ order.deliveryType === 2 ? '自提门店/地址' : '收货地址' }}：{{ order.receiverAddress }}</div>
               </div>
               <div class="order-actions">
                 <div class="total-amount">总计：¥{{ Number(order.payAmount).toFixed(2) }}</div>
@@ -237,11 +237,11 @@ export default {
 }
 
 .orders-card :deep(.el-card__body) {
-  padding: 32px;
+  padding: 20px;
 }
 
 .modern-tabs :deep(.el-tabs__header) {
-  margin-bottom: 32px;
+  margin-bottom: 16px;
 }
 
 .modern-tabs :deep(.el-tabs__item) {
@@ -268,7 +268,7 @@ export default {
 .orders-list {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 12px;
 }
 
 .order-card {
@@ -285,16 +285,24 @@ export default {
 }
 
 .order-card :deep(.el-card__body) {
-  padding: 24px;
+  padding: 14px 16px;
 }
 
 .order-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 16px;
-  border-bottom: 2px solid var(--border-lighter);
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-lighter);
+  gap: 10px;
+}
+
+.order-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 13px;
 }
 
 .order-header :deep(.el-tag) {
@@ -304,8 +312,8 @@ export default {
 }
 
 .order-items {
-  margin: 24px 0;
-  padding: 20px;
+  margin: 10px 0;
+  padding: 10px;
   background: var(--bg-secondary);
   border-radius: var(--radius-base);
 }
@@ -313,9 +321,9 @@ export default {
 .order-item {
   display: flex;
   align-items: center;
-  gap: 20px;
-  margin-bottom: 20px;
-  padding: 16px;
+  gap: 12px;
+  margin-bottom: 8px;
+  padding: 8px;
   background: white;
   border-radius: var(--radius-base);
   transition: var(--transition-base);
@@ -331,8 +339,8 @@ export default {
 }
 
 .order-item img {
-  width: 100px;
-  height: 100px;
+  width: 64px;
+  height: 64px;
   object-fit: cover;
   border-radius: var(--radius-base);
   box-shadow: var(--shadow-sm);
@@ -343,72 +351,88 @@ export default {
 }
 
 .item-info h4 {
-  margin: 0 0 8px 0;
-  font-size: var(--font-size-base);
+  margin: 0 0 4px 0;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text-primary);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .item-info p {
   margin: 0;
   color: var(--text-regular);
-  font-size: var(--font-size-sm);
+  font-size: 12px;
 }
 
 .order-footer {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 24px;
-  margin-top: 24px;
-  padding-top: 24px;
+  gap: 16px;
+  margin-top: 10px;
+  padding-top: 10px;
   border-top: 1px solid var(--border-lighter);
 }
 
 .order-info {
   flex: 1;
   color: var(--text-regular);
-  font-size: var(--font-size-sm);
-  line-height: 1.8;
+  font-size: 12px;
+  line-height: 1.55;
 }
 
 .order-info div {
-  margin-bottom: 8px;
+  margin-bottom: 4px;
+}
+
+.order-address {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .order-actions {
   text-align: right;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 6px;
   align-items: flex-end;
 }
 
 .total-amount {
-  font-size: var(--font-size-xl);
+  font-size: 20px;
   font-weight: 700;
   background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  margin-bottom: 12px;
+  margin-bottom: 2px;
 }
 
 .actions {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   justify-content: flex-end;
+  flex-wrap: wrap;
 }
 
 .discount-tip {
   color: #67c23a;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .actions :deep(.el-button) {
   border-radius: var(--radius-base);
   font-weight: 500;
   transition: var(--transition-base);
+  padding: 7px 10px;
+  min-height: 30px;
+  font-size: 12px;
 }
 
 .actions :deep(.el-button--primary) {
