@@ -27,3 +27,13 @@ dist-ssr
 // .env
 .env.local
 .env.*.local
+
+# 忽略所有视频文件
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.flv
+*.wmv
+# 也可以忽略整个视频文件夹
+# /videos/
