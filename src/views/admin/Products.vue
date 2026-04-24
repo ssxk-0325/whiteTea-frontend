@@ -36,7 +36,7 @@
           <el-table-column label="产品图片" width="100">
             <template #default="scope">
               <el-image
-                :src="scope.row.image || DEFAULT_PRODUCT_IMAGE"
+                :src="scope.row.image ? resolveUploadUrl(scope.row.image) : DEFAULT_PRODUCT_IMAGE"
                 style="width: 60px; height: 60px;"
                 fit="cover"
               />
@@ -106,7 +106,7 @@
           <el-table-column label="分类图片" width="100">
             <template #default="scope">
               <el-image
-                :src="scope.row.image || DEFAULT_CATEGORY_IMAGE"
+                :src="scope.row.image ? resolveUploadUrl(scope.row.image) : DEFAULT_CATEGORY_IMAGE"
                 style="width: 60px; height: 60px;"
                 fit="cover"
               />
@@ -167,7 +167,26 @@
           </el-select>
         </el-form-item>
         <el-form-item label="产品图片" prop="image">
-          <el-input v-model="productForm.image" placeholder="请输入图片路径，如：/images/product.jpg"></el-input>
+          <div class="image-upload-row">
+            <el-upload
+              :http-request="uploadProductImage"
+              :before-upload="beforeImageUpload"
+              :show-file-list="false"
+            >
+              <el-button type="primary">上传图片</el-button>
+            </el-upload>
+            <el-image
+              v-if="productForm.image"
+              :src="resolveUploadUrl(productForm.image)"
+              class="image-upload-preview"
+              fit="cover"
+            />
+          </div>
+          <el-input
+            v-model="productForm.image"
+            placeholder="支持手动修改路径，如：/images/product.jpg 或 /uploads/..."
+            style="margin-top: 10px"
+          />
         </el-form-item>
         <el-form-item label="价格" prop="price">
           <el-input-number v-model="productForm.price" :min="0" :precision="2" style="width: 100%"></el-input-number>
@@ -269,6 +288,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import api from '@/api'
 import { DEFAULT_PRODUCT_IMAGE, DEFAULT_CATEGORY_IMAGE } from '@/constants/assets'
+import { resolveUploadUrl } from '@/utils/uploadUrl'
 
 export default {
   name: 'AdminProducts',
@@ -353,6 +373,37 @@ export default {
       if (!q) return adminCategories.value
       return adminCategories.value.filter((c) => (c.name || '').toLowerCase().includes(q))
     })
+
+    const uploadProductImage = async (options) => {
+      try {
+        const res = await api.upload.image(options.file)
+        if (res.code === 200) {
+          productForm.value.image = res.data
+          options.onSuccess?.(res)
+          ElMessage.success('产品图片上传成功')
+          return
+        }
+        options.onError?.(new Error(res.message || '上传失败'))
+        ElMessage.error(res.message || '上传失败')
+      } catch (error) {
+        options.onError?.(error)
+        ElMessage.error(error?.response?.data?.message || error?.message || '产品图片上传失败，请检查登录状态或网络')
+      }
+    }
+
+    const beforeImageUpload = (file) => {
+      const isImage = file.type.startsWith('image/')
+      const isLt10M = file.size / 1024 / 1024 < 10
+      if (!isImage) {
+        ElMessage.error('只能上传图片文件')
+        return false
+      }
+      if (!isLt10M) {
+        ElMessage.error('图片大小不能超过10MB')
+        return false
+      }
+      return true
+    }
 
     const syncTabFromRoute = () => {
       activeTab.value = route.query.tab === 'categories' ? 'categories' : 'products'
@@ -636,9 +687,12 @@ export default {
       categoryRules,
       DEFAULT_PRODUCT_IMAGE,
       DEFAULT_CATEGORY_IMAGE,
+      resolveUploadUrl,
       categoryNameById,
       enabledCategoryOptions,
       filteredCategories,
+      uploadProductImage,
+      beforeImageUpload,
       productKeyword,
       filterCategoryId,
       filterProductStatus,
@@ -685,5 +739,18 @@ export default {
 .toolbar-muted {
   color: var(--el-text-color-secondary);
   font-size: 13px;
+}
+
+.image-upload-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.image-upload-preview {
+  width: 90px;
+  height: 90px;
+  border-radius: 6px;
+  border: 1px solid var(--el-border-color-lighter);
 }
 </style>
