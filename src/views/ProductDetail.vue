@@ -46,14 +46,14 @@
                 <div class="info-item">
                   <span class="info-label">库存</span>
                   <span class="info-value">
-                    {{ product.stock }}
+                    {{ product.stock }} 盒
                     <el-tag v-if="product.stock > 0 && product.stock < 10" type="warning" size="small" style="margin-left: 8px;">库存紧张</el-tag>
                     <el-tag v-else-if="product.stock === 0" type="danger" size="small" style="margin-left: 8px;">缺货</el-tag>
                   </span>
                 </div>
                 <div class="info-item">
                   <span class="info-label">销量</span>
-                  <span class="info-value">{{ product.sales }}</span>
+                  <span class="info-value">{{ product.sales }} 盒</span>
                 </div>
                 <div class="info-item" v-if="product.origin">
                   <span class="info-label">产地</span>
@@ -76,6 +76,7 @@
                   :controls-position="'right'"
                   class="quantity-input"
                 />
+                <span class="quantity-unit">盒</span>
               </div>
               
               <div class="action-buttons">
@@ -469,6 +470,11 @@ export default {
 .quantity-input {
   flex: 1;
   max-width: 200px;
+}
+
+.quantity-unit {
+  color: var(--text-regular);
+  font-weight: 500;
 }
 
 .quantity-input :deep(.el-input__wrapper) {
