@@ -135,8 +135,28 @@
             <el-radio :label="0">下架</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="图片URL" prop="image">
-          <el-input v-model="form.image" placeholder="如 /images/reward.jpg 或完整 URL" />
+        <el-form-item label="奖品图片" prop="image">
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <el-upload
+              :action="uploadImageUrl"
+              :headers="uploadHeaders"
+              :on-success="handleImageSuccess"
+              :before-upload="beforeImageUpload"
+              :show-file-list="false"
+            >
+              <el-button type="primary">上传图片</el-button>
+            </el-upload>
+            <el-input
+              v-model="form.image"
+              placeholder="如 /images/reward.jpg 或完整 URL"
+              style="width: 280px"
+            />
+          </div>
+          <el-image
+            :src="form.image || DEFAULT_PRODUCT_IMAGE"
+            style="margin-top: 10px; width: 80px; height: 80px"
+            fit="cover"
+          />
         </el-form-item>
         <el-form-item label="描述">
           <el-input v-model="form.description" type="textarea" :rows="3" placeholder="选填" maxlength="500" show-word-limit />
@@ -151,9 +171,10 @@
 </template>
 
 <script>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import api from '@/api'
+import store from '@/store'
 import { DEFAULT_PRODUCT_IMAGE } from '@/constants/assets'
 
 export default {
@@ -173,6 +194,11 @@ export default {
     const editingId = ref(null)
     const formRef = ref(null)
     const stockUnlimited = ref(false)
+    const uploadImageUrl = computed(() => '/api/upload/image')
+    const uploadHeaders = computed(() => {
+      const token = store.state.user.token
+      return token ? { Authorization: `Bearer ${token}` } : {}
+    })
 
     const defaultForm = () => ({
       name: '',
@@ -254,6 +280,29 @@ export default {
       stockUnlimited.value = false
       form.value = defaultForm()
       dialogVisible.value = true
+    }
+
+    const handleImageSuccess = (response) => {
+      if (response.code === 200) {
+        form.value.image = response.data
+        ElMessage.success('图片上传成功')
+      } else {
+        ElMessage.error(response.message || '图片上传失败')
+      }
+    }
+
+    const beforeImageUpload = (file) => {
+      const isImage = file.type.startsWith('image/')
+      const isLt10M = file.size / 1024 / 1024 < 10
+      if (!isImage) {
+        ElMessage.error('只能上传图片文件')
+        return false
+      }
+      if (!isLt10M) {
+        ElMessage.error('图片大小不能超过10MB')
+        return false
+      }
+      return true
     }
 
     const openEdit = (row) => {
@@ -373,6 +422,10 @@ export default {
       handleSearch,
       openCreate,
       openEdit,
+      uploadImageUrl,
+      uploadHeaders,
+      handleImageSuccess,
+      beforeImageUpload,
       resetForm,
       submit,
       handleDelete
