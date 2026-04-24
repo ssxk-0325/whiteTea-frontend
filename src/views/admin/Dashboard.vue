@@ -181,8 +181,9 @@ export default {
               borderWidth: 2
             },
             label: {
-              show: false,
-              position: 'center'
+              show: true,
+              formatter: '{b}\n{d}%',
+              fontSize: 12
             },
             emphasis: {
               label: {
@@ -192,7 +193,7 @@ export default {
               }
             },
             labelLine: {
-              show: false
+              show: true
             },
             data: data
           }
@@ -224,14 +225,35 @@ export default {
         xAxis: {
           type: 'category',
           data: months.length > 0 ? months : ['1月', '2月', '3月', '4月', '5月', '6月'],
+          name: '月份',
+          nameLocation: 'middle',
+          nameGap: 28,
+          axisLine: {
+            show: true
+          },
+          axisLabel: {
+            show: true
+          },
           axisTick: {
             alignWithLabel: true
           }
         },
         yAxis: {
           type: 'value',
+          name: '销售额（元）',
+          nameLocation: 'middle',
+          nameGap: 45,
+          axisLine: {
+            show: true
+          },
+          axisTick: {
+            show: true
+          },
           axisLabel: {
             formatter: '¥{value}'
+          },
+          splitLine: {
+            show: true
           }
         },
         series: [
@@ -280,12 +302,33 @@ export default {
         xAxis: {
           type: 'category',
           boundaryGap: false,
-          data: dates.length > 0 ? dates : ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+          data: dates.length > 0 ? dates : ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+          name: '日期',
+          nameLocation: 'middle',
+          nameGap: 28,
+          axisLine: {
+            show: true
+          },
+          axisLabel: {
+            show: true
+          }
         },
         yAxis: {
           type: 'value',
+          name: '新增人数（人）',
+          nameLocation: 'middle',
+          nameGap: 45,
+          axisLine: {
+            show: true
+          },
+          axisTick: {
+            show: true
+          },
           axisLabel: {
             formatter: '{value}人'
+          },
+          splitLine: {
+            show: true
           }
         },
         series: [
