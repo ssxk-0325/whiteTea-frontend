@@ -4,6 +4,7 @@
     <el-container>
       <el-main style="max-width: 1200px; margin: 0 auto;">
         <h2>我的兑换记录</h2>
+        <p class="page-hint">仅保留兑换进度与时间信息，便于快速查看处理状态。</p>
 
         <!-- 积分信息卡片 -->
         <el-card class="points-card" style="margin-bottom: 20px;">
@@ -22,33 +23,17 @@
         <!-- 兑换记录列表 -->
         <div v-loading="loading">
           <el-empty v-if="!loading && exchanges.length === 0" description="暂无兑换记录"></el-empty>
-          <el-table v-else :data="exchanges" style="width: 100%">
-            <el-table-column prop="rewardName" label="奖品名称" width="200" />
-            <el-table-column prop="pointsUsed" label="消耗积分" width="120" />
-            <el-table-column prop="status" label="状态" width="120">
+          <el-table v-else :data="exchanges" style="width: 100%" stripe>
+            <el-table-column prop="rewardName" label="奖品名称" min-width="220" show-overflow-tooltip />
+            <el-table-column prop="pointsUsed" label="消耗积分" width="110" />
+            <el-table-column prop="status" label="状态" width="100">
               <template #default="scope">
                 <el-tag :type="getStatusTag(scope.row.status)">
                   {{ getStatusText(scope.row.status) }}
                 </el-tag>
               </template>
             </el-table-column>
-            <el-table-column prop="exchangeCode" label="兑换码" width="200">
-              <template #default="scope">
-                <span v-if="scope.row.exchangeCode" class="exchange-code">
-                  {{ scope.row.exchangeCode }}
-                  <el-button
-                    text
-                    type="primary"
-                    size="small"
-                    @click="copyCode(scope.row.exchangeCode)"
-                  >
-                    复制
-                  </el-button>
-                </span>
-                <span v-else class="text-muted">-</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="remark" label="备注" />
+            <el-table-column prop="remark" label="备注" min-width="260" show-overflow-tooltip />
             <el-table-column prop="createTime" label="兑换时间" width="180">
               <template #default="scope">
                 {{ formatTime(scope.row.createTime) }}
@@ -125,15 +110,6 @@ export default {
       return new Date(time).toLocaleString('zh-CN')
     }
 
-    const copyCode = async (code) => {
-      try {
-        await navigator.clipboard.writeText(code)
-        ElMessage.success('兑换码已复制到剪贴板')
-      } catch (error) {
-        ElMessage.error('复制失败')
-      }
-    }
-
     onMounted(() => {
       loadExchanges()
       loadPointsInfo()
@@ -147,8 +123,7 @@ export default {
       loadPointsInfo,
       getStatusText,
       getStatusTag,
-      formatTime,
-      copyCode
+      formatTime
     }
   }
 }
@@ -159,10 +134,21 @@ export default {
   min-height: 100vh;
 }
 
+.reward-exchanges-page h2 {
+  font-size: 30px;
+  margin: 0 0 12px;
+}
+
+.points-card {
+  border-radius: 12px;
+}
+
 .points-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .points-value {
@@ -177,26 +163,41 @@ export default {
 .points-value .value {
   color: #409eff;
   font-weight: bold;
-  font-size: 32px;
+  font-size: 36px;
 }
 
 .points-stats {
   color: #999;
-  font-size: 14px;
+  font-size: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
 }
 
 .points-stats span {
-  margin-left: 20px;
+  margin-left: 0;
 }
 
-.exchange-code {
-  font-family: monospace;
-  font-weight: bold;
-  color: #409eff;
+.page-hint {
+  margin: -4px 0 18px;
+  color: #909399;
+  font-size: 15px;
+  line-height: 1.6;
 }
 
-.text-muted {
-  color: #999;
+.reward-exchanges-page :deep(.el-table th.el-table__cell) {
+  font-size: 15px;
+  padding: 13px 0;
+}
+
+.reward-exchanges-page :deep(.el-table .el-table__cell) {
+  font-size: 15px;
+  padding: 12px 0;
+}
+
+.reward-exchanges-page :deep(.el-tag) {
+  font-size: 13px;
+  padding: 0 10px;
 }
 </style>
 
