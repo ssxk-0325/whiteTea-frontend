@@ -158,7 +158,7 @@
           </el-row>
         </el-tab-pane>
 
-        <el-tab-pane label="产业报名" name="industryJoins">
+        <el-tab-pane label="报名记录" name="industryJoins">
           <el-card shadow="never" class="history-timeline">
             <div class="history-header" style="justify-content: space-between;">
               <div style="display:flex; gap: 10px; align-items:center; flex-wrap: wrap;">
@@ -208,7 +208,7 @@
                 </div>
               </div>
             </div>
-            <el-empty v-if="!industryJoins.loading && industryJoins.list.length === 0" description="暂无产业报名记录" />
+            <el-empty v-if="!industryJoins.loading && industryJoins.list.length === 0" description="暂无报名记录" />
 
             <el-pagination
               v-model:current-page="industryJoins.currentPage"
@@ -495,7 +495,7 @@ export default {
         industryJoins.list = res.data.records || []
         industryJoins.total = res.data.total || 0
       } catch (e) {
-        ElMessage.error(e.message || '加载产业报名失败')
+        ElMessage.error(e.message || '加载报名记录失败')
       } finally {
         industryJoins.loading = false
       }
