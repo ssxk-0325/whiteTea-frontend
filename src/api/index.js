@@ -503,7 +503,8 @@ const api = {
       return service.get(`/customer-service/session/${sessionId}/messages`)
     },
     sendMessage: (sessionId, content) => {
-      return service.post('/customer-service/message/send', { sessionId, content })
+      // 智能客服调用大模型可能超过全局10秒超时，这里单独放宽
+      return service.post('/customer-service/message/send', { sessionId, content }, { timeout: 90000 })
     },
     transferHuman: (sessionId) => {
       return service.post(`/customer-service/session/${sessionId}/transfer-human`)
