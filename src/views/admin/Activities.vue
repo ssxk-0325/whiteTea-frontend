@@ -60,7 +60,7 @@
           {{ formatDateTime(scope.row.endTime) }}
         </template>
       </el-table-column>
-      <el-table-column label="券数" width="120">
+      <el-table-column label="入场数" width="120">
         <template #default="scope">
           {{ scope.row.issuedCoupons }}/{{ scope.row.totalCoupons }}
         </template>
@@ -180,7 +180,7 @@
             value-format="YYYY-MM-DD HH:mm:ss"
           />
         </el-form-item>
-        <el-form-item label="总券数" prop="totalCoupons">
+        <el-form-item label="总入场数" prop="totalCoupons">
           <el-input-number v-model="activityForm.totalCoupons" :min="0" style="width: 100%"></el-input-number>
         </el-form-item>
         <el-form-item label="报名人数上限">
@@ -285,7 +285,7 @@ export default {
       type: [{ required: true, message: '请选择活动类型', trigger: 'change' }],
       startTime: [{ required: true, message: '请选择活动开始时间', trigger: 'change' }],
       endTime: [{ required: true, message: '请选择活动结束时间', trigger: 'change' }],
-      totalCoupons: [{ required: true, message: '请输入总券数', trigger: 'blur' }]
+      totalCoupons: [{ required: true, message: '请输入总入场数', trigger: 'blur' }]
     }
 
     const uploadImageUrl = computed(() => {
