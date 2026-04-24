@@ -16,13 +16,6 @@
         <el-option label="批发与培训" :value="6" />
       </el-select>
       <el-input
-        v-model="filterActivityId"
-        placeholder="活动ID（精确）"
-        clearable
-        style="width: 160px"
-        @keyup.enter="loadList"
-      />
-      <el-input
         v-model="keyword"
         placeholder="姓名/手机/备注"
         style="width: 220px"
@@ -36,7 +29,6 @@
     </div>
 
     <el-table :data="rows" v-loading="loading" style="width: 100%">
-      <el-table-column prop="id" label="ID" width="80" />
       <el-table-column prop="activityName" label="信息标题" min-width="220" />
       <el-table-column label="类型" width="120">
         <template #default="scope">

@@ -32,7 +32,6 @@
         </div>
 
         <el-table :data="products" style="width: 100%" v-loading="loading">
-          <el-table-column prop="id" label="ID" width="80"></el-table-column>
           <el-table-column label="产品图片" width="100">
             <template #default="scope">
               <el-image
@@ -102,7 +101,6 @@
         </div>
 
         <el-table :data="filteredCategories" style="width: 100%" v-loading="categoryLoading">
-          <el-table-column prop="id" label="ID" width="80"></el-table-column>
           <el-table-column label="分类图片" width="100">
             <template #default="scope">
               <el-image
@@ -113,9 +111,9 @@
             </template>
           </el-table-column>
           <el-table-column prop="name" label="分类名称" min-width="180"></el-table-column>
-          <el-table-column prop="parentId" label="父分类ID" width="120">
+          <el-table-column label="层级" width="100">
             <template #default="scope">
-              {{ scope.row.parentId === 0 ? '顶级分类' : scope.row.parentId }}
+              {{ scope.row.parentId === 0 ? '顶级' : '子级' }}
             </template>
           </el-table-column>
           <el-table-column prop="sortOrder" label="排序" width="100"></el-table-column>

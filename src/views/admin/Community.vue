@@ -10,13 +10,6 @@
         clearable
         @keyup.enter="loadPosts"
       />
-      <el-input
-        v-model="postIdSearch"
-        placeholder="帖子ID（精确）"
-        clearable
-        style="width: 160px"
-        @keyup.enter="loadPosts"
-      />
       <el-select v-model="filterType" @change="loadPosts" style="width: 140px" clearable placeholder="帖子类型">
         <el-option label="全部类型" :value="null" />
         <el-option label="分享" :value="1" />
@@ -28,7 +21,6 @@
     </div>
 
     <el-table :data="posts" v-loading="loading" style="width: 100%">
-      <el-table-column prop="id" label="ID" width="72" />
       <el-table-column label="类型" width="88" class-name="admin-col-tag-cell">
         <template #default="scope">
           <el-tag :type="getTypeTag(scope.row.type)" size="small">{{ getTypeText(scope.row.type) }}</el-tag>

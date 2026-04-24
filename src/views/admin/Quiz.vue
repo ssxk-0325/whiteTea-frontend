@@ -33,7 +33,6 @@
     
     <!-- 问题列表 -->
     <el-table :data="questions" style="width: 100%" v-loading="loading">
-      <el-table-column prop="id" label="ID" width="80"></el-table-column>
       <el-table-column prop="question" label="问题" min-width="260">
         <template #default="scope">
           <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">

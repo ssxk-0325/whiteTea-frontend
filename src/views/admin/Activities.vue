@@ -33,7 +33,6 @@
     
     <!-- 活动列表 -->
     <el-table :data="activities" style="width: 100%" v-loading="loading">
-      <el-table-column prop="id" label="ID" width="80"></el-table-column>
       <el-table-column label="活动图片" width="100">
         <template #default="scope">
           <el-image

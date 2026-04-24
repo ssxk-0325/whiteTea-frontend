@@ -30,7 +30,6 @@
     </div>
 
     <el-table :data="rows" v-loading="loading" style="width: 100%">
-      <el-table-column prop="id" label="ID" width="72" />
       <el-table-column label="图片" width="88">
         <template #default="scope">
           <el-image

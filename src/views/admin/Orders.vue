@@ -19,20 +19,12 @@
         style="width: 280px"
         @keyup.enter="loadOrders"
       />
-      <el-input
-        v-model="filterUserId"
-        placeholder="用户ID（精确）"
-        clearable
-        style="width: 160px"
-        @keyup.enter="loadOrders"
-      />
       <el-button type="primary" @click="loadOrders">搜索</el-button>
       <el-button size="default" @click="resetOrderFilters">重置</el-button>
       <el-button size="default" @click="loadOrders">刷新</el-button>
     </div>
     <el-table :data="orders" style="width: 100%" v-loading="loading">
       <el-table-column prop="orderNo" label="订单号" min-width="200" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="userId" label="用户ID" width="88"></el-table-column>
       <el-table-column label="配送方式" min-width="110">
         <template #default="scope">
           <el-tag :type="scope.row.deliveryType === 2 ? 'warning' : 'primary'" size="small">
@@ -123,7 +115,6 @@
 
         <h3>订单信息</h3>
         <div class="order-info">
-          <p><strong>用户ID：</strong>{{ orderDetail.order.userId }}</p>
           <p><strong>订单金额：</strong>¥{{ Number(orderDetail.order.totalAmount).toFixed(2) }}</p>
           <p><strong>实付金额：</strong>¥{{ Number(orderDetail.order.payAmount).toFixed(2) }}</p>
           <p><strong>支付方式：</strong>{{ getPayTypeText(orderDetail.order.payType) }}</p>

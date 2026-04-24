@@ -34,7 +34,6 @@
     
     <!-- 内容列表 -->
     <el-table :data="contents" style="width: 100%" v-loading="loading">
-      <el-table-column prop="id" label="ID" width="80"></el-table-column>
       <el-table-column label="封面" width="100">
         <template #default="scope">
           <el-image

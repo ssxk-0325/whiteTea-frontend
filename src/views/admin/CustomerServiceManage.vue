@@ -10,7 +10,7 @@
       </el-select>
       <el-input
         v-model="sessionKeyword"
-        placeholder="会话号 / 用户名 / 昵称 / 用户ID"
+        placeholder="会话号 / 用户名 / 昵称"
         clearable
         style="width: 280px"
         @keyup.enter="loadSessions"
@@ -53,7 +53,7 @@
           <template #header>
             <div class="chat-head">
               <span>{{ current.session?.sessionNo }}</span>
-              <span class="muted">用户：{{ current.user?.username || current.session?.userId }}</span>
+              <span class="muted">用户：{{ current.user?.username || '—' }}</span>
               <el-button
                 type="danger"
                 plain
