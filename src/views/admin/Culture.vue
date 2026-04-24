@@ -136,25 +136,49 @@
             />
           </div>
         </el-form-item>
-        <el-form-item v-if="contentForm.contentType === 2" label="视频文件">
-          <div style="display: flex; align-items: center; gap: 10px;">
+        <el-form-item v-if="contentForm.contentType === 2" label="视频来源">
+          <el-radio-group v-model="videoSource" @change="onVideoSourceChange">
+            <el-radio label="upload">本地上传</el-radio>
+            <el-radio label="url">网络链接</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item v-if="contentForm.contentType === 2 && videoSource === 'upload'" label="视频文件">
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
             <el-upload
               :action="uploadVideoUrl"
               :headers="uploadHeaders"
               :on-success="handleVideoSuccess"
+              :on-error="handleVideoError"
+              :on-progress="handleVideoProgress"
               :before-upload="beforeVideoUpload"
               :show-file-list="false"
             >
-              <el-button type="primary">上传视频</el-button>
+              <el-button type="primary" :loading="videoUploading">{{ videoUploading ? '上传中...' : '上传视频' }}</el-button>
             </el-upload>
-            <span v-if="contentForm.videoUrl" style="color: #67c23a;">视频已上传</span>
+            <span v-if="contentForm.videoUrl && !isNetworkVideoUrl(contentForm.videoUrl)" style="color: #67c23a;">视频已上传</span>
+            <span v-if="videoUploading" style="color: #409eff;">上传进度：{{ videoUploadPercent }}%</span>
           </div>
-          <div v-if="contentForm.videoUrl" style="margin-top: 10px;">
-            <video :src="contentForm.videoUrl" controls style="max-width: 100%; max-height: 300px;"></video>
-          </div>
+          <p v-if="contentForm.contentType === 2 && videoSource === 'upload'" class="field-hint">
+            单文件最大 200MB；上传成功后将尝试自动读取时长（秒）。
+          </p>
+        </el-form-item>
+        <el-form-item v-if="contentForm.contentType === 2 && videoSource === 'url'" label="视频地址">
+          <el-input
+            v-model="contentForm.videoUrl"
+            type="textarea"
+            :rows="2"
+            placeholder="请输入可直链播放的视频地址（http/https），如 CDN 或对象存储的 mp4 链接"
+            clearable
+          />
+          <p class="field-hint">网络视频无法自动读取时长，请在下方手动填写「视频时长」。</p>
+        </el-form-item>
+        <el-form-item v-if="contentForm.contentType === 2 && previewVideoSrc" label="预览">
+          <video :src="previewVideoSrc" controls crossorigin="anonymous" style="max-width: 100%; max-height: 300px;"></video>
         </el-form-item>
         <el-form-item v-if="contentForm.contentType === 2" label="视频时长（秒）">
           <el-input-number v-model="contentForm.videoDuration" :min="0" style="width: 100%"></el-input-number>
+          <p v-if="videoSource === 'upload'" class="field-hint">本地上传成功后会自动填入，可按需微调。</p>
+          <p v-else class="field-hint">网络链接请手动填写时长（秒）。</p>
         </el-form-item>
         <el-form-item :label="contentForm.contentType === 1 ? '文章内容' : '视频描述'" prop="content">
           <el-input
@@ -180,11 +204,12 @@
 </template>
 
 <script>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import api from '@/api'
 import store from '@/store'
 import { resolveCultureCoverSrc } from '@/utils/cultureCover'
+import { resolveUploadUrl } from '@/utils/uploadUrl'
 
 export default {
   name: 'AdminCulture',
@@ -203,6 +228,50 @@ export default {
     const filterCultureStatus = ref(null)
     const cultureKeyword = ref('')
     const contentFormRef = ref(null)
+    /** 视频来源：upload 本地上传；url 网络直链 */
+    const videoSource = ref('upload')
+    const videoUploading = ref(false)
+    const videoUploadPercent = ref(0)
+
+    const isNetworkVideoUrl = (url) => {
+      if (!url || typeof url !== 'string') return false
+      return /^https?:\/\//i.test(url.trim())
+    }
+
+    const previewVideoSrc = computed(() => {
+      if (contentForm.value.contentType !== 2 || !contentForm.value.videoUrl) return ''
+      return resolveUploadUrl(contentForm.value.videoUrl.trim())
+    })
+
+    /** 上传返回的相对路径在浏览器中拉 metadata 读取时长 */
+    const probeVideoDurationSeconds = (playableUrl) => {
+      return new Promise((resolve) => {
+        if (!playableUrl) {
+          resolve(null)
+          return
+        }
+        const video = document.createElement('video')
+        video.preload = 'metadata'
+        const cleanup = () => {
+          video.removeAttribute('src')
+          video.load()
+        }
+        video.onloadedmetadata = () => {
+          const d = video.duration
+          cleanup()
+          if (Number.isFinite(d) && d > 0) {
+            resolve(Math.round(d))
+          } else {
+            resolve(null)
+          }
+        }
+        video.onerror = () => {
+          cleanup()
+          resolve(null)
+        }
+        video.src = playableUrl
+      })
+    }
 
     const contentForm = ref({
       title: '',
@@ -246,6 +315,18 @@ export default {
         // 切换到文章，清空视频相关字段
         contentForm.value.videoUrl = ''
         contentForm.value.videoDuration = null
+        videoSource.value = 'upload'
+      }
+    }
+
+    const onVideoSourceChange = (val) => {
+      if (val === 'upload' && isNetworkVideoUrl(contentForm.value.videoUrl)) {
+        contentForm.value.videoUrl = ''
+        contentForm.value.videoDuration = null
+      }
+      if (val === 'url' && contentForm.value.videoUrl && !isNetworkVideoUrl(contentForm.value.videoUrl)) {
+        contentForm.value.videoUrl = ''
+        contentForm.value.videoDuration = null
       }
     }
 
@@ -274,27 +355,58 @@ export default {
     }
 
     const handleVideoSuccess = (response) => {
+      videoUploading.value = false
+      videoUploadPercent.value = 100
       if (response.code === 200) {
         contentForm.value.videoUrl = response.data
-        ElMessage.success('视频上传成功')
-        // 可以尝试获取视频时长，这里简化处理
+        nextTick(async () => {
+          const url = resolveUploadUrl(response.data)
+          const sec = await probeVideoDurationSeconds(url)
+          if (sec != null) {
+            contentForm.value.videoDuration = sec
+            ElMessage.success(`视频上传成功，已自动读取时长 ${sec} 秒`)
+          } else {
+            ElMessage.success('视频上传成功')
+            ElMessage.warning('未能自动读取时长，请手动填写')
+          }
+        })
       } else {
         ElMessage.error(response.message || '上传失败')
       }
     }
 
+    const handleVideoError = (err) => {
+      videoUploading.value = false
+      videoUploadPercent.value = 0
+      const msg = err?.message || ''
+      if (msg.includes('413')) {
+        ElMessage.error('上传失败：文件过大或网关限制（413）')
+      } else {
+        ElMessage.error('上传失败，请检查后端服务/网关大小限制并重试')
+      }
+    }
+
+    const handleVideoProgress = (evt) => {
+      videoUploading.value = true
+      const percent = evt?.percent
+      videoUploadPercent.value = Number.isFinite(percent) ? Math.max(0, Math.min(100, Math.round(percent))) : 0
+    }
+
     const beforeVideoUpload = (file) => {
       const isVideo = file.type.startsWith('video/')
-      const isLt100M = file.size / 1024 / 1024 < 100
+      const maxMb = 200
+      const isLte200M = file.size / 1024 / 1024 <= maxMb
 
       if (!isVideo) {
         ElMessage.error('只能上传视频文件!')
         return false
       }
-      if (!isLt100M) {
-        ElMessage.error('视频大小不能超过100MB!')
+      if (!isLte200M) {
+        ElMessage.error(`视频大小不能超过${maxMb}MB!`)
         return false
       }
+      videoUploading.value = true
+      videoUploadPercent.value = 0
       return true
     }
 
@@ -343,6 +455,8 @@ export default {
         videoDuration: content.videoDuration || null,
         status: content.status
       })
+      videoSource.value =
+        content.contentType === 2 && isNetworkVideoUrl(content.videoUrl || '') ? 'url' : 'upload'
       showAddDialog.value = true
     }
 
@@ -352,6 +466,24 @@ export default {
       
       await contentFormRef.value.validate(async (valid) => {
         if (valid) {
+          if (contentForm.value.contentType === 2) {
+            const v = (contentForm.value.videoUrl || '').trim()
+            if (!v) {
+              ElMessage.error('请上传视频或填写网络视频地址')
+              return
+            }
+            if (videoSource.value === 'url' && !isNetworkVideoUrl(v)) {
+              ElMessage.error('网络视频地址需以 http:// 或 https:// 开头')
+              return
+            }
+            if (
+              videoSource.value === 'url' &&
+              (contentForm.value.videoDuration == null || contentForm.value.videoDuration <= 0)
+            ) {
+              ElMessage.error('网络视频请手动填写视频时长（秒）')
+              return
+            }
+          }
           saving.value = true
           try {
             if (editingContent.value) {
@@ -421,6 +553,9 @@ export default {
         videoDuration: null,
         status: 1
       }
+      videoSource.value = 'upload'
+      videoUploading.value = false
+      videoUploadPercent.value = 0
       if (contentFormRef.value) {
         contentFormRef.value.resetFields()
       }
@@ -457,6 +592,7 @@ export default {
       contentType.value = 2
       resetForm()
       contentForm.value.contentType = 2
+      videoSource.value = 'upload'
       showAddDialog.value = true
     }
 
@@ -488,6 +624,8 @@ export default {
       handleImageSuccess,
       beforeImageUpload,
       handleVideoSuccess,
+      handleVideoError,
+      handleVideoProgress,
       beforeVideoUpload,
       loadContents,
       editContent,
@@ -499,7 +637,13 @@ export default {
       getTypeTag,
       handleAddArticle,
       handleAddVideo,
-      resolveCultureCoverSrc
+      resolveCultureCoverSrc,
+      videoSource,
+      onVideoSourceChange,
+      previewVideoSrc,
+      isNetworkVideoUrl,
+      videoUploading,
+      videoUploadPercent
     }
   }
 }
@@ -512,5 +656,12 @@ export default {
   align-items: center;
   gap: 10px;
   margin-bottom: 16px;
+}
+
+.field-hint {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: #909399;
+  line-height: 1.5;
 }
 </style>
