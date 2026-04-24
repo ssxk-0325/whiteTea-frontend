@@ -258,6 +258,12 @@ const api = {
       ship: (id) => {
         return service.post(`/order/admin/${id}/ship`)
       },
+      confirm: (id) => {
+        return service.post(`/order/admin/${id}/confirm`)
+      },
+      cancel: (id) => {
+        return service.post(`/order/admin/${id}/cancel`)
+      },
       getDeliveryTrack: (id) => {
         return service.get(`/order/admin/${id}/delivery-track`)
       }

@@ -53,10 +53,12 @@
         </template>
       </el-table-column>
       <el-table-column prop="createTime" label="创建时间" min-width="170"></el-table-column>
-      <el-table-column label="操作" width="200" fixed="right">
+      <el-table-column label="操作" width="290" fixed="right">
         <template #default="scope">
           <el-button size="small" @click="viewOrder(scope.row)">查看</el-button>
           <el-button size="small" type="success" v-if="scope.row.status === 1" @click="shipOrder(scope.row.id)">发货</el-button>
+          <el-button size="small" type="warning" v-if="scope.row.status === 2" @click="confirmOrder(scope.row.id)">确认收货</el-button>
+          <el-button size="small" type="danger" v-if="scope.row.status === 0" @click="cancelOrder(scope.row.id)">取消订单</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -306,6 +308,40 @@ export default {
       }
     }
 
+    const confirmOrder = async (id) => {
+      try {
+        await ElMessageBox.confirm('确认该订单已收货并完成吗？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
+        await api.order.admin.confirm(id)
+        ElMessage.success('确认收货成功')
+        loadOrders()
+      } catch (error) {
+        if (error !== 'cancel') {
+          ElMessage.error(error.message || '确认收货失败')
+        }
+      }
+    }
+
+    const cancelOrder = async (id) => {
+      try {
+        await ElMessageBox.confirm('确定要取消该订单吗？取消后不可恢复。', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
+        await api.order.admin.cancel(id)
+        ElMessage.success('取消订单成功')
+        loadOrders()
+      } catch (error) {
+        if (error !== 'cancel') {
+          ElMessage.error(error.message || '取消订单失败')
+        }
+      }
+    }
+
     onMounted(() => {
       loadOrders()
     })
@@ -330,7 +366,9 @@ export default {
       formatTime,
       loadOrders,
       viewOrder,
-      shipOrder
+      shipOrder,
+      confirmOrder,
+      cancelOrder
     }
   }
 }
