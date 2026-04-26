@@ -64,7 +64,7 @@
                 <router-link to="/orders" style="text-decoration: none; color: inherit; display: block; width: 100%;">个人订单</router-link>
               </el-dropdown-item>
               <el-dropdown-item command="coupons">
-                <router-link to="/activity/coupons" style="text-decoration: none; color: inherit; display: block; width: 100%;">个人门票</router-link>
+                <router-link to="/activity/coupons" style="text-decoration: none; color: inherit; display: block; width: 100%;">活动入场券</router-link>
               </el-dropdown-item>
               <el-dropdown-item command="rewards">
                 <router-link to="/rewards" style="text-decoration: none; color: inherit; display: block; width: 100%;">积分商城</router-link>

@@ -3,7 +3,7 @@
     <Header />
     <el-container>
       <el-main style="max-width: 1200px; margin: 0 auto;">
-        <h2>个人门票</h2>
+        <h2>活动入场券</h2>
 
         <!-- 筛选栏 -->
         <div class="filter-bar">

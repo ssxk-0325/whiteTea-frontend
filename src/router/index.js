@@ -100,7 +100,7 @@ const routes = [
     path: '/activity/coupons',
     name: 'MyCoupons',
     component: () => import('../views/MyCoupons.vue'),
-    meta: { title: '个人门票', requiresAuth: true }
+    meta: { title: '活动入场券', requiresAuth: true }
   },
   {
     path: '/culture/article/:id',
