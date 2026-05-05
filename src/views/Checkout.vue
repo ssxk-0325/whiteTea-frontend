@@ -153,14 +153,6 @@
                 <span>¥0.00</span>
               </div>
               <div class="summary-item">
-                <span>拼团优惠：</span>
-                <span>-¥{{ groupDiscount.toFixed(2) }}</span>
-              </div>
-              <div class="summary-item">
-                <span>批发优惠：</span>
-                <span>-¥{{ wholesaleDiscount.toFixed(2) }}</span>
-              </div>
-              <div class="summary-item">
                 <span>优惠券抵扣：</span>
                 <span>-¥{{ couponDiscount.toFixed(2) }}</span>
               </div>
@@ -546,8 +538,6 @@ export default {
       addressRules,
       addressFormRef,
       totalPrice,
-      groupDiscount,
-      wholesaleDiscount,
       couponDiscount,
       payAmount,
       rewardPointsPreview,
