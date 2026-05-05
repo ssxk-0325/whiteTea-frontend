@@ -62,7 +62,7 @@
                     style="width: 200px;"
                   >
                     <el-icon><Star /></el-icon>
-                    抢门票
+                    抢活动入场券
                   </el-button>
                   <el-button
                     v-else-if="hasGrabbed"
@@ -81,7 +81,7 @@
                     @click="$router.push('/login')"
                     style="width: 200px;"
                   >
-                    登录后抢门票
+                    登录后抢活动入场券
                   </el-button>
                   <el-tag v-else type="info" size="large">暂不可抢</el-tag>
                 </div>
