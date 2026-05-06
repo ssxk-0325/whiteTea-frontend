@@ -57,7 +57,7 @@
               <template #header>
                 <span>自提门店</span>
               </template>
-              <el-radio-group v-model="selectedStoreId">
+              <el-radio-group v-model="selectedStoreId" class="store-group">
                 <el-radio
                   v-for="store in storeList"
                   :key="store.id"
@@ -69,7 +69,7 @@
                     <div class="store-address">{{ store.address }}</div>
                     <div class="store-meta" v-if="store.phone || store.businessHours">
                       <span v-if="store.phone">电话：{{ store.phone }}</span>
-                      <span v-if="store.businessHours" style="margin-left: 12px;">营业时间：{{ store.businessHours }}</span>
+                      <span v-if="store.businessHours">营业时间：{{ store.businessHours }}</span>
                     </div>
                   </div>
                 </el-radio>
@@ -739,37 +739,86 @@ export default {
   gap: 16px;
 }
 
-.store-card .store-radio {
-  display: block;
-  margin-bottom: 15px;
-  padding: 15px;
-  border: 1px solid #e4e7ed;
-  border-radius: 4px;
+/* 与收货地址一致：纵向列表 + 穿透修复 el-radio 固定高度/单行标签导致的重叠 */
+.store-card .store-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
 }
 
-.store-card .store-radio:hover {
+.store-card :deep(.el-radio.store-radio) {
+  width: 100%;
+  margin-right: 0;
+  padding: 14px 16px;
+  border: 1px solid #e4e7ed;
+  border-radius: 12px;
+  background: #fafcff;
+  transition: all 0.2s ease;
+  display: flex !important;
+  flex-direction: row;
+  align-items: flex-start;
+  align-content: flex-start;
+  height: auto !important;
+  min-height: 0 !important;
+  line-height: normal;
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+.store-card :deep(.el-radio.store-radio:hover) {
   border-color: #409eff;
+  background: #f4f9ff;
+}
+
+.store-card :deep(.el-radio.store-radio.is-checked) {
+  border-color: #409eff;
+  background: linear-gradient(180deg, #f6fbff 0%, #edf6ff 100%);
+  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.16);
+}
+
+.store-card :deep(.el-radio.store-radio .el-radio__input) {
+  flex-shrink: 0;
+  margin-top: 4px;
+  align-self: flex-start;
+}
+
+.store-card :deep(.el-radio.store-radio .el-radio__label) {
+  flex: 1;
+  min-width: 0;
+  width: auto !important;
+  max-width: 100%;
+  display: block !important;
+  padding-left: 10px;
+  white-space: normal !important;
+  line-height: 1.5;
+  word-break: break-word;
 }
 
 .store-info {
-  margin-left: 10px;
+  width: 100%;
 }
 
 .store-name {
   font-weight: bold;
   font-size: 16px;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
+  color: #1f2d3d;
 }
 
 .store-address {
   color: #666;
   font-size: 14px;
+  line-height: 1.6;
 }
 
 .store-meta {
-  margin-top: 4px;
+  margin-top: 8px;
   font-size: 12px;
   color: #999;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
 }
 
 .summary-card {
