@@ -48,10 +48,10 @@
 
             <h3>{{ order.deliveryType === 2 ? '自提信息' : '收货信息' }}</h3>
             <div class="address-info">
-              <p><strong>配送方式：</strong>{{ order.deliveryType === 2 ? '线下自提' : '线上配送' }}</p>
+              <p><strong>取货方式：</strong>{{ order.deliveryType === 2 ? '线下自提（唯一门店）' : '线上配送（平台统一配送）' }}</p>
               <p><strong>{{ order.deliveryType === 2 ? '取货人' : '收货人' }}：</strong>{{ order.receiverName }}</p>
               <p><strong>联系电话：</strong>{{ order.receiverPhone }}</p>
-              <p><strong>{{ order.deliveryType === 2 ? '自提门店/地址' : '收货地址' }}：</strong>{{ order.receiverAddress }}</p>
+              <p><strong>{{ order.deliveryType === 2 ? '自提点' : '收货地址' }}：</strong>{{ order.receiverAddress }}</p>
             </div>
 
             <template v-if="deliveryTrack && order.deliveryType === 1">

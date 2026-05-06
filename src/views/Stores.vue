@@ -5,16 +5,16 @@
       <!-- 左侧门店列表 -->
       <el-aside width="350px" class="store-list-sidebar">
         <div class="sidebar-header">
-          <h2>门店列表</h2>
+          <h2>平台自提门店</h2>
           <el-alert
-            title="提示"
+            title="单商家模式"
             type="info"
             :closable="false"
             show-icon
             style="margin-top: 10px; font-size: 12px;"
           >
             <template #default>
-              <span>本系统为课程设计演示，门店数据为虚构示例，不代表真实商户</span>
+              <span>本平台仅保留唯一线下自提点；地图与论文描述一致，数据为演示用途。</span>
             </template>
           </el-alert>
         </div>

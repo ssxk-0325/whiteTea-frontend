@@ -21,7 +21,7 @@
             <div class="order-header">
               <div class="order-meta">
                 <span>订单号：{{ order.orderNo }}</span>
-                <el-tag :type="order.deliveryType === 2 ? 'warning' : 'info'" size="small" style="margin-left: 8px;">{{ order.deliveryType === 2 ? '线下自提' : '线上配送' }}</el-tag>
+                <el-tag :type="order.deliveryType === 2 ? 'warning' : 'info'" size="small" style="margin-left: 8px;">{{ order.deliveryType === 2 ? '线下自提' : '平台配送' }}</el-tag>
                 <el-tag :type="order.orderMode === 1 ? 'success' : 'info'" size="small" style="margin-left: 8px;">{{ order.orderMode === 1 ? '拼团单' : '普通单' }}</el-tag>
                 <el-button type="text" @click="viewOrderDetail(order.id)" style="margin-left: 10px;">查看详情</el-button>
               </div>
@@ -42,7 +42,7 @@
               <div class="order-info">
                 <div>{{ order.deliveryType === 2 ? '取货人' : '收货人' }}：{{ order.receiverName }}</div>
                 <div>联系电话：{{ order.receiverPhone }}</div>
-                <div class="order-address">{{ order.deliveryType === 2 ? '自提门店/地址' : '收货地址' }}：{{ order.receiverAddress }}</div>
+                <div class="order-address">{{ order.deliveryType === 2 ? '自提点' : '收货地址' }}：{{ order.receiverAddress }}</div>
               </div>
               <div class="order-actions">
                 <div class="total-amount">总计：¥{{ Number(order.payAmount).toFixed(2) }}</div>

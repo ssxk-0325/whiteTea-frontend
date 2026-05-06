@@ -25,10 +25,10 @@
     </div>
     <el-table :data="orders" style="width: 100%" v-loading="loading">
       <el-table-column prop="orderNo" label="订单号" min-width="200" show-overflow-tooltip></el-table-column>
-      <el-table-column label="配送方式" min-width="110">
+      <el-table-column label="取货方式" min-width="110">
         <template #default="scope">
           <el-tag :type="scope.row.deliveryType === 2 ? 'warning' : 'primary'" size="small">
-            {{ scope.row.deliveryType === 2 ? '线下自提' : '线上配送' }}
+            {{ scope.row.deliveryType === 2 ? '线下自提' : '平台配送' }}
           </el-tag>
         </template>
       </el-table-column>
@@ -105,10 +105,10 @@
 
         <h3>{{ orderDetail.order.deliveryType === 2 ? '自提信息' : '收货信息' }}</h3>
         <div class="address-info">
-          <p><strong>配送方式：</strong>{{ orderDetail.order.deliveryType === 2 ? '线下自提' : '线上配送' }}</p>
+          <p><strong>取货方式：</strong>{{ orderDetail.order.deliveryType === 2 ? '线下自提（唯一门店）' : '线上配送（平台统一配送）' }}</p>
           <p><strong>{{ orderDetail.order.deliveryType === 2 ? '取货人' : '收货人' }}：</strong>{{ orderDetail.order.receiverName }}</p>
           <p><strong>联系电话：</strong>{{ orderDetail.order.receiverPhone }}</p>
-          <p><strong>{{ orderDetail.order.deliveryType === 2 ? '自提门店/地址' : '收货地址' }}：</strong>{{ orderDetail.order.receiverAddress }}</p>
+          <p><strong>{{ orderDetail.order.deliveryType === 2 ? '自提点' : '收货地址' }}：</strong>{{ orderDetail.order.receiverAddress }}</p>
         </div>
 
         <el-divider />

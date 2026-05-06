@@ -11,15 +11,23 @@
         <h2 class="checkout-title">结算</h2>
         <el-row :gutter="20">
           <el-col :span="16">
-            <!-- 配送方式 -->
+            <!-- 取货方式 -->
             <el-card class="delivery-type-card">
               <template #header>
-                <span>配送方式</span>
+                <span>取货方式</span>
               </template>
               <el-radio-group v-model="deliveryType" class="delivery-type-group">
                 <el-radio :label="1" border size="large">线上配送</el-radio>
                 <el-radio :label="2" border size="large">线下自提</el-radio>
               </el-radio-group>
+              <el-alert
+                v-if="deliveryType === 1"
+                type="info"
+                :closable="false"
+                show-icon
+                class="delivery-tip-alert"
+                title="该订单由平台进行统一配送，请填写准确的收货信息。"
+              />
             </el-card>
 
             <!-- 线上配送：收货地址 -->
@@ -52,30 +60,34 @@
               <el-empty v-if="addresses.length === 0" description="暂无收货地址，请添加"></el-empty>
             </el-card>
 
-            <!-- 线下自提：选择门店 -->
+            <!-- 线下自提：平台唯一门店 -->
             <el-card v-if="deliveryType === 2" class="store-card">
               <template #header>
-                <span>自提门店</span>
+                <span>线下自提</span>
               </template>
-              <el-radio-group v-model="selectedStoreId" class="store-group">
-                <el-radio
-                  v-for="store in storeList"
-                  :key="store.id"
-                  :label="store.id"
-                  class="store-radio"
-                >
-                  <div class="store-info">
-                    <div class="store-name">{{ store.name }}</div>
-                    <div class="store-address">{{ store.address }}</div>
-                    <div class="store-meta" v-if="store.phone || store.businessHours">
-                      <span v-if="store.phone">电话：{{ store.phone }}</span>
-                      <span v-if="store.businessHours">营业时间：{{ store.businessHours }}</span>
-                    </div>
+              <el-alert type="success" :closable="false" show-icon class="merchant-single-alert">
+                <template #title>单商家 · 唯一自提点</template>
+                <template #default>
+                  本平台由管理员统一运营，所有自提订单均在下列固定门店完成配货与取货，无需再选择门店。
+                </template>
+              </el-alert>
+              <div v-if="storeLoading" class="store-loading">加载门店信息…</div>
+              <template v-else-if="defaultStore">
+                <div class="single-store-block">
+                  <div class="store-name">{{ defaultStore.name }}</div>
+                  <div class="store-address">{{ defaultStore.address }}</div>
+                  <div class="store-meta" v-if="defaultStore.phone || defaultStore.businessHours">
+                    <span v-if="defaultStore.phone">电话：{{ defaultStore.phone }}</span>
+                    <span v-if="defaultStore.businessHours">营业时间：{{ defaultStore.businessHours }}</span>
                   </div>
-                </el-radio>
-              </el-radio-group>
-              <el-empty v-if="storeList.length === 0 && !storeLoading" description="暂无营业门店"></el-empty>
-              <div v-if="storeLoading" style="padding: 20px; text-align: center;">加载门店中...</div>
+                  <p class="pickup-flow-hint">门店配货完成后，请凭订单信息到店自提。</p>
+                  <div class="store-actions">
+                    <el-button type="primary" @click="pickupMapDialogVisible = true">查看门店位置</el-button>
+                    <el-button @click="router.push('/stores')">大地图页</el-button>
+                  </div>
+                </div>
+              </template>
+              <el-empty v-else description="暂无营业门店，请联系管理员配置"></el-empty>
             </el-card>
 
             <!-- 商品信息 -->
@@ -209,6 +221,8 @@
             <el-button type="primary" @click="saveAddress">确定</el-button>
           </template>
         </el-dialog>
+
+        <SingleStoreMapDialog v-model="pickupMapDialogVisible" :store="defaultStore" />
       </el-main>
     </el-container>
   </div>
@@ -221,12 +235,14 @@ import { useStore } from 'vuex'
 import { ElMessage } from 'element-plus'
 import api from '@/api'
 import Header from '@/components/Header.vue'
+import SingleStoreMapDialog from '@/components/SingleStoreMapDialog.vue'
 import { DEFAULT_PRODUCT_IMAGE } from '@/constants/assets'
 
 export default {
   name: 'Checkout',
   components: {
-    Header
+    Header,
+    SingleStoreMapDialog
   },
   setup() {
     const route = useRoute()
@@ -254,9 +270,9 @@ export default {
     const deliveryType = ref(1) // 1-线上配送 2-线下自提
     const addresses = ref([])
     const selectedAddressId = ref(null)
-    const storeList = ref([])
-    const selectedStoreId = ref(null)
+    const defaultStore = ref(null)
     const storeLoading = ref(false)
+    const pickupMapDialogVisible = ref(false)
     const showAddressDialog = ref(false)
     const submitting = ref(false)
     const addressFormRef = ref(null)
@@ -336,12 +352,11 @@ export default {
       storeLoading.value = true
       try {
         const res = await api.store.getList()
-        storeList.value = (res.data || []).filter(s => s.status === 1)
-        if (storeList.value.length > 0 && !selectedStoreId.value) {
-          selectedStoreId.value = storeList.value[0].id
-        }
+        const list = (res.data || []).filter((s) => s.status === 1)
+        defaultStore.value = list[0] || null
       } catch (error) {
         console.error('加载门店失败:', error)
+        defaultStore.value = null
       } finally {
         storeLoading.value = false
       }
@@ -364,7 +379,7 @@ export default {
 
     const canSubmit = computed(() => {
       if (deliveryType.value === 1) return !!selectedAddressId.value
-      if (deliveryType.value === 2) return !!selectedStoreId.value
+      if (deliveryType.value === 2) return !!defaultStore.value
       return false
     })
 
@@ -403,8 +418,8 @@ export default {
         ElMessage.warning('请选择收货地址')
         return
       }
-      if (deliveryType.value === 2 && !selectedStoreId.value) {
-        ElMessage.warning('请选择自提门店')
+      if (deliveryType.value === 2 && !defaultStore.value) {
+        ElMessage.warning('自提门店未配置，无法提交')
         return
       }
       if (cartList.value.length === 0) {
@@ -426,8 +441,6 @@ export default {
           orderData.receiverName = selectedAddress.receiverName
           orderData.receiverPhone = selectedAddress.receiverPhone
           orderData.receiverAddress = `${selectedAddress.province || ''}${selectedAddress.city || ''}${selectedAddress.district || ''}${selectedAddress.detail || ''}`
-        } else {
-          orderData.storeId = selectedStoreId.value
         }
         orderData.cartIds = cartList.value.map((item) => item.id)
         const res = await api.order.create(orderData)
@@ -508,13 +521,15 @@ export default {
       loadCoupons()
     })
 
-    watch(deliveryType, () => {
+    watch(deliveryType, (v) => {
       selectedAddressId.value = null
-      selectedStoreId.value = storeList.value.length > 0 ? storeList.value[0].id : null
-      if (deliveryType.value === 1) {
+      if (v === 1) {
         const defaultAddress = addresses.value.find(addr => addr.isDefault === 1)
         if (defaultAddress) selectedAddressId.value = defaultAddress.id
         else if (addresses.value.length > 0) selectedAddressId.value = addresses.value[0].id
+      }
+      if (v === 2 && defaultStore.value) {
+        pickupMapDialogVisible.value = true
       }
     })
 
@@ -525,9 +540,9 @@ export default {
       deliveryType,
       addresses,
       selectedAddressId,
-      storeList,
-      selectedStoreId,
+      defaultStore,
       storeLoading,
+      pickupMapDialogVisible,
       showAddressDialog,
       submitting,
       orderMode,
@@ -737,6 +752,58 @@ export default {
 .delivery-type-group {
   display: flex;
   gap: 16px;
+}
+
+.delivery-tip-alert {
+  margin-top: 16px;
+}
+
+.merchant-single-alert {
+  margin-bottom: 16px;
+}
+
+.store-loading {
+  padding: 20px;
+  text-align: center;
+  color: #909399;
+}
+
+.single-store-block {
+  padding: 4px 0 8px;
+}
+
+.single-store-block .store-name {
+  font-weight: 700;
+  font-size: 17px;
+  color: #1f2d3d;
+  margin-bottom: 8px;
+}
+
+.single-store-block .store-address {
+  color: #606266;
+  line-height: 1.7;
+  font-size: 14px;
+}
+
+.single-store-block .store-meta {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #909399;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+}
+
+.pickup-flow-hint {
+  margin: 14px 0 12px;
+  font-size: 13px;
+  color: #909399;
+}
+
+.store-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 /* 与收货地址一致：纵向列表 + 穿透修复 el-radio 固定高度/单行标签导致的重叠 */
