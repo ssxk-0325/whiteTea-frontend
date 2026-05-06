@@ -11,26 +11,18 @@
         <h2 class="checkout-title">结算</h2>
         <el-row :gutter="20">
           <el-col :span="16">
-            <!-- 取货方式 -->
+            <!-- 是否自提：否=平台配送+地址，是=线下自提 -->
             <el-card class="delivery-type-card">
               <template #header>
-                <span>取货方式</span>
+                <span>是否自提</span>
               </template>
               <el-radio-group v-model="deliveryType" class="delivery-type-group">
-                <el-radio :label="1" border size="large">线上配送</el-radio>
-                <el-radio :label="2" border size="large">线下自提</el-radio>
+                <el-radio :label="1" border size="large">否</el-radio>
+                <el-radio :label="2" border size="large">是</el-radio>
               </el-radio-group>
-              <el-alert
-                v-if="deliveryType === 1"
-                type="info"
-                :closable="false"
-                show-icon
-                class="delivery-tip-alert"
-                title="该订单由平台进行统一配送，请填写准确的收货信息。"
-              />
             </el-card>
 
-            <!-- 线上配送：收货地址 -->
+            <!-- 否：收货地址 -->
             <el-card v-if="deliveryType === 1" class="address-card">
               <template #header>
                 <div class="card-header">
@@ -60,10 +52,10 @@
               <el-empty v-if="addresses.length === 0" description="暂无收货地址，请添加"></el-empty>
             </el-card>
 
-            <!-- 线下自提：平台唯一门店 -->
+            <!-- 是：平台唯一自提门店 -->
             <el-card v-if="deliveryType === 2" class="store-card">
               <template #header>
-                <span>线下自提</span>
+                <span>自提门店</span>
               </template>
               <el-alert type="success" :closable="false" show-icon class="merchant-single-alert">
                 <template #title>单商家 · 唯一自提点</template>
@@ -267,7 +259,7 @@ export default {
       return [...new Set(ids)]
     }
     const cartList = ref([])
-    const deliveryType = ref(1) // 1-线上配送 2-线下自提
+    const deliveryType = ref(1) // 1-否(非自提/平台配送) 2-是(自提)
     const addresses = ref([])
     const selectedAddressId = ref(null)
     const defaultStore = ref(null)
@@ -752,10 +744,6 @@ export default {
 .delivery-type-group {
   display: flex;
   gap: 16px;
-}
-
-.delivery-tip-alert {
-  margin-top: 16px;
 }
 
 .merchant-single-alert {
