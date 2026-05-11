@@ -236,6 +236,9 @@ const api = {
     cancel: (id) => {
       return service.post(`/order/${id}/cancel`)
     },
+    applyRefund: (id, reason) => {
+      return service.post(`/order/${id}/refund/apply`, { reason })
+    },
     submitReview: (id, data) => {
       return service.post(`/order/${id}/review`, data)
     },
@@ -263,6 +266,12 @@ const api = {
       },
       cancel: (id) => {
         return service.post(`/order/admin/${id}/cancel`)
+      },
+      refundApprove: (id) => {
+        return service.post(`/order/admin/${id}/refund/approve`)
+      },
+      refundReject: (id, remark) => {
+        return service.post(`/order/admin/${id}/refund/reject`, { remark })
       },
       getDeliveryTrack: (id) => {
         return service.get(`/order/admin/${id}/delivery-track`)

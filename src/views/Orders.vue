@@ -14,6 +14,8 @@
           <el-tab-pane label="待收货" name="2"></el-tab-pane>
           <el-tab-pane label="已完成" name="3"></el-tab-pane>
           <el-tab-pane label="已取消" name="4"></el-tab-pane>
+          <el-tab-pane label="退款中" name="5"></el-tab-pane>
+          <el-tab-pane label="已退款" name="6"></el-tab-pane>
         </el-tabs>
           <el-empty v-if="!loading && orders.length === 0" description="暂无订单"></el-empty>
           <div v-loading="loading" v-else class="orders-list">

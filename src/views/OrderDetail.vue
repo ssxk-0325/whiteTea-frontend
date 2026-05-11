@@ -54,7 +54,7 @@
               <p><strong>{{ order.deliveryType === 2 ? '自提点' : '收货地址' }}：</strong>{{ order.receiverAddress }}</p>
             </div>
 
-            <template v-if="deliveryTrack && order.deliveryType === 1">
+            <template v-if="deliveryTrack && order.deliveryType === 1 && order.status !== 5 && order.status !== 6">
               <el-divider />
               <h3>配送模拟轨迹</h3>
               <p class="track-hint">以下为同城演示轨迹：始发点与途中位置在福鼎市域内随机生成，直线距离仅供参考，非真实 GPS。</p>
@@ -101,13 +101,35 @@
               <p v-if="order.remark"><strong>备注：</strong>{{ order.remark }}</p>
             </div>
 
+            <el-alert
+              v-if="refundRejectAlertVisible"
+              type="warning"
+              :closable="false"
+              show-icon
+              class="refund-reject-alert"
+              :title="'退款申请未通过：' + (order.refundAdminRemark || '')"
+            />
+
+            <template v-if="order.status === 5 || order.status === 6">
+              <el-divider />
+              <h3>退款 / 退货</h3>
+              <div class="refund-panel">
+                <p v-if="order.status === 5"><strong>状态：</strong>商家审核中</p>
+                <p v-else><strong>状态：</strong>已退款（演示环境不调用真实支付退款接口）</p>
+                <p v-if="order.refundReason"><strong>申请说明：</strong>{{ order.refundReason }}</p>
+                <p v-if="order.refundApplyTime"><strong>申请时间：</strong>{{ formatTime(order.refundApplyTime) }}</p>
+                <p v-if="order.status === 6 && order.refundAuditTime"><strong>处理时间：</strong>{{ formatTime(order.refundAuditTime) }}</p>
+              </div>
+            </template>
+
             <el-divider />
 
-            <div class="order-actions" v-if="order.status === 0 || order.status === 2">
+            <div class="order-actions" v-if="order.status === 0 || order.status === 2 || canApplyRefund">
               <el-button v-if="order.status === 0" type="primary" @click="openPayDialog">去付款</el-button>
               <el-button v-if="order.status === 0" :loading="syncPayLoading" @click="syncAlipayPayStatus">同步支付状态</el-button>
               <el-button v-if="order.status === 0" @click="cancelOrder">取消订单</el-button>
               <el-button v-if="order.status === 2" type="success" @click="confirmReceive">确认收货</el-button>
+              <el-button v-if="canApplyRefund" type="warning" plain @click="refundDialogVisible = true">申请退货退款</el-button>
             </div>
 
             <template v-if="order.status === 3">
@@ -137,11 +159,20 @@
       </el-main>
     </el-container>
     <SandboxPayDialog v-model="payDialogVisible" :order-id="order?.id" @success="loadOrderDetail" />
+
+    <el-dialog v-model="refundDialogVisible" title="申请退货退款" width="520px" destroy-on-close @closed="refundReasonInput = ''">
+      <p class="refund-dialog-tip">提交后订单将进入「退款中」，由商家审核。同意后库存与积分将按规则回退（演示环境不退真实支付渠道）。</p>
+      <el-input v-model="refundReasonInput" type="textarea" :rows="4" maxlength="500" show-word-limit placeholder="请说明退款或退货原因" />
+      <template #footer>
+        <el-button @click="refundDialogVisible = false">取消</el-button>
+        <el-button type="primary" :loading="refundSubmitting" @click="submitRefundApply">提交申请</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import api from '@/api'
@@ -168,7 +199,26 @@ export default {
     const payDialogVisible = ref(false)
     const syncPayLoading = ref(false)
     const deliveryTrack = ref(null)
+    const refundDialogVisible = ref(false)
+    const refundReasonInput = ref('')
+    const refundSubmitting = ref(false)
     let trackPollTimer = null
+
+    const canApplyRefund = computed(() => {
+      const o = order.value
+      if (!o) return false
+      const st = o.status
+      if (st !== 1 && st !== 2 && st !== 3) return false
+      if (!o.payTime) return false
+      return true
+    })
+
+    const refundRejectAlertVisible = computed(() => {
+      const o = order.value
+      if (!o || !o.refundAdminRemark) return false
+      const st = o.status
+      return st === 1 || st === 2 || st === 3
+    })
 
     const currentTrackStep = computed(() => {
       const t = deliveryTrack.value
@@ -197,6 +247,10 @@ export default {
 
     const loadDeliveryTrack = async () => {
       if (!order.value || order.value.deliveryType !== 1 || !order.value.shipTime) {
+        deliveryTrack.value = null
+        return
+      }
+      if (order.value.status === 5 || order.value.status === 6) {
         deliveryTrack.value = null
         return
       }
@@ -331,6 +385,26 @@ export default {
       }
     }
 
+    const submitRefundApply = async () => {
+      const text = (refundReasonInput.value || '').trim()
+      if (!text) {
+        ElMessage.warning('请填写退款原因')
+        return
+      }
+      refundSubmitting.value = true
+      try {
+        await api.order.applyRefund(order.value.id, text)
+        ElMessage.success('已提交申请')
+        refundDialogVisible.value = false
+        refundReasonInput.value = ''
+        await loadOrderDetail()
+      } catch (error) {
+        ElMessage.error(error.message || '提交失败')
+      } finally {
+        refundSubmitting.value = false
+      }
+    }
+
     const cancelOrder = async () => {
       try {
         await ElMessageBox.confirm('确定要取消该订单吗？', '提示', {
@@ -347,6 +421,16 @@ export default {
         }
       }
     }
+
+    watch(
+      () => order.value?.status,
+      (st) => {
+        if (st !== 2 && trackPollTimer) {
+          clearInterval(trackPollTimer)
+          trackPollTimer = null
+        }
+      }
+    )
 
     onMounted(() => {
       loadOrderDetail()
@@ -380,7 +464,13 @@ export default {
       openPayDialog,
       submitReview,
       confirmReceive,
-      cancelOrder
+      cancelOrder,
+      canApplyRefund,
+      refundRejectAlertVisible,
+      refundDialogVisible,
+      refundReasonInput,
+      refundSubmitting,
+      submitRefundApply
     }
   }
 }
@@ -418,6 +508,23 @@ export default {
 .order-info p {
   margin-bottom: 10px;
   line-height: 1.8;
+}
+
+.refund-reject-alert {
+  margin: 16px 0 0;
+}
+
+.refund-panel {
+  margin: 8px 0 0;
+  line-height: 1.75;
+  color: #303133;
+}
+
+.refund-dialog-tip {
+  font-size: 13px;
+  color: #909399;
+  line-height: 1.6;
+  margin: 0 0 12px;
 }
 
 .order-actions {

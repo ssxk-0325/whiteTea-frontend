@@ -51,6 +51,8 @@
           <el-button size="small" type="success" v-if="scope.row.status === 1" @click="shipOrder(scope.row.id)">发货</el-button>
           <el-button size="small" type="warning" v-if="scope.row.status === 2" @click="confirmOrder(scope.row.id)">确认收货</el-button>
           <el-button size="small" type="danger" v-if="scope.row.status === 0" @click="cancelOrder(scope.row.id)">取消订单</el-button>
+          <el-button size="small" type="success" v-if="scope.row.status === 5" @click="approveRefund(scope.row.id)">同意退款</el-button>
+          <el-button size="small" type="warning" v-if="scope.row.status === 5" @click="rejectRefund(scope.row.id)">驳回退款</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -113,6 +115,18 @@
 
         <el-divider />
 
+        <template v-if="orderDetail.order.status === 5 || orderDetail.order.status === 6">
+          <h3>退款申请</h3>
+          <div class="order-info">
+            <p v-if="orderDetail.order.status === 5"><strong>状态：</strong>待审核</p>
+            <p v-else><strong>状态：</strong>已退款</p>
+            <p v-if="orderDetail.order.refundReason"><strong>用户说明：</strong>{{ orderDetail.order.refundReason }}</p>
+            <p v-if="orderDetail.order.refundApplyTime"><strong>申请时间：</strong>{{ formatTime(orderDetail.order.refundApplyTime) }}</p>
+            <p v-if="orderDetail.order.refundAuditTime"><strong>审核时间：</strong>{{ formatTime(orderDetail.order.refundAuditTime) }}</p>
+            <p v-if="orderDetail.order.refundAdminRemark"><strong>商家备注：</strong>{{ orderDetail.order.refundAdminRemark }}</p>
+          </div>
+        </template>
+
         <h3>订单信息</h3>
         <div class="order-info">
           <p><strong>订单金额：</strong>¥{{ Number(orderDetail.order.totalAmount).toFixed(2) }}</p>
@@ -125,7 +139,7 @@
           <p v-if="orderDetail.order.remark"><strong>备注：</strong>{{ orderDetail.order.remark }}</p>
         </div>
 
-        <template v-if="deliveryTrack && orderDetail.order.deliveryType === 1">
+        <template v-if="deliveryTrack && orderDetail.order.deliveryType === 1 && orderDetail.order.status !== 5 && orderDetail.order.status !== 6">
           <el-divider />
           <h3>配送模拟轨迹</h3>
           <p class="admin-track-hint">同城演示：途中位置为随机生成，直线距离非真实 GPS。</p>
@@ -150,6 +164,16 @@
       </div>
       <template #footer>
         <span class="dialog-footer">
+          <el-button
+            v-if="orderDetail?.order?.status === 5"
+            type="success"
+            @click="approveRefundFromDialog"
+          >同意退款</el-button>
+          <el-button
+            v-if="orderDetail?.order?.status === 5"
+            type="warning"
+            @click="rejectRefundFromDialog"
+          >驳回退款</el-button>
           <el-button @click="dialogVisible = false">关闭</el-button>
         </span>
       </template>
@@ -266,7 +290,13 @@ export default {
       try {
         const res = await api.order.admin.getById(order.id)
         orderDetail.value = res.data
-        if (orderDetail.value?.order?.deliveryType === 1 && orderDetail.value.order.shipTime && orderDetail.value.order.status >= 2) {
+        if (
+          orderDetail.value?.order?.deliveryType === 1 &&
+          orderDetail.value.order.shipTime &&
+          orderDetail.value.order.status >= 2 &&
+          orderDetail.value.order.status !== 5 &&
+          orderDetail.value.order.status !== 6
+        ) {
           try {
             const tr = await api.order.admin.getDeliveryTrack(order.id)
             deliveryTrack.value = tr.data || null
@@ -333,6 +363,57 @@ export default {
       }
     }
 
+    const approveRefund = async (id) => {
+      try {
+        await ElMessageBox.confirm(
+          '同意后订单将标记为已退款，并回退库存与购物积分（演示环境不退真实支付）。是否继续？',
+          '同意退款',
+          { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }
+        )
+        await api.order.admin.refundApprove(id)
+        ElMessage.success('已同意退款')
+        loadOrders()
+      } catch (error) {
+        if (error !== 'cancel') {
+          ElMessage.error(error.message || '操作失败')
+        }
+      }
+    }
+
+    const rejectRefund = async (id) => {
+      try {
+        const { value } = await ElMessageBox.prompt('请填写驳回原因（将展示给用户）', '驳回退款', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          inputPattern: /\S+/,
+          inputErrorMessage: '原因不能为空'
+        })
+        await api.order.admin.refundReject(id, value.trim())
+        ElMessage.success('已驳回')
+        loadOrders()
+      } catch (error) {
+        if (error !== 'cancel') {
+          ElMessage.error(error.message || '操作失败')
+        }
+      }
+    }
+
+    const approveRefundFromDialog = async () => {
+      const id = orderDetail.value?.order?.id
+      if (!id) return
+      await approveRefund(id)
+      dialogVisible.value = false
+      orderDetail.value = null
+    }
+
+    const rejectRefundFromDialog = async () => {
+      const id = orderDetail.value?.order?.id
+      if (!id) return
+      await rejectRefund(id)
+      dialogVisible.value = false
+      orderDetail.value = null
+    }
+
     onMounted(() => {
       loadOrders()
     })
@@ -359,7 +440,11 @@ export default {
       viewOrder,
       shipOrder,
       confirmOrder,
-      cancelOrder
+      cancelOrder,
+      approveRefund,
+      rejectRefund,
+      approveRefundFromDialog,
+      rejectRefundFromDialog
     }
   }
 }
