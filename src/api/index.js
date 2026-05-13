@@ -33,12 +33,15 @@ service.interceptors.response.use(
     } else {
       const message = res.message || '请求失败'
       const skipRedirect = response.config.skipAuthRedirect === true
+      const skipGlobalErrorMsg = response.config.skipGlobalErrorMsg === true
       // Token 过期/无效时跳转登录，除非该请求标记了 skipAuthRedirect（如核销券弹窗）
       if (!skipRedirect && isTokenExpiredError(message)) {
         handleTokenExpired()
         return Promise.reject(new Error(message))
       }
-      ElMessage.error(message)
+      if (!skipGlobalErrorMsg) {
+        ElMessage.error(message)
+      }
       return Promise.reject(new Error(message))
     }
   },
@@ -348,17 +351,17 @@ const api = {
   },
   // 福鼎白茶文化（文章/视频）
   culture: {
-    getList: (params) => {
-      return service.get('/culture/list', { params })
+    getList: (params, config = {}) => {
+      return service.get('/culture/list', { params, ...config })
     },
-    getById: (id) => {
-      return service.get(`/culture/${id}`)
+    getById: (id, config = {}) => {
+      return service.get(`/culture/${id}`, config)
     },
-    like: (id) => {
-      return service.post(`/culture/${id}/like`)
+    like: (id, config = {}) => {
+      return service.post(`/culture/${id}/like`, {}, config)
     },
-    unlike: (id) => {
-      return service.delete(`/culture/${id}/like`)
+    unlike: (id, config = {}) => {
+      return service.delete(`/culture/${id}/like`, config)
     },
     getHot: (params) => {
       return service.get('/culture/hot', { params })
@@ -472,14 +475,14 @@ const api = {
   },
   // 趣味问答相关
   quiz: {
-    getList: (params) => {
-      return service.get('/quiz/list', { params })
+    getList: (params, config = {}) => {
+      return service.get('/quiz/list', { params, ...config })
     },
-    getById: (id) => {
-      return service.get(`/quiz/${id}`)
+    getById: (id, config = {}) => {
+      return service.get(`/quiz/${id}`, config)
     },
-    submitAnswer: (id, userAnswer) => {
-      return service.post(`/quiz/${id}/answer`, { userAnswer })
+    submitAnswer: (id, userAnswer, config = {}) => {
+      return service.post(`/quiz/${id}/answer`, { userAnswer }, config)
     },
     getMyAnswers: (params) => {
       return service.get('/quiz/my-answers', { params })

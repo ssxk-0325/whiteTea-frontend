@@ -5,7 +5,18 @@
       <el-main style="max-width: 1200px; margin: 0 auto;">
         <el-button @click="$router.back()" style="margin-bottom: 20px;">返回</el-button>
         <el-card v-loading="loading">
-          <div v-if="article">
+          <el-result
+            v-if="trainingAccessForbidden"
+            icon="warning"
+            title="暂无权限查看"
+            sub-title="本文为「培训专区」内容，仅对已通过「批发与培训」产业报名审核的用户开放。"
+          >
+            <template #extra>
+              <el-button type="primary" @click="$router.push('/services/wholesale-training')">去批发培训服务</el-button>
+              <el-button @click="$router.push('/culture')">返回文化首页</el-button>
+            </template>
+          </el-result>
+          <div v-else-if="article">
             <div class="article-header">
               <h1>{{ article.title }}</h1>
               <div class="article-meta">
@@ -66,13 +77,15 @@ export default {
     const loading = ref(false)
     const article = ref(null)
     const isLiked = ref(false)
+    const trainingAccessForbidden = ref(false)
 
     const loadArticle = async () => {
+      trainingAccessForbidden.value = false
       loading.value = true
       try {
-        const res = await api.culture.getById(route.params.id)
+        const res = await api.culture.getById(route.params.id, { skipGlobalErrorMsg: true })
         article.value = res.data
-        
+
         // 记录浏览历史
         if (store.state.user.token) {
           api.browseHistory.record({
@@ -83,28 +96,38 @@ export default {
           }).catch(err => console.error('记录历史失败', err))
         }
       } catch (error) {
-        ElMessage.error('加载文章失败')
-        router.push('/culture')
+        if (error.message && error.message.includes('暂无权限查看培训专区')) {
+          trainingAccessForbidden.value = true
+          article.value = null
+        } else {
+          ElMessage.error(error.message || '加载文章失败')
+          router.push('/culture')
+        }
       } finally {
         loading.value = false
       }
     }
 
     const handleLike = async () => {
+      const skipMsg = article.value?.type === 5
       try {
         if (isLiked.value) {
-          await api.culture.unlike(route.params.id)
+          await api.culture.unlike(route.params.id, { skipGlobalErrorMsg: skipMsg })
           isLiked.value = false
           article.value.likeCount--
           ElMessage.success('取消点赞成功')
         } else {
-          await api.culture.like(route.params.id)
+          await api.culture.like(route.params.id, { skipGlobalErrorMsg: skipMsg })
           isLiked.value = true
           article.value.likeCount++
           ElMessage.success('点赞成功')
         }
       } catch (error) {
-        ElMessage.error('操作失败')
+        if (error.message && error.message.includes('暂无权限查看培训专区')) {
+          ElMessage.warning('暂无权限操作')
+        } else {
+          ElMessage.error('操作失败')
+        }
       }
     }
 
@@ -118,7 +141,8 @@ export default {
         1: '白茶知识',
         2: '制作工艺',
         3: '品鉴技巧',
-        4: '历史文化'
+        4: '历史文化',
+        5: '培训专区'
       }
       return typeMap[type] || '未知'
     }
@@ -128,7 +152,8 @@ export default {
         1: 'success',
         2: 'warning',
         3: 'info',
-        4: 'danger'
+        4: 'danger',
+        5: 'primary'
       }
       return tagMap[type] || 'info'
     }
@@ -142,6 +167,7 @@ export default {
       resolveCultureCoverSrc,
       article,
       isLiked,
+      trainingAccessForbidden,
       handleLike,
       formatTime,
       getTypeText,

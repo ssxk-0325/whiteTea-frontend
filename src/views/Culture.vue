@@ -8,7 +8,7 @@
           <div class="top-panel-header">
             <div>
               <h2 class="page-title">福鼎白茶文化</h2>
-              <p class="page-subtitle">下方为文章与视频科普，探索白茶知识、制作工艺与品鉴技巧</p>
+              <p class="page-subtitle">文章与视频科普；「培训专区」为批发培训配套自学内容，便于与通用文化区分</p>
             </div>
             <el-button type="primary" class="quiz-btn" @click="goToQuiz">
               <el-icon><QuestionFilled /></el-icon>
@@ -34,6 +34,7 @@
                 <el-radio-button :label="2">制作工艺</el-radio-button>
                 <el-radio-button :label="3">品鉴技巧</el-radio-button>
                 <el-radio-button :label="4">历史文化</el-radio-button>
+                <el-radio-button :label="5">培训专区</el-radio-button>
               </el-radio-group>
             </div>
             <div class="search-box">
@@ -51,8 +52,21 @@
           </div>
         </section>
 
+        <el-result
+          v-if="trainingAccessForbidden"
+          class="training-access-result"
+          icon="warning"
+          title="暂无权限查看"
+          sub-title="「培训专区」仅对已通过「批发与培训」产业报名审核的用户开放（管理员不受限）。您可先报名批发与培训场次，审核通过后再访问本分类。"
+        >
+          <template #extra>
+            <el-button type="primary" @click="$router.push('/services/wholesale-training')">去批发培训服务</el-button>
+            <el-button @click="clearTrainingFilter">浏览其他分类</el-button>
+          </template>
+        </el-result>
+
         <!-- 内容列表 -->
-        <div v-loading="loading" class="contents-container">
+        <div v-else v-loading="loading" class="contents-container">
           <el-empty v-if="!loading && contents.length === 0" description="暂无内容"></el-empty>
           <div v-else>
             <el-row :gutter="20">
@@ -101,8 +115,8 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { Document, VideoPlay, View, Star, QuestionFilled } from '@element-plus/icons-vue'
 import api from '@/api'
 import Header from '@/components/Header.vue'
@@ -122,6 +136,7 @@ export default {
   },
   setup() {
     const router = useRouter()
+    const route = useRoute()
     const loading = ref(false)
     const contents = ref([])
     const currentPage = ref(1)
@@ -130,8 +145,12 @@ export default {
     const filterContentType = ref(null)
     const filterType = ref(null)
     const keyword = ref('')
+    const trainingAccessForbidden = ref(false)
 
     const loadContents = async () => {
+      if (filterType.value !== 5) {
+        trainingAccessForbidden.value = false
+      }
       loading.value = true
       try {
         const params = {
@@ -147,11 +166,23 @@ export default {
         if (keyword.value) {
           params.keyword = keyword.value
         }
-        const res = await api.culture.getList(params)
+        const listConfig = filterType.value === 5 ? { skipGlobalErrorMsg: true } : {}
+        const res = await api.culture.getList(params, listConfig)
+        trainingAccessForbidden.value = false
         contents.value = res.data.records
         total.value = res.data.total
-      } catch (error) {
-        console.error('加载内容失败:', error)
+      } catch (e) {
+        if (
+          filterType.value === 5 &&
+          e.message &&
+          e.message.includes('暂无权限查看培训专区')
+        ) {
+          trainingAccessForbidden.value = true
+          contents.value = []
+          total.value = 0
+        } else {
+          console.error('加载内容失败:', e)
+        }
       } finally {
         loading.value = false
       }
@@ -169,6 +200,13 @@ export default {
 
     const goToQuiz = () => {
       router.push('/quiz')
+    }
+
+    const clearTrainingFilter = () => {
+      filterType.value = null
+      trainingAccessForbidden.value = false
+      router.replace({ path: '/culture' })
+      loadContents()
     }
 
     const truncateContent = (content) => {
@@ -191,7 +229,8 @@ export default {
         1: '白茶知识',
         2: '制作工艺',
         3: '品鉴技巧',
-        4: '历史文化'
+        4: '历史文化',
+        5: '培训专区'
       }
       return typeMap[type] || '未知'
     }
@@ -201,14 +240,33 @@ export default {
         1: 'success',
         2: 'warning',
         3: 'info',
-        4: 'danger'
+        4: 'danger',
+        5: 'primary'
       }
       return tagMap[type] || 'info'
     }
 
+    const applyTypeFromRoute = () => {
+      const t = route.query.type
+      if (t === undefined || t === null || t === '') return
+      const n = parseInt(String(t), 10)
+      if (!Number.isNaN(n) && n >= 1 && n <= 5) {
+        filterType.value = n
+      }
+    }
+
     onMounted(() => {
+      applyTypeFromRoute()
       loadContents()
     })
+
+    watch(
+      () => route.query.type,
+      () => {
+        applyTypeFromRoute()
+        loadContents()
+      }
+    )
 
     return {
       loading,
@@ -226,7 +284,9 @@ export default {
       formatDuration,
       getTypeText,
       getTypeTag,
-      goToQuiz
+      goToQuiz,
+      trainingAccessForbidden,
+      clearTrainingFilter
     }
   }
 }
@@ -304,6 +364,13 @@ export default {
 .search-box {
   width: 100%;
   max-width: 420px;
+}
+
+.training-access-result {
+  margin: 24px 0;
+  padding: 24px;
+  background: #fff;
+  border-radius: 12px;
 }
 
 .contents-container {

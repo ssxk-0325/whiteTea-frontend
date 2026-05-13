@@ -9,6 +9,7 @@
         <el-option label="互动" :value="1"></el-option>
         <el-option label="文化" :value="2"></el-option>
         <el-option label="活动" :value="3"></el-option>
+        <el-option label="培训专区" :value="4"></el-option>
       </el-select>
       <el-select v-model="filterDifficulty" @change="loadQuestions" style="width: 150px" clearable>
         <el-option label="全部难度" :value="null"></el-option>
@@ -130,6 +131,7 @@
             <el-option label="互动" :value="1"></el-option>
             <el-option label="文化" :value="2"></el-option>
             <el-option label="活动" :value="3"></el-option>
+            <el-option label="培训专区" :value="4"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="难度" prop="difficulty">
@@ -395,7 +397,8 @@ export default {
       const categoryMap = {
         1: '互动',
         2: '文化',
-        3: '活动'
+        3: '活动',
+        4: '培训专区'
       }
       return categoryMap[category] || '未知'
     }
@@ -404,7 +407,8 @@ export default {
       const tagMap = {
         1: 'success',
         2: 'warning',
-        3: 'info'
+        3: 'info',
+        4: 'primary'
       }
       return tagMap[category] || 'info'
     }

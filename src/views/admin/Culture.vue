@@ -16,6 +16,7 @@
         <el-option label="制作工艺" :value="2"></el-option>
         <el-option label="品鉴技巧" :value="3"></el-option>
         <el-option label="历史文化" :value="4"></el-option>
+        <el-option label="培训专区" :value="5"></el-option>
       </el-select>
       <el-select v-model="filterCultureStatus" @change="loadContents" style="width: 130px" clearable placeholder="发布状态">
         <el-option label="全部状态" :value="null"></el-option>
@@ -115,6 +116,7 @@
             <el-option label="制作工艺" :value="2"></el-option>
             <el-option label="品鉴技巧" :value="3"></el-option>
             <el-option label="历史文化" :value="4"></el-option>
+            <el-option label="培训专区" :value="5"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="封面图片">
@@ -565,7 +567,8 @@ export default {
         1: '白茶知识',
         2: '制作工艺',
         3: '品鉴技巧',
-        4: '历史文化'
+        4: '历史文化',
+        5: '培训专区'
       }
       return typeMap[type] || '未知'
     }
@@ -575,7 +578,8 @@ export default {
         1: 'success',
         2: 'warning',
         3: 'info',
-        4: 'danger'
+        4: 'danger',
+        5: 'primary'
       }
       return tagMap[type] || 'info'
     }

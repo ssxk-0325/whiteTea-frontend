@@ -4,7 +4,7 @@
     <el-container>
       <el-main style="max-width: 1200px; margin: 0 auto;">
         <h2>趣味问答</h2>
-        <p class="subtitle">测试你对福鼎白茶文化的了解，增强互动体验</p>
+        <p class="subtitle">测试你对福鼎白茶的了解；「培训专区」为批发培训配套题目，与通用问答区分</p>
 
         <!-- 筛选栏 -->
         <div class="filter-bar">
@@ -13,6 +13,7 @@
             <el-radio-button :label="1">互动</el-radio-button>
             <el-radio-button :label="2">文化</el-radio-button>
             <el-radio-button :label="3">活动</el-radio-button>
+            <el-radio-button :label="4">培训专区</el-radio-button>
           </el-radio-group>
           <el-radio-group v-model="filterDifficulty" @change="loadQuestions" style="margin-left: 20px;">
             <el-radio-button :label="null">全部难度</el-radio-button>
@@ -55,8 +56,21 @@
           </el-card>
         </div>
 
+        <el-result
+          v-if="trainingQuizForbidden"
+          class="training-access-result"
+          icon="warning"
+          title="暂无权限查看"
+          sub-title="「培训专区」问答仅对已通过「批发与培训」产业报名审核的用户开放（管理员不受限）。您可先报名批发与培训场次，审核通过后再访问本分类。"
+        >
+          <template #extra>
+            <el-button type="primary" @click="$router.push('/services/wholesale-training')">去批发培训服务</el-button>
+            <el-button @click="clearTrainingQuizFilter">浏览其他分类</el-button>
+          </template>
+        </el-result>
+
         <!-- 问题列表 -->
-        <div v-loading="loading" class="questions-container">
+        <div v-else v-loading="loading" class="questions-container">
           <el-empty v-if="!loading && questions.length === 0" description="暂无问题"></el-empty>
           <div v-else>
             <el-row :gutter="20">
@@ -112,8 +126,8 @@
 </template>
 
 <script>
-import { ref, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, computed, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 import { ElMessage } from 'element-plus'
 import api from '@/api'
@@ -126,6 +140,7 @@ export default {
   },
   setup() {
     const router = useRouter()
+    const route = useRoute()
     const store = useStore()
     const loading = ref(false)
     const questions = ref([])
@@ -141,12 +156,16 @@ export default {
       wrongCount: 0,
       correctRate: 0
     })
+    const trainingQuizForbidden = ref(false)
 
     const userStore = computed(() => ({
       isLoggedIn: store.getters['user/isLoggedIn']
     }))
 
     const loadQuestions = async () => {
+      if (filterCategory.value !== 4) {
+        trainingQuizForbidden.value = false
+      }
       loading.value = true
       try {
         const params = {
@@ -162,11 +181,23 @@ export default {
         if (keyword.value) {
           params.keyword = keyword.value
         }
-        const res = await api.quiz.getList(params)
+        const listConfig = filterCategory.value === 4 ? { skipGlobalErrorMsg: true } : {}
+        const res = await api.quiz.getList(params, listConfig)
+        trainingQuizForbidden.value = false
         questions.value = res.data.records || []
         total.value = res.data.total || 0
       } catch (error) {
-        console.error('加载问题失败:', error)
+        if (
+          filterCategory.value === 4 &&
+          error.message &&
+          error.message.includes('暂无权限查看培训专区')
+        ) {
+          trainingQuizForbidden.value = true
+          questions.value = []
+          total.value = 0
+        } else {
+          console.error('加载问题失败:', error)
+        }
       } finally {
         loading.value = false
       }
@@ -191,6 +222,13 @@ export default {
       router.push(`/quiz/${id}`)
     }
 
+    const clearTrainingQuizFilter = () => {
+      filterCategory.value = null
+      trainingQuizForbidden.value = false
+      router.replace({ path: '/quiz' })
+      loadQuestions()
+    }
+
     const formatRate = (rate) => {
       if (!rate) return 0
       return Math.round(rate * 100) / 100
@@ -205,7 +243,8 @@ export default {
       const categoryMap = {
         1: '互动',
         2: '文化',
-        3: '活动'
+        3: '活动',
+        4: '培训专区'
       }
       return categoryMap[category] || '未知'
     }
@@ -214,7 +253,8 @@ export default {
       const tagMap = {
         1: 'success',
         2: 'warning',
-        3: 'info'
+        3: 'info',
+        4: 'primary'
       }
       return tagMap[category] || 'info'
     }
@@ -237,10 +277,31 @@ export default {
       return tagMap[difficulty] || 'info'
     }
 
+    const applyCategoryFromRoute = () => {
+      const c = route.query.category
+      if (c === undefined || c === null || c === '') return
+      const n = parseInt(String(c), 10)
+      if (!Number.isNaN(n) && n >= 1 && n <= 4) {
+        filterCategory.value = n
+      }
+    }
+
     onMounted(() => {
+      applyCategoryFromRoute()
       loadQuestions()
       loadStatistics()
     })
+
+    watch(
+      () => route.query.category,
+      () => {
+        applyCategoryFromRoute()
+        loadQuestions()
+        if (userStore.value.isLoggedIn) {
+          loadStatistics()
+        }
+      }
+    )
 
     return {
       loading,
@@ -261,7 +322,9 @@ export default {
       getCategoryText,
       getCategoryTag,
       getDifficultyText,
-      getDifficultyTag
+      getDifficultyTag,
+      trainingQuizForbidden,
+      clearTrainingQuizFilter
     }
   }
 }
@@ -283,6 +346,13 @@ export default {
   margin-bottom: 20px;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+.training-access-result {
+  margin: 20px 0;
+  padding: 24px;
+  background: #fff;
+  border-radius: 8px;
 }
 
 .stats-cards {

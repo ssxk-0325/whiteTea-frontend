@@ -4,7 +4,18 @@
     <el-container>
       <el-main style="max-width: 800px; margin: 0 auto;">
         <div v-loading="loading">
-          <div v-if="question">
+          <el-result
+            v-if="trainingQuizForbidden"
+            icon="warning"
+            title="暂无权限查看"
+            sub-title="本题为「培训专区」问答，仅对已通过「批发与培训」产业报名审核的用户开放。"
+          >
+            <template #extra>
+              <el-button type="primary" @click="$router.push('/services/wholesale-training')">去批发培训服务</el-button>
+              <el-button @click="$router.push('/quiz')">返回问答首页</el-button>
+            </template>
+          </el-result>
+          <div v-else-if="question">
             <!-- 问题卡片 -->
             <el-card class="question-card">
               <div class="question-header">
@@ -105,6 +116,7 @@ export default {
     const selectedAnswer = ref(null)
     const hasAnswered = ref(false)
     const answerResult = ref(null)
+    const trainingQuizForbidden = ref(false)
 
     const options = computed(() => {
       if (!question.value || !question.value.options) return []
@@ -116,16 +128,22 @@ export default {
     })
 
     const loadQuestion = async () => {
+      trainingQuizForbidden.value = false
       loading.value = true
       try {
         const id = route.params.id
-        const res = await api.quiz.getById(id)
+        const res = await api.quiz.getById(id, { skipGlobalErrorMsg: true })
         question.value = res.data
         // 检查是否已答题
         checkAnswerStatus()
       } catch (error) {
-        ElMessage.error(error.message || '加载问题失败')
-        router.push('/quiz')
+        if (error.message && error.message.includes('暂无权限查看培训专区')) {
+          trainingQuizForbidden.value = true
+          question.value = null
+        } else {
+          ElMessage.error(error.message || '加载问题失败')
+          router.push('/quiz')
+        }
       } finally {
         loading.value = false
       }
@@ -155,14 +173,21 @@ export default {
       }
       submitting.value = true
       try {
-        const res = await api.quiz.submitAnswer(question.value.id, selectedAnswer.value)
+        const skipMsg = question.value?.category === 4
+        const res = await api.quiz.submitAnswer(question.value.id, selectedAnswer.value, {
+          skipGlobalErrorMsg: skipMsg
+        })
         answerResult.value = {
           isCorrect: res.data.isCorrect === 1
         }
         hasAnswered.value = true
         ElMessage.success(res.data.isCorrect === 1 ? '回答正确！' : '回答错误')
       } catch (error) {
-        ElMessage.error(error.message || '提交失败')
+        if (error.message && error.message.includes('暂无权限查看培训专区')) {
+          ElMessage.warning('暂无权限提交本题')
+        } else {
+          ElMessage.error(error.message || '提交失败')
+        }
       } finally {
         submitting.value = false
       }
@@ -180,7 +205,8 @@ export default {
       const categoryMap = {
         1: '互动',
         2: '文化',
-        3: '活动'
+        3: '活动',
+        4: '培训专区'
       }
       return categoryMap[category] || '未知'
     }
@@ -189,7 +215,8 @@ export default {
       const tagMap = {
         1: 'success',
         2: 'warning',
-        3: 'info'
+        3: 'info',
+        4: 'primary'
       }
       return tagMap[category] || 'info'
     }
@@ -233,6 +260,7 @@ export default {
       selectedAnswer,
       hasAnswered,
       answerResult,
+      trainingQuizForbidden,
       options,
       loadQuestion,
       submitAnswer,

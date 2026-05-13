@@ -150,8 +150,12 @@
                 </div>
                 <p v-else class="muted-tip">本场资料由管理员在后台维护；您也可先到「福鼎白茶文化」浏览品鉴、工艺等公开内容。</p>
                 <div class="follow-actions">
-                  <el-button type="primary" @click="$router.push('/culture')">福鼎白茶文化</el-button>
-                  <el-button @click="$router.push('/quiz')">趣味问答</el-button>
+                  <el-button type="primary" @click="$router.push({ path: '/culture', query: { type: 5 } })">
+                    福鼎白茶文化 · 培训专区
+                  </el-button>
+                  <el-button @click="$router.push({ path: '/quiz', query: { category: 4 } })">
+                    趣味问答 · 培训专区
+                  </el-button>
                 </div>
               </template>
             </el-card>
