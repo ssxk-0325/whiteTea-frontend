@@ -199,6 +199,7 @@
                         {{ item.activityType === 5 ? '采摘招募' : '批发与培训' }}
                       </el-tag>
                       <el-tag size="small" :type="getJoinTag(item.status)">{{ getJoinText(item.status) }}</el-tag>
+                      <span v-if="item.status === 1 && item.joinCode" class="join-code-chip">凭证 {{ item.joinCode }}</span>
                       <span v-if="item.adminRemark" style="font-size: 12px; color:#666;">审核备注：{{ item.adminRemark }}</span>
                     </div>
                   </div>
@@ -1065,6 +1066,12 @@ export default {
   margin: 0 0 6px;
   font-size: 15px;
   color: #303133;
+}
+
+.join-code-chip {
+  font-size: 12px;
+  color: #409eff;
+  font-family: ui-monospace, monospace;
 }
 
 .history-type {

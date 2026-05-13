@@ -428,6 +428,9 @@ const api = {
       },
       reviewIndustryJoin: (id, data) => {
         return service.put(`/activity/admin/industry-joins/${id}/review`, data)
+      },
+      checkIndustryPickIn: (applicationId) => {
+        return service.put(`/activity/admin/industry-joins/${applicationId}/check-in`)
       }
     }
   },

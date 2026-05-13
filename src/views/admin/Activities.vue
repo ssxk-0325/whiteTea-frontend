@@ -137,6 +137,54 @@
             placeholder="请输入活动描述"
           />
         </el-form-item>
+        <template v-if="activityForm.type === 5">
+          <el-form-item label="集合地点">
+            <el-input
+              v-model="activityForm.pickMeetingPoint"
+              placeholder="审核通过后向已通过用户展示"
+              maxlength="300"
+              show-word-limit
+            />
+          </el-form-item>
+          <el-form-item label="联系人/电话">
+            <el-input
+              v-model="activityForm.pickContactLine"
+              placeholder="如：现场负责人 手机号"
+              maxlength="200"
+              show-word-limit
+            />
+          </el-form-item>
+          <el-form-item label="上岗须知">
+            <el-input
+              v-model="activityForm.pickNotice"
+              type="textarea"
+              :rows="4"
+              placeholder="着装、携带证件、计酬与保险说明等"
+              maxlength="2000"
+              show-word-limit
+            />
+          </el-form-item>
+        </template>
+        <template v-else-if="activityForm.type === 6">
+          <el-form-item label="学习资料">
+            <el-input
+              v-model="activityForm.trainingMaterials"
+              type="textarea"
+              :rows="4"
+              placeholder="每行一条：链接或文字说明（审核通过后展示）"
+              maxlength="4000"
+              show-word-limit
+            />
+          </el-form-item>
+          <el-form-item label="费用与参训说明">
+            <el-input
+              v-model="activityForm.trainingExtraHint"
+              placeholder="如：报名费线下缴纳方式、课表领取说明"
+              maxlength="500"
+              show-word-limit
+            />
+          </el-form-item>
+        </template>
         <el-form-item label="价格">
           <el-input-number v-model="activityForm.price" :min="0" :precision="2" style="width: 100%"></el-input-number>
         </el-form-item>
@@ -266,6 +314,11 @@ export default {
       type: 1,
       image: '',
       description: '',
+      pickMeetingPoint: '',
+      pickContactLine: '',
+      pickNotice: '',
+      trainingMaterials: '',
+      trainingExtraHint: '',
       price: null,
       startTime: '',
       endTime: '',
@@ -363,6 +416,11 @@ export default {
         type: activity.type,
         image: activity.image || '',
         description: activity.description || '',
+        pickMeetingPoint: activity.pickMeetingPoint || '',
+        pickContactLine: activity.pickContactLine || '',
+        pickNotice: activity.pickNotice || '',
+        trainingMaterials: activity.trainingMaterials || '',
+        trainingExtraHint: activity.trainingExtraHint || '',
         price: activity.price || null,
         startTime: activity.startTime ? formatDateTimeForInput(activity.startTime) : '',
         endTime: activity.endTime ? formatDateTimeForInput(activity.endTime) : '',
@@ -426,6 +484,11 @@ export default {
         type: 1,
         image: '',
         description: '',
+        pickMeetingPoint: '',
+        pickContactLine: '',
+        pickNotice: '',
+        trainingMaterials: '',
+        trainingExtraHint: '',
         price: null,
         startTime: '',
         endTime: '',

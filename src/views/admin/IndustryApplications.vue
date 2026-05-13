@@ -47,13 +47,28 @@
         </template>
       </el-table-column>
       <el-table-column prop="adminRemark" label="审核备注" min-width="200" />
+      <el-table-column prop="joinCode" label="对接码" width="150" show-overflow-tooltip />
+      <el-table-column label="到岗签到" width="168">
+        <template #default="scope">
+          <span v-if="scope.row.activityType !== 5">—</span>
+          <span v-else-if="scope.row.checkedInAt">{{ formatDateTime(scope.row.checkedInAt) }}</span>
+          <el-tag v-else type="info" size="small">待签到</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column prop="createTime" label="提交时间" width="170">
         <template #default="scope">
           {{ formatDateTime(scope.row.createTime) }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="220" fixed="right">
+      <el-table-column label="操作" width="300" fixed="right">
         <template #default="scope">
+          <el-button
+            v-if="scope.row.activityType === 5 && scope.row.status === 1 && !scope.row.checkedInAt"
+            size="small"
+            type="warning"
+            :loading="checkInLoadingId === scope.row.id"
+            @click="checkIn(scope.row)"
+          >到岗签到</el-button>
           <el-button size="small" type="success" :disabled="scope.row.status !== 0" @click="openReview(scope.row, 1)">通过</el-button>
           <el-button size="small" type="danger" :disabled="scope.row.status !== 0" @click="openReview(scope.row, 2)">驳回</el-button>
         </template>
@@ -107,6 +122,7 @@ export default {
     const reviewForm = ref({ adminRemark: '' })
     const reviewId = ref(null)
     const reviewStatus = ref(1)
+    const checkInLoadingId = ref(null)
 
     const loadList = async () => {
       loading.value = true
@@ -173,6 +189,19 @@ export default {
       }
     }
 
+    const checkIn = async (row) => {
+      checkInLoadingId.value = row.id
+      try {
+        await api.activity.admin.checkIndustryPickIn(row.id)
+        ElMessage.success('到岗签到已记录')
+        loadList()
+      } catch (e) {
+        ElMessage.error(e.message || '签到失败')
+      } finally {
+        checkInLoadingId.value = null
+      }
+    }
+
     onMounted(() => {
       loadList()
     })
@@ -198,7 +227,9 @@ export default {
       reviewStatus,
       openReview,
       resetReview,
-      submitReview
+      submitReview,
+      checkIn,
+      checkInLoadingId
     }
   }
 }

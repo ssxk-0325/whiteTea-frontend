@@ -49,6 +49,7 @@
                   </el-tag>
                   <div v-if="myIndustryJoin" class="join-hint">
                     <span v-if="myIndustryJoin.adminRemark">审核备注：{{ myIndustryJoin.adminRemark }}</span>
+                    <span v-else-if="myIndustryJoin.status === 1">审核已通过，详见下方衔接信息。</span>
                     <span v-else>已提交申请，管理员审核后会更新状态</span>
                   </div>
                 </div>
@@ -92,6 +93,68 @@
               <h3>{{ isIndustryService ? '信息详情' : '活动详情' }}</h3>
               <div v-html="activity.description"></div>
             </div>
+
+            <el-card
+              v-if="isIndustryService && myIndustryJoin && myIndustryJoin.status === 1"
+              class="industry-followup-card"
+              shadow="never"
+            >
+              <template v-if="activity.type === 5">
+                <h3 class="followup-title">上岗对接信息</h3>
+                <p class="followup-lead">审核已通过，请保存对接码，并按下方信息准时集合；到场后由管理员在后台完成到岗签到。</p>
+                <div v-if="myIndustryJoin.joinCode" class="join-code-row">
+                  <span class="follow-label">对接码</span>
+                  <code class="join-code">{{ myIndustryJoin.joinCode }}</code>
+                  <el-button size="small" type="primary" link @click="copyJoinCode">复制</el-button>
+                </div>
+                <el-descriptions :column="1" border size="small" class="follow-desc">
+                  <el-descriptions-item v-if="myIndustryJoin.pickMeetingPoint" label="集合地点">
+                    {{ myIndustryJoin.pickMeetingPoint }}
+                  </el-descriptions-item>
+                  <el-descriptions-item v-if="myIndustryJoin.pickContactLine" label="联系人">
+                    {{ myIndustryJoin.pickContactLine }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="到岗签到">
+                    <span v-if="myIndustryJoin.checkedInAt">已于 {{ formatDateTime(myIndustryJoin.checkedInAt) }} 完成签到</span>
+                    <span v-else>到场后请等待管理员点击「到岗签到」</span>
+                  </el-descriptions-item>
+                </el-descriptions>
+                <div v-if="myIndustryJoin.pickNotice" class="pick-notice-block">
+                  <div class="follow-label">上岗须知</div>
+                  <div class="notice-body">{{ myIndustryJoin.pickNotice }}</div>
+                </div>
+              </template>
+              <template v-else-if="activity.type === 6">
+                <h3 class="followup-title">培训与参训后续</h3>
+                <p class="followup-lead">审核已通过，请保存参训凭证码；费用与课表以主办方通知及下方说明为准。</p>
+                <div v-if="myIndustryJoin.joinCode" class="join-code-row">
+                  <span class="follow-label">参训凭证码</span>
+                  <code class="join-code">{{ myIndustryJoin.joinCode }}</code>
+                  <el-button size="small" type="primary" link @click="copyJoinCode">复制</el-button>
+                </div>
+                <el-descriptions
+                  v-if="myIndustryJoin.activityPrice != null && myIndustryJoin.activityPrice !== ''"
+                  :column="1"
+                  border
+                  size="small"
+                  class="follow-desc"
+                >
+                  <el-descriptions-item label="参考费用">
+                    ¥{{ Number(myIndustryJoin.activityPrice).toFixed(2) }}（实际以线下约定为准）
+                  </el-descriptions-item>
+                </el-descriptions>
+                <p v-if="myIndustryJoin.trainingExtraHint" class="extra-hint">{{ myIndustryJoin.trainingExtraHint }}</p>
+                <div v-if="myIndustryJoin.trainingMaterials" class="materials-block">
+                  <div class="follow-label">学习资料与链接</div>
+                  <pre class="materials-pre">{{ myIndustryJoin.trainingMaterials }}</pre>
+                </div>
+                <p v-else class="muted-tip">本场资料由管理员在后台维护；您也可先到「福鼎白茶文化」浏览品鉴、工艺等公开内容。</p>
+                <div class="follow-actions">
+                  <el-button type="primary" @click="$router.push('/culture')">福鼎白茶文化</el-button>
+                  <el-button @click="$router.push('/quiz')">趣味问答</el-button>
+                </div>
+              </template>
+            </el-card>
           </div>
         </el-card>
       </el-main>
@@ -317,6 +380,17 @@ export default {
       })
     }
 
+    const copyJoinCode = async () => {
+      const code = myIndustryJoin.value?.joinCode
+      if (!code) return
+      try {
+        await navigator.clipboard.writeText(code)
+        ElMessage.success('已复制到剪贴板')
+      } catch {
+        ElMessage.error('复制失败，请手动复制')
+      }
+    }
+
     onMounted(() => {
       loadActivity()
     })
@@ -344,7 +418,8 @@ export default {
       getJoinTag,
       openJoinDialog,
       resetJoinForm,
-      submitJoin
+      submitJoin,
+      copyJoinCode
     }
   }
 }
@@ -444,6 +519,101 @@ export default {
   line-height: 1.8;
   color: #333;
   margin-bottom: 10px;
+}
+
+.industry-followup-card {
+  margin-top: 20px;
+  border: 1px solid #e4e7ed;
+  border-radius: 8px;
+}
+
+.followup-title {
+  margin: 0 0 8px;
+  font-size: 18px;
+  color: #304b3d;
+}
+
+.followup-lead {
+  margin: 0 0 16px;
+  font-size: 14px;
+  color: #666;
+  line-height: 1.6;
+}
+
+.join-code-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.follow-label {
+  font-weight: 600;
+  color: #555;
+  font-size: 14px;
+}
+
+.join-code {
+  font-size: 16px;
+  padding: 6px 12px;
+  background: #f5f7fa;
+  border-radius: 6px;
+  border: 1px dashed #c0c4cc;
+  letter-spacing: 0.5px;
+}
+
+.follow-desc {
+  margin-bottom: 14px;
+}
+
+.pick-notice-block,
+.materials-block {
+  margin-top: 12px;
+}
+
+.notice-body {
+  margin-top: 8px;
+  white-space: pre-wrap;
+  line-height: 1.65;
+  color: #444;
+  font-size: 14px;
+}
+
+.materials-pre {
+  margin: 8px 0 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #333;
+  background: #fafafa;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #eee;
+}
+
+.extra-hint {
+  margin: 10px 0;
+  padding: 10px 12px;
+  background: #fff8e6;
+  border-radius: 6px;
+  color: #856404;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.muted-tip {
+  font-size: 13px;
+  color: #888;
+  margin: 8px 0 12px;
+}
+
+.follow-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
 }
 </style>
 
